@@ -1,0 +1,14 @@
+# ignoring node modules
+./client/node_modules
+./server/node_modules
+
+# ignoring build files
+./client/build
+./server/dist
+
+# ignoring .env file
+./client/.env
+./server/.env
+
+# ignoring .DS_Store files
+.DS_Store
