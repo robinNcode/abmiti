@@ -1,10 +1,11 @@
 import { IEntry, IEntryFilters, IPaginationOptions, IPaginatedResult, ISmsParseResult } from '../../shared/types';
 interface CreateEntryDto {
-    type: 'income' | 'expense';
+    type: 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
     amount: number;
     note?: string;
     categoryId: string;
     source?: string;
+    accountId?: string;
     date?: string;
     parsedFromSms?: boolean;
     rawSms?: string;

@@ -6,6 +6,7 @@ const category_service_1 = require("../category/category.service");
 const smsParser_1 = require("../../shared/utils/smsParser");
 const errors_1 = require("../../shared/utils/errors");
 const category_model_1 = require("../category/category.model");
+const account_model_1 = require("../account/account.model");
 const mongoose_1 = require("mongoose");
 exports.entryService = {
     async list(userId, filters, pagination) {
@@ -22,6 +23,13 @@ exports.entryService = {
         const category = await category_model_1.Category.findOne({ _id: dto.categoryId, user: userId });
         if (!category)
             throw new errors_1.NotFoundError('Category');
+        // Verify account belongs to user if provided
+        let account = null;
+        if (dto.accountId) {
+            account = await account_model_1.Account.findOne({ _id: dto.accountId, user: userId });
+            if (!account)
+                throw new errors_1.NotFoundError('Account');
+        }
         return entry_repository_1.entryRepository.create({
             user: new mongoose_1.Types.ObjectId(userId),
             type: dto.type,
@@ -29,6 +37,7 @@ exports.entryService = {
             note: dto.note ?? '',
             category: new mongoose_1.Types.ObjectId(dto.categoryId),
             source: dto.source ?? 'cash',
+            account: account ? new mongoose_1.Types.ObjectId(dto.accountId) : undefined,
             date: dto.date ? new Date(dto.date) : new Date(),
             parsedFromSms: dto.parsedFromSms ?? false,
             rawSms: dto.rawSms,
@@ -52,6 +61,12 @@ exports.entryService = {
             if (!cat)
                 throw new errors_1.NotFoundError('Category');
             updateData.category = new mongoose_1.Types.ObjectId(dto.categoryId);
+        }
+        if (dto.accountId) {
+            const acc = await account_model_1.Account.findOne({ _id: dto.accountId, user: userId });
+            if (!acc)
+                throw new errors_1.NotFoundError('Account');
+            updateData.account = new mongoose_1.Types.ObjectId(dto.accountId);
         }
         const updated = await entry_repository_1.entryRepository.update(id, userId, updateData);
         if (!updated)

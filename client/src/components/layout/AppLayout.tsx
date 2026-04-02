@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, BarChart2, Tag, LogOut, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, List, BarChart2, Tag, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
 import { monthLabel } from '@/utils';
@@ -21,8 +21,8 @@ export default function AppLayout() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-56 shrink-0 flex flex-col border-r border-paper-mist2 bg-white/60 backdrop-blur-sm sticky top-0 h-screen">
+      {/* Sidebar - Hidden on mobile */}
+      <aside className="hidden md:flex w-56 shrink-0 flex-col border-r border-paper-mist2 bg-white/60 backdrop-blur-sm sticky top-0 h-screen">
         {/* Brand */}
         <div className="px-5 pt-6 pb-4 border-b border-paper-mist2">
           <p className="font-display font-black text-2xl text-terra tracking-tight leading-none">abmiti</p>
@@ -74,9 +74,28 @@ export default function AppLayout() {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <main className="flex-1 min-w-0 overflow-y-auto md:pb-0 pb-16">
         <Outlet />
       </main>
+
+      {/* Bottom Navbar - Visible on mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-paper-mist2 flex">
+        {NAV.map(({ to, icon: Icon, label }) => (
+          <NavLink key={to} to={to} end={to === '/'}
+            className={({ isActive }) => cx(
+              'flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs font-medium transition-colors',
+              isActive
+                ? 'text-terra'
+                : 'text-ink/60',
+            )}>
+            <Icon size={18} />
+            <span className="mt-1">{label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Mobile padding for bottom nav */}
+      <div className="md:hidden h-16" />
     </div>
   );
 }

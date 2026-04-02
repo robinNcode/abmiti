@@ -48,8 +48,11 @@ export const sourceLabel: Record<PaymentSource, string> = {
 };
 
 export const typeColor: Record<EntryType, string> = {
-  income:  'text-sage',
-  expense: 'text-terra',
+  income:     'text-sage',
+  expense:    'text-terra',
+  savings:    'text-yellow-600',
+  payable:    'text-red-600',
+  receivable: 'text-blue-600',
 };
 
 // ── clsx tiny util ───────────────────────────────────────────

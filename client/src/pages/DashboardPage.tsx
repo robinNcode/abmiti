@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
 import { useMonthlySummary, useEntries } from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { SummaryCard, PageHeader, Modal, EmptyState, Spinner } from '@/components/ui';

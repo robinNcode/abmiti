@@ -1,4 +1,4 @@
-export type EntryType    = 'income' | 'expense';
+export type EntryType    = 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
 export type PaymentSource = 'bank' | 'bkash' | 'nagad' | 'cash' | 'card' | 'other';
 
 export interface User {
@@ -23,6 +23,7 @@ export interface Entry {
   note: string;
   category: Category;
   source: PaymentSource;
+  account?: Account;
   date: string;
   parsedFromSms: boolean;
   createdAt: string;
@@ -35,6 +36,9 @@ export interface MonthlySummary {
   savingsRate: number;
   incomeCount: number;
   expenseCount: number;
+  savingsCount: number;
+  payableCount: number;
+  receivableCount: number;
 }
 
 export interface CategoryBreakdown {
@@ -50,6 +54,24 @@ export interface MonthlyTrend {
   income: number;
   expense: number;
   savings: number;
+}
+
+export interface YearlySummary {
+  income: number;
+  expense: number;
+  savings: number;
+  savingsRate: number;
+  incomeCount: number;
+  expenseCount: number;
+  savingsCount: number;
+  payableCount: number;
+  receivableCount: number;
+}
+
+export interface AccountSummary {
+  account: { _id: string; name: string; type: string; balance: number };
+  totalSavings: number;
+  count: number;
 }
 
 export interface SmsParseResult {
@@ -80,7 +102,19 @@ export interface CreateEntryDto {
   note?: string;
   categoryId: string;
   source?: PaymentSource;
+  accountId?: string;
   date?: string;
   parsedFromSms?: boolean;
   rawSms?: string;
+}
+
+export interface Account {
+  _id: string;
+  name: string;
+  type: 'bank' | 'mobile';
+  accountNumber?: string;
+  bankName?: string;
+  provider?: 'bkash' | 'nagad' | 'rocket';
+  balance: number;
+  isActive: boolean;
 }

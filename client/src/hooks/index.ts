@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { entriesApi } from '@/api/entries.api';
 import { categoriesApi, summaryApi } from '@/api/summary.api';
+import { accountsApi } from '@/api/accounts.api';
 import { useMonthStore } from '@/store/monthStore';
 import { CreateEntryDto, EntryType } from '@/types';
 
@@ -84,6 +85,21 @@ export const useYearlyTrend = () => {
   });
 };
 
+export const useYearlySummary = () => {
+  const { year } = useMonthStore();
+  return useQuery({
+    queryKey: ['yearly-summary', year],
+    queryFn:  () => summaryApi.yearlySummary(year),
+  });
+};
+
+export const useAccountSummaries = (year?: number) => {
+  return useQuery({
+    queryKey: ['account-summaries', year],
+    queryFn:  () => summaryApi.accounts(year),
+  });
+};
+
 // ── Categories ───────────────────────────────────────────────
 export const useCategories = (type?: EntryType) =>
   useQuery({
@@ -108,6 +124,35 @@ export const useDeleteCategory = () => {
     onError: (e: unknown) => {
       const msg = (e as { response?: { data?: { message?: string } } })
         ?.response?.data?.message ?? 'Cannot delete category';
+      toast.error(msg);
+    },
+  });
+};
+
+// ── Accounts ──────────────────────────────────────────────────
+export const useAccounts = () =>
+  useQuery({
+    queryKey: ['accounts'],
+    queryFn:  () => accountsApi.list(),
+  });
+
+export const useCreateAccount = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: accountsApi.create,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['accounts'] }); toast.success('Account created'); },
+    onError: () => toast.error('Failed to create account'),
+  });
+};
+
+export const useDeleteAccount = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: accountsApi.remove,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['accounts'] }); toast.success('Account deleted'); },
+    onError: (e: unknown) => {
+      const msg = (e as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message ?? 'Cannot delete account';
       toast.error(msg);
     },
   });

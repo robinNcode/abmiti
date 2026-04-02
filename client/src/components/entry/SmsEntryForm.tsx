@@ -2,19 +2,22 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { useParseSms, useCreateEntry, useCategories } from '@/hooks';
-import { SmsParseResult, PaymentSource } from '@/types';
+import { SmsParseResult, PaymentSource, EntryType } from '@/types';
 import { Spinner } from '@/components/ui';
 import { sourceLabel, cx } from '@/utils';
 
-interface Props { onSuccess?: () => void; }
+interface Props { 
+  onSuccess?: () => void; 
+  type?: EntryType;
+}
 
-export default function SmsEntryForm({ onSuccess }: Props) {
+export default function SmsEntryForm({ onSuccess, type }: Props) {
   const [parsed, setParsed] = useState<SmsParseResult | null>(null);
   const [showSms, setShowSms] = useState(true);
 
   const parseSms  = useParseSms();
   const createEntry = useCreateEntry();
-  const { data: categories = [] } = useCategories('income');
+  const { data: categories = [] } = useCategories(type);
 
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: { sms: '', amount: '', note: '', categoryId: '', date: '', source: 'bank' as PaymentSource },
@@ -34,7 +37,7 @@ export default function SmsEntryForm({ onSuccess }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     await createEntry.mutateAsync({
-      type: 'income',
+      type: type || 'income',
       amount: parseFloat(data.amount),
       note: data.note,
       categoryId: data.categoryId || categories[0]?._id,
@@ -134,7 +137,12 @@ export default function SmsEntryForm({ onSuccess }: Props) {
 
       <button type="submit" disabled={createEntry.isPending}
         className={cx('btn-sage w-full', createEntry.isPending && 'opacity-70')}>
-        {createEntry.isPending ? <Spinner /> : '+ Add Income'}
+        {createEntry.isPending ? <Spinner /> : 
+          type === 'income' ? '+ Add Income' :
+          type === 'savings' ? '💰 Add Savings' :
+          type === 'receivable' ? '📥 Add Receivable' :
+          '+ Add Entry'
+        }
       </button>
     </form>
   );
