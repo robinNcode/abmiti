@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { Category } from './category.model';
-import { ICategoryInput, EntryType } from '../../shared/types';
+import { ICategory, ICategoryInput, EntryType } from '../../shared/types';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/utils/errors';
 
 const DEFAULT_CATEGORIES: ICategoryInput[] = [

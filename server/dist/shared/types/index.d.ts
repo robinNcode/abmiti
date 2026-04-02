@@ -20,6 +20,13 @@ export interface ICategory extends Document {
     isDefault: boolean;
     createdAt: Date;
 }
+export interface ICategoryInput {
+    name: string;
+    icon: string;
+    color: string;
+    type: EntryType;
+    isDefault: boolean;
+}
 export interface IEntry extends Document {
     _id: Types.ObjectId;
     user: Types.ObjectId;

@@ -60,7 +60,7 @@ export default function SmsEntryForm({ onSuccess }: Props) {
         {showSms && (
           <div className="space-y-2 animate-fade-in">
             <textarea {...register('sms')} rows={4}
-              placeholder={'BANK ASIA BDT- 47500 Credited to A/C# 108*****493 on: 09/03/2026...\n\nor bKash / Nagad message...'}
+              placeholder={'BANK ASIA BDT- ***** Credited to A/C# 108*****493 on: 09/03/2026...\n\nor bKash / Nagad message...'}
               className="input resize-none text-xs leading-relaxed font-mono" />
             <button type="button" onClick={onParse}
               disabled={parseSms.isPending}
