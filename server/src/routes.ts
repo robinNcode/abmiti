@@ -1,0 +1,15 @@
+import { Express } from 'express';
+import authRouter from './modules/auth/auth.routes';
+import entryRouter from './modules/entry/entry.routes';
+import categoryRouter from './modules/category/category.routes';
+import summaryRouter from './modules/summary/summary.routes';
+
+const API_V1 = '/api/v1';
+
+export const registerRoutes = (app: Express): void => {
+  app.get('/health', (_, res) => res.json({ status: 'ok', service: 'abmiti-api' }));
+  app.use(`${API_V1}/auth`, authRouter);
+  app.use(`${API_V1}/entries`, entryRouter);
+  app.use(`${API_V1}/categories`, categoryRouter);
+  app.use(`${API_V1}/summary`, summaryRouter);
+};

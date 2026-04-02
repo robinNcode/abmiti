@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-body bg-paper text-ink antialiased;
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(194,85,42,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, rgba(212,151,62,0.07) 0%, transparent 55%);
+  }
+
+  h1, h2, h3 { @apply font-display; }
+
+  ::-webkit-scrollbar       { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-paper-mist2 rounded-full; }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl3 border border-paper-mist2 shadow-card;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl
+           bg-terra text-white font-semibold text-sm px-5 py-2.5
+           transition-all duration-200 hover:bg-terra-dark hover:-translate-y-0.5
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0;
+  }
+
+  .btn-sage {
+    @apply btn-primary bg-sage hover:bg-sage-dark;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl
+           border border-paper-mist2 text-ink font-medium text-sm px-4 py-2.5
+           transition-all duration-200 hover:bg-paper-mist hover:border-paper-mist2;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-paper-mist2 bg-paper-mist
+           px-3.5 py-2.5 text-sm text-ink placeholder:text-ink/35
+           focus:outline-none focus:border-mustard focus:bg-white
+           transition-colors duration-200;
+  }
+
+  .label {
+    @apply block text-xs font-semibold uppercase tracking-wider text-ink/50 mb-1.5;
+  }
+
+  .badge-income  { @apply inline-flex items-center gap-1 rounded-full bg-sage/10 text-sage  text-xs font-semibold px-2.5 py-0.5; }
+  .badge-expense { @apply inline-flex items-center gap-1 rounded-full bg-terra/10 text-terra text-xs font-semibold px-2.5 py-0.5; }
+  .badge-bank    { @apply inline-flex items-center gap-1 rounded-full bg-blue-50   text-blue-600 text-xs font-semibold px-2.5 py-0.5; }
+  .badge-bkash   { @apply inline-flex items-center gap-1 rounded-full bg-pink-50   text-bkash    text-xs font-semibold px-2.5 py-0.5; }
+  .badge-nagad   { @apply inline-flex items-center gap-1 rounded-full bg-orange-50 text-nagad    text-xs font-semibold px-2.5 py-0.5; }
+  .badge-cash    { @apply inline-flex items-center gap-1 rounded-full bg-paper-mist text-ink/60   text-xs font-semibold px-2.5 py-0.5; }
+}
