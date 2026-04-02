@@ -19,6 +19,9 @@ exports.summaryService = {
         ]);
         const incomeRow = result.find((r) => r._id === 'income');
         const expenseRow = result.find((r) => r._id === 'expense');
+        const savingsRow = result.find((r) => r._id === 'savings');
+        const receivableRow = result.find((r) => r._id === 'receivable');
+        const payableRow = result.find((r) => r._id === 'payable');
         const income = incomeRow?.total ?? 0;
         const expense = expenseRow?.total ?? 0;
         const savings = income - expense;
@@ -29,6 +32,9 @@ exports.summaryService = {
             savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
             incomeCount: incomeRow?.count ?? 0,
             expenseCount: expenseRow?.count ?? 0,
+            savingsCount: savingsRow?.count ?? 0,
+            receivableCount: receivableRow?.count ?? 0,
+            payableCount: payableRow?.count ?? 0,
         };
     },
     async categoryBreakdown(userId, month, year) {
@@ -85,6 +91,62 @@ exports.summaryService = {
         });
         Object.values(map).forEach((m) => { m.savings = m.income - m.expense; });
         return Object.values(map);
+    },
+    async yearly(userId, year) {
+        const start = new Date(year, 0, 1);
+        const end = new Date(year, 11, 31, 23, 59, 59);
+        const result = await entry_model_1.Entry.aggregate([
+            { $match: { user: new mongoose_1.Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
+            {
+                $group: {
+                    _id: '$type',
+                    total: { $sum: '$amount' },
+                    count: { $sum: 1 },
+                },
+            },
+        ]);
+        const incomeRow = result.find((r) => r._id === 'income');
+        const expenseRow = result.find((r) => r._id === 'expense');
+        const savingsRow = result.find((r) => r._id === 'savings');
+        const receivableRow = result.find((r) => r._id === 'receivable');
+        const payableRow = result.find((r) => r._id === 'payable');
+        const income = incomeRow?.total ?? 0;
+        const expense = expenseRow?.total ?? 0;
+        const savings = income - expense;
+        return {
+            income,
+            expense,
+            savings,
+            savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
+            incomeCount: incomeRow?.count ?? 0,
+            expenseCount: expenseRow?.count ?? 0,
+            savingsCount: savingsRow?.count ?? 0,
+            receivableCount: receivableRow?.count ?? 0,
+            payableCount: payableRow?.count ?? 0,
+        };
+    },
+    async accountSummaries(userId, year) {
+        const match = { user: new mongoose_1.Types.ObjectId(userId), type: 'savings' };
+        if (year) {
+            match.date = { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31, 23, 59, 59) };
+        }
+        const rows = await entry_model_1.Entry.aggregate([
+            { $match: match },
+            { $group: { _id: '$account', totalSavings: { $sum: '$amount' }, count: { $sum: 1 } } },
+            { $lookup: { from: 'accounts', localField: '_id', foreignField: '_id', as: 'account' } },
+            { $unwind: '$account' },
+            { $sort: { totalSavings: -1 } },
+        ]);
+        return rows.map((r) => ({
+            account: {
+                _id: String(r.account._id),
+                name: r.account.name,
+                type: r.account.type,
+                balance: r.account.balance,
+            },
+            totalSavings: r.totalSavings,
+            count: r.count,
+        }));
     },
 };
 //# sourceMappingURL=summary.service.js.map

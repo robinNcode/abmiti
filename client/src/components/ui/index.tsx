@@ -10,7 +10,7 @@ export const Spinner = ({ className }: { className?: string }) => (
 export const PageHeader = ({ title, subtitle, action }: {
   title: string; subtitle?: string; action?: React.ReactNode;
 }) => (
-  <div className="flex items-start justify-between px-8 pt-8 pb-6">
+  <div className="flex items-start justify-between px-4 md:px-8 pt-8 pb-6">
     <div>
       <h1 className="font-display text-2xl font-bold tracking-tight">{title}</h1>
       {subtitle && <p className="text-sm text-ink/50 mt-0.5">{subtitle}</p>}

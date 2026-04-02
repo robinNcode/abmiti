@@ -1,4 +1,4 @@
-import { useMonthlySummary, useCategoryBreakdown } from '@/hooks';
+import { useMonthlySummary } from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { PageHeader, SummaryCard } from '@/components/ui';
 import YearlyTrendChart from '@/components/charts/YearlyTrendChart';

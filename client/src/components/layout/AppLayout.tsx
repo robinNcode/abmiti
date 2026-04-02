@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, BarChart2, Tag, LogOut, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
 import { monthLabel } from '@/utils';
@@ -16,13 +17,18 @@ export default function AppLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { month, year, prev, next } = useMonthStore();
+  const { t, i18n } = useTranslation();
 
   const handleLogout = () => { logout(); navigate('/login'); };
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'bn' : 'en';
+    i18n.changeLanguage(newLang);
+  };
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-56 shrink-0 flex flex-col border-r border-paper-mist2 bg-white/60 backdrop-blur-sm sticky top-0 h-screen">
+      {/* Sidebar - Hidden on mobile */}
+      <aside className="hidden md:flex w-56 shrink-0 flex-col border-r border-paper-mist2 bg-white/60 backdrop-blur-sm sticky top-0 h-screen">
         {/* Brand */}
         <div className="px-5 pt-6 pb-4 border-b border-paper-mist2">
           <p className="font-display font-black text-2xl text-terra tracking-tight leading-none">abmiti</p>
@@ -31,7 +37,7 @@ export default function AppLayout() {
 
         {/* Month nav */}
         <div className="px-4 py-3 border-b border-paper-mist2">
-          <p className="label mb-1">Period</p>
+          <p className="label mb-1">{t('Period')}</p>
           <div className="flex items-center justify-between gap-1">
             <button onClick={prev} className="w-7 h-7 rounded-lg border border-paper-mist2 hover:bg-paper-mist flex items-center justify-center text-sm transition-colors">‹</button>
             <span className="text-xs font-semibold text-ink/70 flex-1 text-center">{monthLabel(month, year)}</span>
@@ -50,7 +56,7 @@ export default function AppLayout() {
                   : 'text-ink/60 hover:text-ink hover:bg-paper-mist',
               )}>
               <Icon size={16} />
-              {label}
+              {t(label)}
             </NavLink>
           ))}
         </nav>
@@ -66,17 +72,37 @@ export default function AppLayout() {
               <p className="text-xs text-ink/40 truncate">{user?.email}</p>
             </div>
           </div>
+          <button onClick={toggleLanguage}
+            className="flex items-center gap-2 text-xs text-ink/40 hover:text-terra transition-colors w-full mb-2">
+            <Languages size={13} /> {i18n.language === 'en' ? 'বাংলা' : 'English'}
+          </button>
           <button onClick={handleLogout}
             className="flex items-center gap-2 text-xs text-ink/40 hover:text-terra transition-colors w-full">
-            <LogOut size={13} /> Sign out
+            <LogOut size={13} /> {t('Sign out')}
           </button>
         </div>
       </aside>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <main className="flex-1 min-w-0 overflow-y-auto md:pb-0 pb-16">
         <Outlet />
       </main>
+
+      {/* Bottom Navbar - Visible on mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-paper-mist2 flex">
+        {NAV.map(({ to, icon: Icon, label }) => (
+          <NavLink key={to} to={to} end={to === '/'}
+            className={({ isActive }) => cx(
+              'flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs font-medium transition-colors',
+              isActive
+                ? 'text-terra'
+                : 'text-ink/60',
+            )}>
+            <Icon size={18} />
+            <span className="mt-1">{t(label)}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }

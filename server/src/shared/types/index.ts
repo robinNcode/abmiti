@@ -1,7 +1,7 @@
 import { Document, Types } from 'mongoose';
 
 // ── Domain enums ─────────────────────────────────────────────
-export type EntryType = 'income' | 'expense';
+export type EntryType = 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
 export type PaymentSource = 'bank' | 'bkash' | 'nagad' | 'cash' | 'card' | 'other';
 
 // ── Entity interfaces ────────────────────────────────────────
@@ -42,11 +42,36 @@ export interface IEntry extends Document {
   note: string;
   category: Types.ObjectId;
   source: PaymentSource;
+  account?: Types.ObjectId; // For savings entries
   date: Date;
   parsedFromSms: boolean;
   rawSms?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IAccount extends Document {
+  _id: Types.ObjectId;
+  user: Types.ObjectId;
+  name: string;
+  type: 'bank' | 'mobile';
+  accountNumber?: string;
+  bankName?: string;
+  provider?: 'bkash' | 'nagad' | 'rocket';
+  balance: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IAccountInput {
+  name: string;
+  type: 'bank' | 'mobile';
+  accountNumber?: string;
+  bankName?: string;
+  provider?: 'bkash' | 'nagad' | 'rocket';
+  balance: number;
+  isActive: boolean;
 }
 
 // ── Repository interfaces (Dependency Inversion) ─────────────

@@ -1,37 +1,40 @@
 import { useForm } from 'react-hook-form';
-import { useCreateEntry, useCategories } from '@/hooks';
-import { PaymentSource } from '@/types';
+import { useCreateEntry, useCategories, useAccounts } from '@/hooks';
+import { PaymentSource, EntryType } from '@/types';
 import { Spinner } from '@/components/ui';
 import { sourceLabel, cx } from '@/utils';
 
-const EXPENSE_CATS = ['🏠','🍔','🚌','💡','🎓','🏥','🛍️','🎬','✈️','💳','📦'];
+interface Props { 
+  onSuccess?: () => void; 
+  type?: EntryType;
+}
 
-interface Props { onSuccess?: () => void; }
-
-export default function ExpenseForm({ onSuccess }: Props) {
+export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
   const { register, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
-      amount: '', note: '', categoryId: '',
+      amount: '', note: '', categoryId: '', accountId: '',
       source: 'cash' as PaymentSource,
       date: new Date().toISOString().split('T')[0],
     },
   });
 
   const createEntry = useCreateEntry();
-  const { data: categories = [] } = useCategories('expense');
+  const { data: categories = [] } = useCategories(type);
+  const { data: accounts = [] } = useAccounts();
   const selectedCat = watch('categoryId');
 
   const onSubmit = handleSubmit(async (data) => {
     await createEntry.mutateAsync({
-      type: 'expense',
+      type,
       amount: parseFloat(data.amount),
       note: data.note,
       categoryId: data.categoryId || categories[0]?._id,
       source: data.source,
       date: data.date,
+      accountId: data.accountId,
     });
     reset({
-      amount: '', note: '', categoryId: '',
+      amount: '', note: '', categoryId: '', accountId: '',
       source: 'cash',
       date: new Date().toISOString().split('T')[0],
     });
@@ -95,9 +98,29 @@ export default function ExpenseForm({ onSuccess }: Props) {
         </div>
       </div>
 
+      {/* Account selection - only for savings type */}
+      {type === 'savings' && (
+        <div>
+          <label className="label">Account</label>
+          <select {...register('accountId')} className="input">
+            {accounts.map((acc) => (
+              <option key={acc._id} value={acc._id}>
+                {acc.name} ({acc.balance} BDT)
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <button type="submit" disabled={createEntry.isPending}
         className={cx('btn-primary w-full mt-1', createEntry.isPending && 'opacity-70')}>
-        {createEntry.isPending ? <Spinner /> : '− Add Expense'}
+        {createEntry.isPending ? <Spinner /> : 
+          type === 'expense' ? '− Add Expense' :
+          type === 'savings' ? '💰 Add Savings' :
+          type === 'payable' ? '📤 Add Payable' :
+          type === 'receivable' ? '📥 Add Receivable' :
+          '− Add Entry'
+        }
       </button>
     </form>
   );

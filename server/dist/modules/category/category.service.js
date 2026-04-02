@@ -20,6 +20,15 @@ const DEFAULT_CATEGORIES = [
     { name: 'Travel', icon: '✈️', color: '#1abc9c', type: 'expense', isDefault: true },
     { name: 'Loan', icon: '💳', color: '#c0392b', type: 'expense', isDefault: true },
     { name: 'Other', icon: '📦', color: '#95a5a6', type: 'expense', isDefault: true },
+    { name: 'Bank Savings', icon: '🏦', color: '#27ae60', type: 'savings', isDefault: true },
+    { name: 'Mobile Savings', icon: '📱', color: '#f1c40f', type: 'savings', isDefault: true },
+    { name: 'Other Savings', icon: '💰', color: '#e67e22', type: 'savings', isDefault: true },
+    { name: 'Loan Payable', icon: '📤', color: '#e74c3c', type: 'payable', isDefault: true },
+    { name: 'Bill Payable', icon: '📄', color: '#f39c12', type: 'payable', isDefault: true },
+    { name: 'Other Payable', icon: '📦', color: '#95a5a6', type: 'payable', isDefault: true },
+    { name: 'Loan Receivable', icon: '📥', color: '#27ae60', type: 'receivable', isDefault: true },
+    { name: 'Payment Receivable', icon: '💳', color: '#3498db', type: 'receivable', isDefault: true },
+    { name: 'Other Receivable', icon: '💰', color: '#9b59b6', type: 'receivable', isDefault: true },
 ];
 exports.categoryService = {
     async seedDefaults(userId) {

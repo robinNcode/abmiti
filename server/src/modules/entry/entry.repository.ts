@@ -35,6 +35,7 @@ export const entryRepository = {
     const [data, total] = await Promise.all([
       Entry.find(query)
         .populate('category', 'name icon color')
+        .populate('account', 'name type accountNumber bankName provider balance')
         .sort({ date: -1, createdAt: -1 })
         .skip(skip)
         .limit(pagination.limit),
@@ -45,12 +46,16 @@ export const entryRepository = {
   },
 
   async findById(id: string, userId: string): Promise<IEntry | null> {
-    return Entry.findOne({ _id: id, user: userId }).populate('category', 'name icon color');
+    return Entry.findOne({ _id: id, user: userId })
+      .populate('category', 'name icon color')
+      .populate('account', 'name type accountNumber bankName provider balance');
   },
 
   async create(data: Partial<IEntry>): Promise<IEntry> {
     const entry = await Entry.create(data);
-    return Entry.findById(entry._id).populate('category', 'name icon color') as Promise<IEntry>;
+    return Entry.findById(entry._id)
+      .populate('category', 'name icon color')
+      .populate('account', 'name type accountNumber bankName provider balance') as Promise<IEntry>;
   },
 
   async update(id: string, userId: string, data: Partial<IEntry>): Promise<IEntry | null> {
@@ -58,7 +63,9 @@ export const entryRepository = {
       { _id: id, user: userId },
       { $set: data },
       { new: true, runValidators: true },
-    ).populate('category', 'name icon color');
+    )
+    .populate('category', 'name icon color')
+    .populate('account', 'name type accountNumber bankName provider balance');
   },
 
   async remove(id: string, userId: string): Promise<boolean> {

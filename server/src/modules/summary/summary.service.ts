@@ -8,6 +8,9 @@ interface MonthlySummary {
   savingsRate: number;
   incomeCount: number;
   expenseCount: number;
+  savingsCount: number;
+  payableCount: number;
+  receivableCount: number;
 }
 
 interface CategoryBreakdown {
@@ -23,6 +26,24 @@ interface MonthlyTrend {
   income: number;
   expense: number;
   savings: number;
+}
+
+interface YearlySummary {
+  income: number;
+  expense: number;
+  savings: number;
+  savingsRate: number;
+  incomeCount: number;
+  expenseCount: number;
+  savingsCount: number;
+  payableCount: number;
+  receivableCount: number;
+}
+
+interface AccountSummary {
+  account: { _id: string; name: string; type: string; balance: number };
+  totalSavings: number;
+  count: number;
 }
 
 export const summaryService = {
@@ -43,6 +64,9 @@ export const summaryService = {
 
     const incomeRow  = result.find((r) => r._id === 'income');
     const expenseRow = result.find((r) => r._id === 'expense');
+    const savingsRow = result.find((r) => r._id === 'savings');
+    const receivableRow = result.find((r) => r._id === 'receivable');
+    const payableRow = result.find((r) => r._id === 'payable');
     const income  = incomeRow?.total  ?? 0;
     const expense = expenseRow?.total ?? 0;
     const savings = income - expense;
@@ -54,6 +78,9 @@ export const summaryService = {
       savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
       incomeCount:  incomeRow?.count  ?? 0,
       expenseCount: expenseRow?.count ?? 0,
+      savingsCount: savingsRow?.count ?? 0,
+      receivableCount: receivableRow?.count ?? 0,
+      payableCount: payableRow?.count ?? 0,
     };
   },
 
@@ -118,5 +145,68 @@ export const summaryService = {
     Object.values(map).forEach((m) => { m.savings = m.income - m.expense; });
 
     return Object.values(map);
+  },
+
+  async yearly(userId: string, year: number): Promise<YearlySummary> {
+    const start = new Date(year, 0, 1);
+    const end   = new Date(year, 11, 31, 23, 59, 59);
+
+    const result = await Entry.aggregate([
+      { $match: { user: new Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
+      {
+        $group: {
+          _id: '$type',
+          total: { $sum: '$amount' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const incomeRow  = result.find((r) => r._id === 'income');
+    const expenseRow = result.find((r) => r._id === 'expense');
+    const savingsRow = result.find((r) => r._id === 'savings');
+    const receivableRow = result.find((r) => r._id === 'receivable');
+    const payableRow = result.find((r) => r._id === 'payable');
+    const income  = incomeRow?.total  ?? 0;
+    const expense = expenseRow?.total ?? 0;
+    const savings = income - expense;
+
+    return {
+      income,
+      expense,
+      savings,
+      savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
+      incomeCount:  incomeRow?.count  ?? 0,
+      expenseCount: expenseRow?.count ?? 0,
+      savingsCount: savingsRow?.count ?? 0,
+      receivableCount: receivableRow?.count ?? 0,
+      payableCount: payableRow?.count ?? 0,
+    };
+  },
+
+  async accountSummaries(userId: string, year?: number): Promise<AccountSummary[]> {
+    const match: any = { user: new Types.ObjectId(userId), type: 'savings' };
+    if (year) {
+      match.date = { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31, 23, 59, 59) };
+    }
+
+    const rows = await Entry.aggregate([
+      { $match: match },
+      { $group: { _id: '$account', totalSavings: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $lookup: { from: 'accounts', localField: '_id', foreignField: '_id', as: 'account' } },
+      { $unwind: '$account' },
+      { $sort: { totalSavings: -1 } },
+    ]);
+
+    return rows.map((r) => ({
+      account: {
+        _id:    String(r.account._id),
+        name:   r.account.name,
+        type:   r.account.type,
+        balance: r.account.balance,
+      },
+      totalSavings: r.totalSavings,
+      count:        r.count,
+    }));
   },
 };

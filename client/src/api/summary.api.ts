@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { Category, EntryType, MonthlySummary, CategoryBreakdown, MonthlyTrend } from '@/types';
+import { Category, EntryType, MonthlySummary, CategoryBreakdown, MonthlyTrend, YearlySummary, AccountSummary } from '@/types';
 
 export const categoriesApi = {
   list: (type?: EntryType) =>
@@ -27,5 +27,13 @@ export const summaryApi = {
 
   yearly: (year: number) =>
     apiClient.get<{ data: MonthlyTrend[] }>('/summary/yearly', { params: { year } })
+      .then((r) => r.data.data),
+
+  yearlySummary: (year: number) =>
+    apiClient.get<{ data: YearlySummary }>('/summary/yearly-summary', { params: { year } })
+      .then((r) => r.data.data),
+
+  accounts: (year?: number) =>
+    apiClient.get<{ data: AccountSummary[] }>('/summary/accounts', { params: year ? { year } : {} })
       .then((r) => r.data.data),
 };

@@ -6,14 +6,16 @@ import {
   IEntry, IEntryFilters, IPaginationOptions, IPaginatedResult, ISmsParseResult,
 } from '../../shared/types';
 import { Category } from '../category/category.model';
+import { Account } from '../account/account.model';
 import { Types } from 'mongoose';
 
 interface CreateEntryDto {
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
   amount: number;
   note?: string;
   categoryId: string;
   source?: string;
+  accountId?: string;
   date?: string;
   parsedFromSms?: boolean;
   rawSms?: string;
@@ -39,6 +41,13 @@ export const entryService = {
     const category = await Category.findOne({ _id: dto.categoryId, user: userId });
     if (!category) throw new NotFoundError('Category');
 
+    // Verify account belongs to user if provided
+    let account = null;
+    if (dto.accountId) {
+      account = await Account.findOne({ _id: dto.accountId, user: userId });
+      if (!account) throw new NotFoundError('Account');
+    }
+
     return entryRepository.create({
       user: new Types.ObjectId(userId),
       type: dto.type,
@@ -46,6 +55,7 @@ export const entryService = {
       note: dto.note ?? '',
       category: new Types.ObjectId(dto.categoryId),
       source: (dto.source as IEntry['source']) ?? 'cash',
+      account: account ? new Types.ObjectId(dto.accountId!) : undefined,
       date: dto.date ? new Date(dto.date) : new Date(),
       parsedFromSms: dto.parsedFromSms ?? false,
       rawSms: dto.rawSms,
@@ -65,6 +75,11 @@ export const entryService = {
       const cat = await Category.findOne({ _id: dto.categoryId, user: userId });
       if (!cat) throw new NotFoundError('Category');
       updateData.category = new Types.ObjectId(dto.categoryId);
+    }
+    if (dto.accountId) {
+      const acc = await Account.findOne({ _id: dto.accountId, user: userId });
+      if (!acc) throw new NotFoundError('Account');
+      updateData.account = new Types.ObjectId(dto.accountId);
     }
 
     const updated = await entryRepository.update(id, userId, updateData);

@@ -39,5 +39,25 @@ router.get('/yearly', async (req, res, next) => {
         next(err);
     }
 });
+router.get('/yearly-summary', async (req, res, next) => {
+    try {
+        const year = parseInt(String(req.query.year ?? now.getFullYear()), 10);
+        const data = await summary_service_1.summaryService.yearly(req.user.userId, year);
+        (0, response_1.sendSuccess)(res, data);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+router.get('/accounts', async (req, res, next) => {
+    try {
+        const year = req.query.year ? parseInt(String(req.query.year), 10) : undefined;
+        const data = await summary_service_1.summaryService.accountSummaries(req.user.userId, year);
+        (0, response_1.sendSuccess)(res, data);
+    }
+    catch (err) {
+        next(err);
+    }
+});
 exports.default = router;
 //# sourceMappingURL=summary.routes.js.map

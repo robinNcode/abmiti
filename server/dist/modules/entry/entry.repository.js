@@ -33,6 +33,7 @@ exports.entryRepository = {
         const [data, total] = await Promise.all([
             entry_model_1.Entry.find(query)
                 .populate('category', 'name icon color')
+                .populate('account', 'name type accountNumber bankName provider balance')
                 .sort({ date: -1, createdAt: -1 })
                 .skip(skip)
                 .limit(pagination.limit),
@@ -41,14 +42,20 @@ exports.entryRepository = {
         return (0, pagination_1.buildPaginatedResult)(data, total, pagination);
     },
     async findById(id, userId) {
-        return entry_model_1.Entry.findOne({ _id: id, user: userId }).populate('category', 'name icon color');
+        return entry_model_1.Entry.findOne({ _id: id, user: userId })
+            .populate('category', 'name icon color')
+            .populate('account', 'name type accountNumber bankName provider balance');
     },
     async create(data) {
         const entry = await entry_model_1.Entry.create(data);
-        return entry_model_1.Entry.findById(entry._id).populate('category', 'name icon color');
+        return entry_model_1.Entry.findById(entry._id)
+            .populate('category', 'name icon color')
+            .populate('account', 'name type accountNumber bankName provider balance');
     },
     async update(id, userId, data) {
-        return entry_model_1.Entry.findOneAndUpdate({ _id: id, user: userId }, { $set: data }, { new: true, runValidators: true }).populate('category', 'name icon color');
+        return entry_model_1.Entry.findOneAndUpdate({ _id: id, user: userId }, { $set: data }, { new: true, runValidators: true })
+            .populate('category', 'name icon color')
+            .populate('account', 'name type accountNumber bankName provider balance');
     },
     async remove(id, userId) {
         const result = await entry_model_1.Entry.deleteOne({ _id: id, user: userId });
