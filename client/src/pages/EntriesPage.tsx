@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useEntries } from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { PageHeader, Modal, EmptyState, Spinner } from '@/components/ui';
@@ -15,6 +16,7 @@ export default function EntriesPage() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [page, setPage] = useState(1);
   const [modal, setModal] = useState<'income' | 'expense' | 'savings' | 'payable' | 'receivable' | null>(null);
+  const { t } = useTranslation();
 
   const { data, isLoading } = useEntries({
     month, year,
@@ -27,35 +29,35 @@ export default function EntriesPage() {
   const totalPages = data?.meta?.totalPages ?? 1;
   const total      = data?.meta?.total ?? 0;
 
-  const filterBtns: { key: TypeFilter; label: string }[] = [
-    { key: 'all',        label: 'All' },
-    { key: 'income',     label: '↑ Income' },
-    { key: 'expense',    label: '↓ Expense' },
-    { key: 'savings',    label: '💰 Savings' },
-    { key: 'payable',    label: '📤 Payable' },
-    { key: 'receivable', label: '📥 Receivable' },
+  const filterBtns: { key: TypeFilter; label: string; transKey: string }[] = [
+    { key: 'all',        label: 'All', transKey: 'all' },
+    { key: 'income',     label: '↑ Income', transKey: 'income' },
+    { key: 'expense',    label: '↓ Expense', transKey: 'expense' },
+    { key: 'savings',    label: '💰 Savings', transKey: 'savings' },
+    { key: 'payable',    label: '📤 Payable', transKey: 'payable' },
+    { key: 'receivable', label: '📥 Receivable', transKey: 'receivable' },
   ];
 
   return (
     <div className="min-h-full">
       <PageHeader
-        title="Entries — খাতা"
+        title={`${t('entriesTitle')} — খাতা`}
         subtitle={`${total} entries this month`}
         action={
-          <div className="flex gap-2">
-            <button onClick={() => setModal('income')}     className="btn-sage text-sm">↑ Add Income</button>
-            <button onClick={() => setModal('expense')}    className="btn-primary text-sm">↓ Add Expense</button>
-            <button onClick={() => setModal('savings')}    className="btn-secondary text-sm">💰 Add Savings</button>
-            <button onClick={() => setModal('payable')}    className="btn-warning text-sm">📤 Add Payable</button>
-            <button onClick={() => setModal('receivable')} className="btn-info text-sm">📥 Add Receivable</button>
+          <div className="flex flex-col md:flex-row gap-2">
+            <button onClick={() => setModal('income')}     className="btn-sage text-sm">↑ {t('addIncome')}</button>
+            <button onClick={() => setModal('expense')}    className="btn-primary text-sm">↓ {t('addExpense')}</button>
+            <button onClick={() => setModal('savings')}    className="btn-secondary text-sm">💰 {t('addSavings')}</button>
+            <button onClick={() => setModal('payable')}    className="btn-warning text-sm">📤 {t('addPayable')}</button>
+            <button onClick={() => setModal('receivable')} className="btn-info text-sm">📥 {t('addReceivable')}</button>
           </div>
         }
       />
 
-      <div className="px-8 pb-10 space-y-4">
+      <div className="px-4 md:px-8 pb-10 space-y-4">
         {/* Filters */}
-        <div className="flex items-center gap-2">
-          {filterBtns.map(({ key, label }) => (
+        <div className="flex flex-wrap items-center gap-2">
+          {filterBtns.map(({ key, transKey }) => (
             <button key={key} onClick={() => { setTypeFilter(key); setPage(1); }}
               className={cx(
                 'px-4 py-2 rounded-xl text-sm font-medium border transition-all',
@@ -67,7 +69,7 @@ export default function EntriesPage() {
                 typeFilter === key && key === 'receivable' ? 'bg-blue-500 text-white border-blue-500' :
                 'border-paper-mist2 text-ink/60 hover:bg-paper-mist',
               )}>
-              {label}
+              {t(transKey)}
             </button>
           ))}
         </div>
@@ -102,25 +104,25 @@ export default function EntriesPage() {
               )}
             </>
           ) : (
-            <EmptyState icon="📒" title="No entries found" subtitle="Try changing filters or add a new entry" />
+            <EmptyState icon="📒" title={t('noEntries')} subtitle={t('noEntriesSubtitle')} />
           )}
         </div>
       </div>
 
-      <Modal open={modal === 'income'}  onClose={() => setModal(null)} title="Add Income — আয়">
+      <Modal open={modal === 'income'}  onClose={() => setModal(null)} title={`${t('addIncomeTitle')} — আয়`}>
         <SmsEntryForm onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title="Add Expense — বেয়">
+      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title={`${t('addExpenseTitle')} — বেয়`}>
         <ExpenseForm onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'savings'} onClose={() => setModal(null)} title="Add Savings — সঞ্চয়">
-        <SmsEntryForm type="savings" onSuccess={() => setModal(null)} />
+      <Modal open={modal === 'savings'} onClose={() => setModal(null)} title={`${t('addSavingsTitle')} — সঞ্চয়`}>
+        <ExpenseForm type="savings" onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'payable'} onClose={() => setModal(null)} title="Add Payable — প্রদানযোগ্য">
+      <Modal open={modal === 'payable'} onClose={() => setModal(null)} title={`${t('addPayableTitle')} — প্রদানযোগ্য`}>
         <ExpenseForm type="payable" onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'receivable'} onClose={() => setModal(null)} title="Add Receivable — প্রাপ্তযোগ্য">
-        <SmsEntryForm type="receivable" onSuccess={() => setModal(null)} />
+      <Modal open={modal === 'receivable'} onClose={() => setModal(null)} title={`${t('addReceivableTitle')} — প্রাপ্তযোগ্য`}>
+        <ExpenseForm type="receivable" onSuccess={() => setModal(null)} />
       </Modal>
     </div>
   );
