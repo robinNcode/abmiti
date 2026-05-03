@@ -101,7 +101,7 @@ const resources = {
       period: 'সময়কাল',
       all: 'সব',
       income: 'আয়',
-      expense: 'বেয়',
+      expense: 'ব্যয়',
       savings: 'সঞ্চয়',
       payable: 'প্রদানযোগ্য',
       receivable: 'প্রাপ্তযোগ্য',
@@ -110,7 +110,7 @@ const resources = {
       // Entries
       entriesTitle: 'এন্ট্রি',
       addIncome: 'আয় যোগ করুন',
-      addExpense: 'বেয় যোগ করুন',
+      addExpense: 'ব্যয় যোগ করুন',
       addSavings: 'সঞ্চয় যোগ করুন',
       addPayable: 'প্রদানযোগ্য যোগ করুন',
       addReceivable: 'প্রাপ্তযোগ্য যোগ করুন',
@@ -119,7 +119,7 @@ const resources = {
 
       // Modals
       addIncomeTitle: 'আয় যোগ করুন',
-      addExpenseTitle: 'বেয় যোগ করুন',
+      addExpenseTitle: 'ব্যয় যোগ করুন',
       addSavingsTitle: 'সঞ্চয় যোগ করুন',
       addPayableTitle: 'প্রদানযোগ্য যোগ করুন',
       addReceivableTitle: 'প্রাপ্তযোগ্য যোগ করুন',
@@ -150,7 +150,7 @@ const resources = {
 
       // Dashboard
       totalIncome: 'মোট আয়',
-      totalExpense: 'মোট বেয়',
+      totalExpense: 'মোট ব্যয়',
       totalSavings: 'মোট সঞ্চয়',
       netSavings: 'নেট সঞ্চয়',
       savingsRate: 'সঞ্চয় হার',

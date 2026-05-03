@@ -22,7 +22,7 @@ export default function AnalyticsPage() {
           <SummaryCard label="Income" labelBn="আয়" icon="↑" accent="income"
             value={formatBDT(summary?.income ?? 0)}
             sub={`${monthLabel(month, year)}`} />
-          <SummaryCard label="Expense" labelBn="বেয়" icon="↓" accent="expense"
+          <SummaryCard label="Expense" labelBn="ব্যয়" icon="↓" accent="expense"
             value={formatBDT(summary?.expense ?? 0)}
             sub={`${summary?.expenseCount ?? 0} transactions`} />
           <SummaryCard label="Savings" labelBn="মিতি" icon="◈" accent="savings"
@@ -57,10 +57,9 @@ export default function AnalyticsPage() {
               {summary ? (
                 <>
                   <div className="text-center py-4">
-                    <div className={`text-5xl font-display font-black ${
-                      summary.savingsRate >= 20 ? 'text-sage' :
-                      summary.savingsRate >= 10 ? 'text-mustard' : 'text-terra'
-                    }`}>
+                    <div className={`text-5xl font-display font-black ${summary.savingsRate >= 20 ? 'text-sage' :
+                        summary.savingsRate >= 10 ? 'text-mustard' : 'text-terra'
+                      }`}>
                       {summary.savingsRate}%
                     </div>
                     <p className="text-sm text-ink/50 mt-1">Monthly Savings Rate</p>
@@ -68,19 +67,18 @@ export default function AnalyticsPage() {
 
                   <div className="h-3 bg-paper-mist rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-700 ${
-                        summary.savingsRate >= 20 ? 'bg-sage' :
-                        summary.savingsRate >= 10 ? 'bg-mustard' : 'bg-terra'
-                      }`}
+                      className={`h-full rounded-full transition-all duration-700 ${summary.savingsRate >= 20 ? 'bg-sage' :
+                          summary.savingsRate >= 10 ? 'bg-mustard' : 'bg-terra'
+                        }`}
                       style={{ width: `${Math.min(100, summary.savingsRate)}%` }}
                     />
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2">
                     {[
-                      { label: 'Poor',   range: '< 10%',  color: 'text-terra' },
-                      { label: 'Good',   range: '10–20%', color: 'text-mustard' },
-                      { label: 'Great',  range: '> 20%',  color: 'text-sage' },
+                      { label: 'Poor', range: '< 10%', color: 'text-terra' },
+                      { label: 'Good', range: '10–20%', color: 'text-mustard' },
+                      { label: 'Great', range: '> 20%', color: 'text-sage' },
                     ].map(({ label, range, color }) => (
                       <div key={label} className="bg-paper-mist rounded-lg py-2">
                         <p className={`font-bold ${color}`}>{label}</p>

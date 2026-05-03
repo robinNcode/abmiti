@@ -1,4 +1,4 @@
-# abmiti — আয় বেয় মিতি
+# abmiti — আয় ব্যয় মিতি
 
 > Personal finance tracker: Income · Expense · Savings
 
