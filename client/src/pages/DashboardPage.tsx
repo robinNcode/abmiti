@@ -6,7 +6,7 @@ import SmsEntryForm from '@/components/entry/SmsEntryForm';
 import ExpenseForm from '@/components/entry/ExpenseForm';
 import EntryRow from '@/components/entry/EntryRow';
 import CategoryBreakdown from '@/components/charts/CategoryBreakdown';
-import { formatBDT, monthLabel } from '@/utils';
+import { formatBDT, formatBDTSigned, monthLabel } from '@/utils';
 
 type Tab = 'income' | 'expense';
 
@@ -33,9 +33,26 @@ export default function DashboardPage() {
 
       <div className="px-8 space-y-6 pb-10">
         {/* Summary cards */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          {summary && summary.budget > 0 && (
+            <div className="card p-6 border-2 border-sage bg-sage/5 col-span-2 md:col-span-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">Remaining Budget</p>
+              <p className="font-display text-4xl font-black text-sage mt-3 tracking-tight">{formatBDT(summary.remainingBudget)}</p>
+              <p className="text-xs text-ink/40 mt-2">{summary.budgetUsed}% of budget used</p>
+            </div>
+          )}
+          {summary && summary.income > 0 && (
+            <div className="card p-6 border-2 border-blue-500 bg-blue-50/50 col-span-2 md:col-span-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">Savings</p>
+              <p className="font-display text-4xl font-black text-blue-600 mt-3 tracking-tight">{formatBDTSigned(summary.savings)}</p>
+              <p className="text-xs text-ink/40 mt-2">{summary.savingsRate}% savings rate</p>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
           {sumLoading ? (
-            Array(3).fill(0).map((_, i) => (
+            Array(4).fill(0).map((_, i) => (
               <div key={i} className="card p-5 h-28 animate-pulse bg-paper-mist" />
             ))
           ) : (
@@ -51,28 +68,30 @@ export default function DashboardPage() {
                 sub={`${summary?.expenseCount ?? 0} entries`}
               />
               <SummaryCard
+                label="Investment" labelBn="বিনিয়োগ" icon="💼" accent="savings"
+                value={formatBDT(summary?.investment ?? 0)}
+                sub={`${summary?.investmentCount ?? 0} entries`}
+              />
+              <SummaryCard
                 label="Savings" labelBn="মিতি" icon="◈" accent="savings"
-                value={formatBDT(summary?.savings ?? 0)}
+                value={formatBDTSigned(summary?.savings ?? 0)}
                 sub={`${summary?.savingsRate ?? 0}% savings rate`}
               />
             </>
           )}
         </div>
 
-        {/* Savings bar */}
-        {summary && summary.income > 0 && (
+        {/* Monthly bars */}
+        {summary && (summary.income > 0 || summary.budget > 0) && (
           <div className="card p-5">
             <div className="flex justify-between items-center mb-3">
-              <p className="text-sm font-semibold">Monthly Overview</p>
-              <span className="text-xs bg-blue-50 text-blue-600 font-semibold px-2.5 py-0.5 rounded-full">
-                {summary.savingsRate}% saved
-              </span>
+              <p className="text-sm font-semibold">Monthly Breakdown</p>
             </div>
             <div className="space-y-2.5">
               {[
-                { label: 'Income', value: summary.income, max: summary.income, color: 'bg-sage' },
-                { label: 'Expense', value: summary.expense, max: summary.income, color: 'bg-terra' },
-                { label: 'Savings', value: Math.max(0, summary.savings), max: summary.income, color: 'bg-blue-500' },
+                { label: 'Budget',     value: summary.budget,          max: Math.max(summary.income, summary.budget), color: 'bg-sage/70' },
+                { label: 'Expense',   value: summary.expense,         max: Math.max(summary.income, summary.budget), color: 'bg-terra' },
+                { label: 'Investment', value: summary.investment,      max: Math.max(summary.income, summary.budget), color: 'bg-yellow-500' },
               ].map(({ label, value, max, color }) => (
                 <div key={label}>
                   <div className="flex justify-between text-xs mb-1">

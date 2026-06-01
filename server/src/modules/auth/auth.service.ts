@@ -7,6 +7,7 @@ import { IUser } from '../../shared/types';
 
 interface RegisterDto { name: string; email: string; password: string; }
 interface LoginDto    { email: string; password: string; }
+interface UpdateProfileDto { budget?: number; }
 
 const signTokens = (user: IUser): AuthTokens => {
   const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
@@ -50,6 +51,14 @@ export const authService = {
   async getMe(userId: string): Promise<IUser> {
     const user = await User.findById(userId);
     if (!user) throw new UnauthorizedError('User not found');
+    return user;
+  },
+
+  async updateMe(userId: string, dto: UpdateProfileDto): Promise<IUser> {
+    const user = await User.findById(userId);
+    if (!user) throw new UnauthorizedError('User not found');
+    if (dto.budget !== undefined) user.budget = dto.budget;
+    await user.save();
     return user;
   },
 };

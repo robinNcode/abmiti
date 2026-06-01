@@ -14,3 +14,7 @@ export const loginValidator = [
 export const refreshValidator = [
   body('refreshToken').notEmpty().withMessage('Refresh token is required'),
 ];
+
+export const updateProfileValidator = [
+  body('budget').optional().isFloat({ min: 0 }).withMessage('Budget must be a positive number'),
+];

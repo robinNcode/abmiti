@@ -12,4 +12,7 @@ export const authApi = {
 
   me: () =>
     apiClient.get<{ data: User }>('/auth/me').then((r) => r.data.data),
+
+  updateMe: (data: { budget?: number }) =>
+    apiClient.patch<{ data: User }>('/auth/me', data).then((r) => r.data.data),
 };

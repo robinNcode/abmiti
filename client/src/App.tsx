@@ -6,6 +6,8 @@ import LoginPage    from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import DashboardPage from '@/pages/DashboardPage';
 import EntriesPage   from '@/pages/EntriesPage';
+import InvestmentsPage from '@/pages/InvestmentsPage';
+import SettingsPage from '@/pages/SettingsPage';
 import CategoriesPage from '@/pages/CategoriesPage';
 import AnalyticsPage  from '@/pages/AnalyticsPage';
 
@@ -30,6 +32,8 @@ export default function App() {
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
           <Route index            element={<DashboardPage />} />
           <Route path="/entries"  element={<EntriesPage />} />
+          <Route path="/investments" element={<InvestmentsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
         </Route>

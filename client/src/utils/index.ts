@@ -50,6 +50,7 @@ export const sourceLabel: Record<PaymentSource, string> = {
 export const typeColor: Record<EntryType, string> = {
   income:     'text-sage',
   expense:    'text-terra',
+  investment: 'text-yellow-500',
   savings:    'text-yellow-600',
   payable:    'text-red-600',
   receivable: 'text-blue-600',

@@ -12,14 +12,15 @@ interface Props {
 export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
   const { register, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
-      amount: '', note: '', categoryId: '', accountId: '',
+      amount: '', note: '', categoryId: '', sector: '', accountId: '',
       source: 'cash' as PaymentSource,
       date: new Date().toISOString().split('T')[0],
     },
   });
 
   const createEntry = useCreateEntry();
-  const { data: categories = [] } = useCategories(type);
+  const categoryType = type === 'investment' ? 'expense' : type;
+  const { data: categories = [] } = useCategories(categoryType as EntryType);
   const { data: accounts = [] } = useAccounts();
   const selectedCat = watch('categoryId');
 
@@ -29,6 +30,7 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
       amount: parseFloat(data.amount),
       note: data.note,
       categoryId: data.categoryId || categories[0]?._id,
+      sector: data.sector,
       source: data.source,
       date: data.date,
       accountId: data.accountId,
@@ -79,6 +81,13 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
         <label className="label">Description</label>
         <input {...register('note')} placeholder="House rent, groceries..." className="input" />
       </div>
+
+      {type === 'investment' && (
+        <div>
+          <label className="label">Sector</label>
+          <input {...register('sector')} placeholder="Stock, Real estate, Crypto..." className="input" />
+        </div>
+      )}
 
       <div>
         <label className="label">Paid Via</label>

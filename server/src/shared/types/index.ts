@@ -1,15 +1,16 @@
 import { Document, Types } from 'mongoose';
 
 // ── Domain enums ─────────────────────────────────────────────
-export type EntryType = 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
+export type EntryType = 'income' | 'expense' | 'savings' | 'payable' | 'receivable' | 'investment';
 export type PaymentSource = 'bank' | 'bkash' | 'nagad' | 'cash' | 'card' | 'other';
 
-// ── Entity interfaces ────────────────────────────────────────
+// ── Entity interfaces ────────────────────────────────────────────────
 export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
   email: string;
   password: string;
+  budget: number;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -43,6 +44,7 @@ export interface IEntry extends Document {
   category: Types.ObjectId;
   source: PaymentSource;
   account?: Types.ObjectId; // For savings entries
+  sector?: string;
   date: Date;
   parsedFromSms: boolean;
   rawSms?: string;

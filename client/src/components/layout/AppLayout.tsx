@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages } from 'lucide-react';
+import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
@@ -7,10 +7,12 @@ import { monthLabel } from '@/utils';
 import { cx } from '@/utils';
 
 const NAV = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/entries', icon: List, label: 'Entries' },
-  { to: '/analytics', icon: BarChart2, label: 'Analytics' },
-  { to: '/categories', icon: Tag, label: 'Categories' },
+  { to: '/',             icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/entries',      icon: List,            label: 'Entries'   },
+  { to: '/investments',  icon: TrendingUp,      label: 'Investments' },
+  { to: '/analytics',    icon: BarChart2,       label: 'Analytics' },
+  { to: '/categories',   icon: Tag,             label: 'Categories'},
+  { to: '/settings',     icon: Settings,        label: 'Settings' },
 ];
 
 export default function AppLayout() {
