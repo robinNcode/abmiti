@@ -4,10 +4,15 @@ import { Entry } from '../entry/entry.model';
 interface MonthlySummary {
   income: number;
   expense: number;
+  investment: number;
+  budget: number;
+  remainingBudget: number;
+  budgetUsed: number;
   savings: number;
   savingsRate: number;
   incomeCount: number;
   expenseCount: number;
+  investmentCount: number;
   savingsCount: number;
   payableCount: number;
   receivableCount: number;
@@ -26,15 +31,18 @@ interface MonthlyTrend {
   income: number;
   expense: number;
   savings: number;
+  investment?: number;
 }
 
 interface YearlySummary {
   income: number;
   expense: number;
+  investment: number;
   savings: number;
   savingsRate: number;
   incomeCount: number;
   expenseCount: number;
+  investmentCount: number;
   savingsCount: number;
   payableCount: number;
   receivableCount: number;
@@ -47,7 +55,7 @@ interface AccountSummary {
 }
 
 export const summaryService = {
-  async monthly(userId: string, month: number, year: number): Promise<MonthlySummary> {
+  async monthly(userId: string, month: number, year: number, budget = 0): Promise<MonthlySummary> {
     const start = new Date(year, month - 1, 1);
     const end   = new Date(year, month, 0, 23, 59, 59);
 
@@ -62,25 +70,33 @@ export const summaryService = {
       },
     ]);
 
-    const incomeRow  = result.find((r) => r._id === 'income');
-    const expenseRow = result.find((r) => r._id === 'expense');
-    const savingsRow = result.find((r) => r._id === 'savings');
+    const incomeRow     = result.find((r) => r._id === 'income');
+    const expenseRow    = result.find((r) => r._id === 'expense');
+    const investmentRow = result.find((r) => r._id === 'investment');
+    const savingsRow    = result.find((r) => r._id === 'savings');
     const receivableRow = result.find((r) => r._id === 'receivable');
-    const payableRow = result.find((r) => r._id === 'payable');
+    const payableRow    = result.find((r) => r._id === 'payable');
     const income  = incomeRow?.total  ?? 0;
-    const expense = expenseRow?.total ?? 0;
+    const expense = (expenseRow?.total ?? 0) + (investmentRow?.total ?? 0);
+    const investment = investmentRow?.total ?? 0;
     const savings = income - expense;
+    const remainingBudget = Math.max(0, budget - expense);
 
     return {
       income,
       expense,
+      investment,
+      budget,
+      remainingBudget,
+      budgetUsed: budget > 0 ? parseFloat(((expense / budget) * 100).toFixed(1)) : 0,
       savings,
       savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
-      incomeCount:  incomeRow?.count  ?? 0,
-      expenseCount: expenseRow?.count ?? 0,
-      savingsCount: savingsRow?.count ?? 0,
+      incomeCount:     incomeRow?.count     ?? 0,
+      expenseCount:    (expenseRow?.count ?? 0) + (investmentRow?.count ?? 0),
+      investmentCount: investmentRow?.count ?? 0,
+      savingsCount:    savingsRow?.count    ?? 0,
       receivableCount: receivableRow?.count ?? 0,
-      payableCount: payableRow?.count ?? 0,
+      payableCount:    payableRow?.count    ?? 0,
     };
   },
 
@@ -133,13 +149,15 @@ export const summaryService = {
 
     const map: Record<number, MonthlyTrend> = {};
     for (let m = 1; m <= 12; m++) {
-      map[m] = { month: m, year, income: 0, expense: 0, savings: 0 };
+      map[m] = { month: m, year, income: 0, expense: 0, savings: 0, investment: 0 };
     }
 
     rows.forEach((r) => {
       const m = r._id.month as number;
-      if (r._id.type === 'income')  map[m].income  = r.total;
-      if (r._id.type === 'expense') map[m].expense = r.total;
+      if (r._id.type === 'income')      map[m].income      = r.total;
+      if (r._id.type === 'expense')     map[m].expense     += r.total;
+      if (r._id.type === 'investment')  map[m].expense     += r.total;
+      if (r._id.type === 'investment')  map[m].investment  = r.total;
     });
 
     Object.values(map).forEach((m) => { m.savings = m.income - m.expense; });
@@ -162,25 +180,29 @@ export const summaryService = {
       },
     ]);
 
-    const incomeRow  = result.find((r) => r._id === 'income');
-    const expenseRow = result.find((r) => r._id === 'expense');
-    const savingsRow = result.find((r) => r._id === 'savings');
+    const incomeRow     = result.find((r) => r._id === 'income');
+    const expenseRow    = result.find((r) => r._id === 'expense');
+    const investmentRow = result.find((r) => r._id === 'investment');
+    const savingsRow    = result.find((r) => r._id === 'savings');
     const receivableRow = result.find((r) => r._id === 'receivable');
-    const payableRow = result.find((r) => r._id === 'payable');
+    const payableRow    = result.find((r) => r._id === 'payable');
     const income  = incomeRow?.total  ?? 0;
-    const expense = expenseRow?.total ?? 0;
+    const investment = investmentRow?.total ?? 0;
+    const expense = (expenseRow?.total ?? 0) + investment;
     const savings = income - expense;
 
     return {
       income,
       expense,
+      investment,
       savings,
       savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
-      incomeCount:  incomeRow?.count  ?? 0,
-      expenseCount: expenseRow?.count ?? 0,
-      savingsCount: savingsRow?.count ?? 0,
+      incomeCount:     incomeRow?.count     ?? 0,
+      expenseCount:    (expenseRow?.count ?? 0) + (investmentRow?.count ?? 0),
+      investmentCount: investmentRow?.count ?? 0,
+      savingsCount:    savingsRow?.count    ?? 0,
       receivableCount: receivableRow?.count ?? 0,
-      payableCount: payableRow?.count ?? 0,
+      payableCount:    payableRow?.count ?? 0,
     };
   },
 

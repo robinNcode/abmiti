@@ -9,13 +9,13 @@ import ExpenseForm from '@/components/entry/ExpenseForm';
 import EntryRow from '@/components/entry/EntryRow';
 import { cx } from '@/utils';
 
-type TypeFilter = 'all' | 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
+type TypeFilter = 'all' | 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
 
 export default function EntriesPage() {
   const { month, year } = useMonthStore();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [page, setPage] = useState(1);
-  const [modal, setModal] = useState<'income' | 'expense' | 'savings' | 'payable' | 'receivable' | null>(null);
+  const [modal, setModal] = useState<'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable' | null>(null);
   const { t } = useTranslation();
 
   const { data, isLoading } = useEntries({
@@ -33,6 +33,7 @@ export default function EntriesPage() {
     { key: 'all',        label: 'All', transKey: 'all' },
     { key: 'income',     label: '↑ Income', transKey: 'income' },
     { key: 'expense',    label: '↓ Expense', transKey: 'expense' },
+    { key: 'investment', label: '💼 Investment', transKey: 'investment' },
     { key: 'savings',    label: '💰 Savings', transKey: 'savings' },
     { key: 'payable',    label: '📤 Payable', transKey: 'payable' },
     { key: 'receivable', label: '📥 Receivable', transKey: 'receivable' },
@@ -47,6 +48,7 @@ export default function EntriesPage() {
           <div className="flex flex-col md:flex-row gap-2">
             <button onClick={() => setModal('income')}     className="btn-sage text-sm">↑ {t('addIncome')}</button>
             <button onClick={() => setModal('expense')}    className="btn-primary text-sm">↓ {t('addExpense')}</button>
+            <button onClick={() => setModal('investment')} className="btn-secondary text-sm">💼 Add Investment</button>
             <button onClick={() => setModal('savings')}    className="btn-secondary text-sm">💰 {t('addSavings')}</button>
             <button onClick={() => setModal('payable')}    className="btn-warning text-sm">📤 {t('addPayable')}</button>
             <button onClick={() => setModal('receivable')} className="btn-info text-sm">📥 {t('addReceivable')}</button>
@@ -117,6 +119,9 @@ export default function EntriesPage() {
       </Modal>
       <Modal open={modal === 'savings'} onClose={() => setModal(null)} title={`${t('addSavingsTitle')} — সঞ্চয়`}>
         <ExpenseForm type="savings" onSuccess={() => setModal(null)} />
+      </Modal>
+      <Modal open={modal === 'investment'} onClose={() => setModal(null)} title="Add Investment — বিনিয়োগ">
+        <ExpenseForm type="investment" onSuccess={() => setModal(null)} />
       </Modal>
       <Modal open={modal === 'payable'} onClose={() => setModal(null)} title={`${t('addPayableTitle')} — প্রদানযোগ্য`}>
         <ExpenseForm type="payable" onSuccess={() => setModal(null)} />

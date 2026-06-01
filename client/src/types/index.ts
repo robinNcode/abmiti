@@ -1,10 +1,11 @@
-export type EntryType    = 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
+export type EntryType    = 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
 export type PaymentSource = 'bank' | 'bkash' | 'nagad' | 'cash' | 'card' | 'other';
 
 export interface User {
   _id: string;
   name: string;
   email: string;
+  budget: number;
 }
 
 export interface Category {
@@ -24,6 +25,7 @@ export interface Entry {
   category: Category;
   source: PaymentSource;
   account?: Account;
+  sector?: string;
   date: string;
   parsedFromSms: boolean;
   createdAt: string;
@@ -32,10 +34,15 @@ export interface Entry {
 export interface MonthlySummary {
   income: number;
   expense: number;
+  investment: number;
+  budget: number;
+  remainingBudget: number;
+  budgetUsed: number;
   savings: number;
   savingsRate: number;
   incomeCount: number;
   expenseCount: number;
+  investmentCount: number;
   savingsCount: number;
   payableCount: number;
   receivableCount: number;
@@ -59,10 +66,12 @@ export interface MonthlyTrend {
 export interface YearlySummary {
   income: number;
   expense: number;
+  investment: number;
   savings: number;
   savingsRate: number;
   incomeCount: number;
   expenseCount: number;
+  investmentCount: number;
   savingsCount: number;
   payableCount: number;
   receivableCount: number;
@@ -101,6 +110,7 @@ export interface CreateEntryDto {
   amount: number;
   note?: string;
   categoryId: string;
+  sector?: string;
   source?: PaymentSource;
   accountId?: string;
   date?: string;

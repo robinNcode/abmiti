@@ -3,6 +3,8 @@ import toast from 'react-hot-toast';
 import { entriesApi } from '@/api/entries.api';
 import { categoriesApi, summaryApi } from '@/api/summary.api';
 import { accountsApi } from '@/api/accounts.api';
+import { authApi } from '@/api/auth.api';
+import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
 import { CreateEntryDto, EntryType } from '@/types';
 
@@ -59,6 +61,22 @@ export const useParseSms = () =>
     mutationFn: (sms: string) => entriesApi.parseSms(sms),
     onError: () => toast.error('Could not parse SMS'),
   });
+
+export const useUpdateProfile = () => {
+  const setAuth = useAuthStore((s) => s.setAuth);
+  return useMutation({
+    mutationFn: (payload: { budget?: number }) => authApi.updateMe(payload),
+    onSuccess: (user) => {
+      const accessToken = useAuthStore.getState().accessToken;
+      const refreshToken = useAuthStore.getState().refreshToken;
+      if (accessToken && refreshToken) {
+        setAuth(user, accessToken, refreshToken);
+      }
+      toast.success('Profile updated');
+    },
+    onError: () => toast.error('Unable to update profile'),
+  });
+};
 
 // ── Summary ──────────────────────────────────────────────────
 export const useMonthlySummary = () => {

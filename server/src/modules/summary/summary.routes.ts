@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { summaryService } from './summary.service';
 import { sendSuccess } from '../../shared/utils/response';
 import { authenticate } from '../../shared/middleware';
+import { User } from '../auth/auth.model';
 
 const router = Router();
 router.use(authenticate);
@@ -12,7 +13,9 @@ router.get('/monthly', async (req: Request, res: Response, next: NextFunction) =
   try {
     const month = parseInt(String(req.query.month ?? now.getMonth() + 1), 10);
     const year  = parseInt(String(req.query.year  ?? now.getFullYear()),   10);
-    const data  = await summaryService.monthly(req.user!.userId, month, year);
+    const user  = await User.findById(req.user!.userId).select('budget');
+    const budget = user?.budget ?? 0;
+    const data  = await summaryService.monthly(req.user!.userId, month, year, budget);
     sendSuccess(res, data);
   } catch (err) { next(err); }
 });

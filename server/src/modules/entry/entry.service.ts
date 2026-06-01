@@ -10,10 +10,11 @@ import { Account } from '../account/account.model';
 import { Types } from 'mongoose';
 
 interface CreateEntryDto {
-  type: 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
+  type: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
   amount: number;
   note?: string;
   categoryId: string;
+  sector?: string;
   source?: string;
   accountId?: string;
   date?: string;
@@ -54,6 +55,7 @@ export const entryService = {
       amount: dto.amount,
       note: dto.note ?? '',
       category: new Types.ObjectId(dto.categoryId),
+      sector: dto.sector ?? '',
       source: (dto.source as IEntry['source']) ?? 'cash',
       account: account ? new Types.ObjectId(dto.accountId!) : undefined,
       date: dto.date ? new Date(dto.date) : new Date(),
@@ -75,6 +77,9 @@ export const entryService = {
       const cat = await Category.findOne({ _id: dto.categoryId, user: userId });
       if (!cat) throw new NotFoundError('Category');
       updateData.category = new Types.ObjectId(dto.categoryId);
+    }
+    if (dto.sector !== undefined) {
+      updateData.sector = dto.sector;
     }
     if (dto.accountId) {
       const acc = await Account.findOne({ _id: dto.accountId, user: userId });
