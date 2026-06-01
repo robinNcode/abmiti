@@ -34,7 +34,7 @@ export default function AppLayout() {
         {/* Brand */}
         <div className="px-5 pt-6 pb-4 border-b border-paper-mist2">
           <p className="font-display font-black text-2xl text-terra tracking-tight leading-none">abmiti</p>
-          <p className="font-bengali text-xs text-mustard font-semibold mt-0.5 tracking-wide">আয় • বেয় • মিতি</p>
+          <p className="font-bengali text-xs text-mustard font-semibold mt-0.5 tracking-wide">আয় • ব্যয় • মিতি</p>
         </div>
 
         {/* Month nav */}

@@ -25,7 +25,7 @@ export default function DashboardPage() {
         subtitle="Your financial overview"
         action={
           <div className="flex gap-2">
-            <button onClick={() => setModal('income')}  className="btn-sage text-sm">↑ Income</button>
+            <button onClick={() => setModal('income')} className="btn-sage text-sm">↑ Income</button>
             <button onClick={() => setModal('expense')} className="btn-primary text-sm">↓ Expense</button>
           </div>
         }
@@ -63,7 +63,7 @@ export default function DashboardPage() {
                 sub={`${summary?.incomeCount ?? 0} entries`}
               />
               <SummaryCard
-                label="Expense" labelBn="বেয়" icon="↓" accent="expense"
+                label="Expense" labelBn="ব্যয়" icon="↓" accent="expense"
                 value={formatBDT(summary?.expense ?? 0)}
                 sub={`${summary?.expenseCount ?? 0} entries`}
               />
@@ -139,10 +139,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
-      <Modal open={modal === 'income'}  onClose={() => setModal(null)} title="Add Income — আয়">
+      <Modal open={modal === 'income'} onClose={() => setModal(null)} title="Add Income — আয়">
         <SmsEntryForm onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title="Add Expense — বেয়">
+      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title="Add Expense — ব্যয়">
         <ExpenseForm onSuccess={() => setModal(null)} />
       </Modal>
     </div>

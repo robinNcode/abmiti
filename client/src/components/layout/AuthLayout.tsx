@@ -8,7 +8,7 @@ export default function AuthLayout() {
         style={{ backgroundImage: 'radial-gradient(ellipse at 30% 20%, rgba(194,85,42,0.3) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(212,151,62,0.2) 0%, transparent 60%)' }}>
         <div>
           <p className="font-display font-black text-4xl text-terra leading-none">abmiti</p>
-          <p className="font-bengali text-base text-mustard mt-1 font-semibold tracking-widest">আয় • বেয় • মিতি</p>
+          <p className="font-bengali text-base text-mustard mt-1 font-semibold tracking-widest">আয় • ব্যয় • মিতি</p>
           <p className="text-white/40 text-sm mt-4 font-light leading-relaxed">
             Track your income, expenses<br />and savings — beautifully.
           </p>
@@ -16,7 +16,7 @@ export default function AuthLayout() {
         <div className="space-y-4">
           {[
             { icon: '↑', label: 'আয়', sub: 'Income from bank, bKash, Nagad' },
-            { icon: '↓', label: 'বেয়', sub: 'Categorised expenses' },
+            { icon: '↓', label: 'ব্যয়', sub: 'Categorised expenses' },
             { icon: '◈', label: 'মিতি', sub: 'Savings & analytics' },
           ].map((item) => (
             <div key={item.label} className="flex items-start gap-3">
