@@ -25,11 +25,13 @@ const resources = {
       entriesTitle: 'Entries',
       addIncome: 'Add Income',
       addExpense: 'Add Expense',
+      addInvestments: 'Add Investments',
       addSavings: 'Add Savings',
       addPayable: 'Add Payable',
       addReceivable: 'Add Receivable',
       noEntries: 'No entries found',
       noEntriesSubtitle: 'Try changing filters or add a new entry',
+      monthlyEntries: 'entries this month',
 
       // Modals
       addIncomeTitle: 'Add Income',
@@ -73,11 +75,21 @@ const resources = {
       yearlyTrend: 'Yearly Trend',
       categoryBreakdown: 'Category Breakdown',
 
-      // Categories
+      // Categories Page
       manageCategories: 'Manage Categories',
       addCategory: 'Add Category',
       categoryName: 'Category Name',
       categoryType: 'Category Type',
+      newCategory: 'New Category',
+      icon: 'Icon',
+      color: 'Color',
+      default: 'Default',
+      custom: 'Custom',
+      createCategory: 'Create Category',
+      groceries: 'Groceries',
+      ExpenseCategory: 'Expense Category',
+      IncomeCategory: 'Income Category',
+      noCategories: 'No Categories',
 
       // Sources
       bank: 'Bank',
@@ -86,6 +98,28 @@ const resources = {
       cash: 'Cash',
       card: 'Card',
       other: 'Other',
+
+      // Settings Page
+      settings: 'Settings',
+      settingsSubtitle: 'Set your monthly budget and profile preferences',
+      language: 'Language',
+      theme: 'Theme',
+      dark: 'Dark',
+      light: 'Light',
+      system: 'System',
+      save: 'Save',
+      logout: 'Logout',
+      monthlyBudget: 'Monthly Budget',
+      monthlyBudgetSubtitle: 'Your budget helps the dashboard show remaining budget and investment impact.',
+      monthlyBudgetInputPlaceholder: 'Enter your monthly budget',
+      monthlyBudgetLabel: 'Monthly budget (BDT)',
+      deleteAccount: 'Delete Account',
+      deleteAccountConfirm: 'Are you sure you want to delete your account?',
+      deleteAccountConfirmation: 'This action cannot be undone. All your data will be permanently removed. Proceed?',
+      deleteAccountConfirmationTitle: 'Delete Account',
+      deleteAccountConfirmationMessage: 'This action cannot be undone. All your data will be permanently removed. Proceed?',
+      deleteAccountConfirmationButton: 'Delete Account',
+      deleteAccountConfirmationButtonText: 'Delete Account',
     },
   },
   bn: {
@@ -109,20 +143,23 @@ const resources = {
 
       // Entries
       entriesTitle: 'এন্ট্রি',
-      addIncome: 'আয় যোগ করুন',
-      addExpense: 'ব্যয় যোগ করুন',
-      addSavings: 'সঞ্চয় যোগ করুন',
-      addPayable: 'প্রদানযোগ্য যোগ করুন',
-      addReceivable: 'প্রাপ্তযোগ্য যোগ করুন',
+      addIncome: 'আয়',
+      addExpense: 'ব্যয়',
+      addInvestments: 'বিনিয়োগ',
+      addSavings: 'সঞ্চয়',
+      addPayable: 'প্রদানযোগ্য',
+      addReceivable: 'প্রাপ্তযোগ্য',
       noEntries: 'কোন এন্ট্রি পাওয়া যায়নি',
-      noEntriesSubtitle: 'ফিল্টার পরিবর্তন করুন বা নতুন এন্ট্রি যোগ করুন',
+      noEntriesSubtitle: 'ফিল্টার পরিবর্তন করুন বা নতুন এন্ট্রি',
+      monthlyEntries: 'মাসিক এন্ট্রি',
+
 
       // Modals
-      addIncomeTitle: 'আয় যোগ করুন',
-      addExpenseTitle: 'ব্যয় যোগ করুন',
-      addSavingsTitle: 'সঞ্চয় যোগ করুন',
-      addPayableTitle: 'প্রদানযোগ্য যোগ করুন',
-      addReceivableTitle: 'প্রাপ্তযোগ্য যোগ করুন',
+      addIncomeTitle: 'আয়',
+      addExpenseTitle: 'ব্যয়',
+      addSavingsTitle: 'সঞ্চয়',
+      addPayableTitle: 'প্রদানযোগ্য',
+      addReceivableTitle: 'প্রাপ্তযোগ্য',
 
       // Forms
       amount: 'পরিমাণ',
@@ -159,12 +196,6 @@ const resources = {
       yearlyTrend: 'বার্ষিক প্রবণতা',
       categoryBreakdown: 'ক্যাটাগরি ভাঙ্গন',
 
-      // Categories
-      manageCategories: 'ক্যাটাগরি পরিচালনা করুন',
-      addCategory: 'ক্যাটাগরি যোগ করুন',
-      categoryName: 'ক্যাটাগরি নাম',
-      categoryType: 'ক্যাটাগরি টাইপ',
-
       // Sources
       bank: 'ব্যাংক',
       bkash: 'বিকাশ',
@@ -172,6 +203,49 @@ const resources = {
       cash: 'নগদ',
       card: 'কার্ড',
       other: 'অন্যান্য',
+
+      // Categories Page
+      categoriesTitle: 'ক্যাটাগরি',
+      categoriesSubtitle: 'আপনার ক্যাটাগরি পরিচালনা করুন',
+      categoryList: 'ক্যাটাগরি তালিকা',
+      categoryListSubtitle: 'আপনার ক্যাটাগরি তালিকা দেখুন',
+      categoryListPlaceholder: 'ক্যাটাগরি তালিকা দেখুন',
+      manageCategories: 'ক্যাটাগরি পরিচালনা করুন',
+      addCategory: 'ক্যাটাগরি',
+      categoryName: 'ক্যাটাগরি নাম',
+      categoryType: 'ক্যাটাগরি টাইপ',
+      newCategory: 'নতুন ক্যাটাগরি',
+      icon: 'আইকন',
+      color: 'রঙ',
+      default: 'ডিফল্ট',
+      custom: 'কাস্টম',
+      createCategory: 'ক্যাটাগরি তৈরি করুন',
+      groceries: 'গ্রোসারিজ',
+      ExpenseCategory: 'ব্যয় ক্যাটাগরি',
+      IncomeCategory: 'আয় ক্যাটাগরি',
+      noCategories: 'কোন ক্যাটাগরি পাওয়া যায়নি',
+
+      // Settings Page
+      settings: 'সেটিংস',
+      settingsSubtitle: 'আপনার মাসিক বাজেট এবং প্রোফাইল পছন্দ সেট করুন',
+      language: 'ভাষা',
+      theme: 'থিম',
+      dark: 'ডার্ক',
+      light: 'লাইট',
+      system: 'সিস্টেম',
+      save: 'সংরক্ষণ',
+      logout: 'লগ আউট',
+      deleteAccount: 'অ্যাকাউন্ট মুছুন',
+      deleteAccountConfirm: 'আপনি কি নিশ্চিত যে আপনার অ্যাকাউন্ট মুছে ফেলতে চান?',
+      deleteAccountConfirmation: 'এই কার্যকরী হতে পারে না। আপনার সমস্ত ডেটা অনাকাঙ্কিতভাবে মুছে ফেলা হবে। চালিয়ে যান?',
+      deleteAccountConfirmationTitle: 'অ্যাকাউন্ট মুছুন',
+      deleteAccountConfirmationMessage: 'এই কার্যকরী হতে পারে না। আপনার সমস্ত ডেটা অনাকাঙ্কিতভাবে মুছে ফেলা হবে। চালিয়ে যান?',
+      deleteAccountConfirmationButton: 'অ্যাকাউন্ট মুছুন',
+      deleteAccountConfirmationButtonText: 'অ্যাকাউন্ট মুছুন',
+      monthlyBudget: 'মাসিক বাজেট',
+      monthlyBudgetSubtitle: 'আপনার বাজেট ড্যাশবোর্ডকে বাকি বাজেট এবং বিনিয়োগ প্রভাব দেখাতে সাহায্য করে।',
+      monthlyBudgetInputPlaceholder: 'আপনার মাসিক বাজেট লিখুন',
+      monthlyBudgetLabel: 'মাসিক বাজেট (BDT)',
     },
   },
 };

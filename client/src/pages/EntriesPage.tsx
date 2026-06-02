@@ -43,15 +43,15 @@ export default function EntriesPage() {
     <div className="min-h-full">
       <PageHeader
         title={`${t('entriesTitle')} — খাতা`}
-        subtitle={`${total} entries this month`}
+        subtitle={`${total} ${t('monthlyEntries')}`}
         action={
           <div className="flex flex-col md:flex-row gap-2">
             <button onClick={() => setModal('income')}     className="btn-sage text-sm">↑ {t('addIncome')}</button>
             <button onClick={() => setModal('expense')}    className="btn-primary text-sm">↓ {t('addExpense')}</button>
-            <button onClick={() => setModal('investment')} className="btn-secondary text-sm">💼 Add Investment</button>
-            <button onClick={() => setModal('savings')}    className="btn-secondary text-sm">💰 {t('addSavings')}</button>
-            <button onClick={() => setModal('payable')}    className="btn-warning text-sm">📤 {t('addPayable')}</button>
-            <button onClick={() => setModal('receivable')} className="btn-info text-sm">📥 {t('addReceivable')}</button>
+            <button onClick={() => setModal('investment')} className="btn-sage text-sm">💼 {t('addInvestments')}</button>
+            <button onClick={() => setModal('savings')}    className="btn-sage text-sm">💰 {t('addSavings')}</button>
+            <button onClick={() => setModal('payable')}    className="btn-primary text-sm">📤 {t('addPayable')}</button>
+            <button onClick={() => setModal('receivable')} className="btn-sage text-sm">📥 {t('addReceivable')}</button>
           </div>
         }
       />

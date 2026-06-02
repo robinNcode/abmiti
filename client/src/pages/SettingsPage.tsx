@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PageHeader, Spinner } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
 import { useUpdateProfile } from '@/hooks';
+import { t } from 'i18next';
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -16,20 +17,20 @@ export default function SettingsPage() {
   return (
     <div className="min-h-full">
       <PageHeader
-        title="Settings"
-        subtitle="Set your monthly budget and profile preferences"
+        title={t('settings')}
+        subtitle={t('settingsSubtitle')}
       />
 
       <div className="px-4 md:px-8 pb-10">
         <div className="card p-6 max-w-2xl">
-          <h2 className="font-display text-xl font-bold mb-4">Monthly Budget</h2>
+          <h2 className="font-display text-xl font-bold mb-4">{t('monthlyBudget')}</h2>
           <p className="text-sm text-ink/50 mb-4">
-            Your budget helps the dashboard show remaining budget and investment impact.
+            {t('monthlyBudgetSubtitle')}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="label">Monthly budget (BDT)</label>
+              <label className="label">{t('monthlyBudgetLabel')}</label>
               <input
                 type="number"
                 step="0.01"
@@ -44,7 +45,7 @@ export default function SettingsPage() {
               className="btn-primary"
               disabled={updateProfile.isPending}
             >
-              {updateProfile.isPending ? <Spinner /> : 'Save Budget'}
+              {updateProfile.isPending ? <Spinner /> : t('save')}
             </button>
           </form>
         </div>

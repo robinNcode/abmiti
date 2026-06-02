@@ -5,7 +5,9 @@ import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks';
 import { PageHeader, Modal, Spinner, EmptyState } from '@/components/ui';
 import { EntryType } from '@/types';
 import { cx } from '@/utils';
+import { t } from 'i18next';
 
+const trnsalate = t;
 const ICONS = ['🏠','🍔','🚌','💡','🎓','🏥','🛍️','🎬','✈️','💳','📦','💼','💻','🏪','🎁','💰','💵','🌍','🎯','📱'];
 const COLORS = ['#c2552a','#4a7c59','#d4973e','#2a6dc2','#9b59b6','#e74c3c','#e67e22','#1abc9c','#16a085','#2980b9','#8e44ad','#c0392b'];
 
@@ -34,11 +36,11 @@ export default function CategoriesPage() {
   return (
     <div className="min-h-full">
       <PageHeader
-        title="Categories"
-        subtitle="Manage your income and expense categories"
+        title={trnsalate('categoriesTitle')}
+        subtitle={trnsalate('categoriesSubtitle')}
         action={
           <button onClick={() => { reset(); setModal(true); }} className="btn-primary text-sm">
-            <Plus size={14} /> Add Category
+            <Plus size={14} /> {trnsalate('addCategory')}
           </button>
         }
       />
@@ -53,7 +55,7 @@ export default function CategoriesPage() {
                 tab === t && t === 'income'  ? 'bg-sage text-white border-sage' :
                 'border-paper-mist2 text-ink/60 hover:bg-paper-mist',
               )}>
-              {t === 'income' ? '↑' : '↓'} {t}
+              {t === 'income' ? '↑' : '↓'} {trnsalate(t)}
             </button>
           ))}
         </div>
@@ -86,20 +88,20 @@ export default function CategoriesPage() {
             ))}
           </div>
         ) : (
-          <EmptyState icon="🏷️" title="No categories" subtitle="Add your first category" />
+          <EmptyState icon="🏷️" title={trnsalate('noCategories')} subtitle={trnsalate('createCategory')} />
         )}
       </div>
 
-      <Modal open={modal} onClose={() => setModal(false)} title="New Category">
+      <Modal open={modal} onClose={() => setModal(false)} title={trnsalate('newCategory')}>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="label">Name *</label>
+            <label className="label">{trnsalate('name')} *</label>
             <input {...register('name', { required: 'Name is required' })}
-              placeholder="e.g. Groceries" className="input" autoFocus />
+              placeholder={`e.g. ${trnsalate('groceries')}`} className="input" autoFocus />
             {errors.name && <p className="text-xs text-terra mt-1">{errors.name.message}</p>}
           </div>
           <div>
-            <label className="label">Icon</label>
+            <label className="label">{trnsalate('icon')}</label>
             <div className="flex flex-wrap gap-2">
               {ICONS.map((ic) => (
                 <button key={ic} type="button" onClick={() => setSelIcon(ic)}
@@ -110,7 +112,7 @@ export default function CategoriesPage() {
             </div>
           </div>
           <div>
-            <label className="label">Color</label>
+            <label className="label">{trnsalate('color')}</label>
             <div className="flex flex-wrap gap-2">
               {COLORS.map((c) => (
                 <button key={c} type="button" onClick={() => setSelColor(c)}
@@ -125,12 +127,12 @@ export default function CategoriesPage() {
               {selIcon}
             </div>
             <div>
-              <p className="text-sm font-semibold">{nameVal || 'Category Name'}</p>
-              <p className="text-xs text-ink/40 capitalize">{tab} category</p>
+              <p className="text-sm font-semibold">{nameVal || trnsalate('categoryName')}</p>
+              <p className="text-xs text-ink/40 capitalize">{trnsalate(`${tab}Category`)}</p>
             </div>
           </div>
           <button type="submit" disabled={create.isPending} className="btn-primary w-full">
-            {create.isPending ? <Spinner /> : <><Plus size={14} /> Create Category</>}
+            {create.isPending ? <Spinner /> : <><Plus size={14} /> {trnsalate('createCategory')}</>}
           </button>
         </form>
       </Modal>
