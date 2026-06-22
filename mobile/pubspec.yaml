@@ -1,0 +1,45 @@
+name: abmiti
+description: Abmiti — Personal Finance Tracker (WebView app)
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.22.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # WebView
+  webview_flutter: ^4.7.0
+
+  # Connectivity & network
+  connectivity_plus: ^6.0.5
+
+  # Permissions (camera for future QR support)
+  permission_handler: ^11.3.1
+
+  # Safe file download/share
+  share_plus: ^9.0.0
+
+  # Local storage (auth token persistence bridge)
+  shared_preferences: ^2.3.2
+
+  # File/URL opener
+  url_launcher: ^6.2.6
+
+  # Better splash/loading
+  flutter_native_splash: ^2.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icons/
+    - assets/images/

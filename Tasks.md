@@ -412,11 +412,11 @@ screens: {
 
 ---
 
-## Task 3: Build Flutter Mobile Application
+## Task 3: Build Flutter Mobile (Web-view) Application
 
 ### Objective
 
-Build a Flutter mobile app that mirrors the web app's functionality using the same backend REST API. Target: Android (primary), iOS (codebase ready).
+Build a Flutter mobile app that mirrors the web app's functionality using the same backend REST API. The app will be a web-view of the web app. Target: Android (primary), iOS (codebase ready).
 
 ### Current Backend API Base URL
 
