@@ -20,6 +20,7 @@ const signTokens = (user) => {
 };
 exports.authService = {
     async register(dto) {
+        console.log(dto);
         const exists = await container_1.container.userRepo.findByEmail(dto.email);
         if (exists)
             throw new errors_1.ConflictError('Email already registered');
@@ -28,6 +29,8 @@ exports.authService = {
     },
     async login(dto) {
         const user = await container_1.container.userRepo.findByEmail(dto.email, true);
+        console.log(user);
+        console.log(dto);
         if (!user || !(await user.comparePassword(dto.password))) {
             throw new errors_1.UnauthorizedError('Invalid email or password');
         }

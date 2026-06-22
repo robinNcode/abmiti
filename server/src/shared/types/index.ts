@@ -76,6 +76,22 @@ export interface IAccountInput {
   isActive: boolean;
 }
 
+export interface IBudget extends Document {
+  _id: Types.ObjectId;
+  user: Types.ObjectId;
+  month: number;
+  year: number;
+  amount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IBudgetInput {
+  month: number;
+  year: number;
+  amount: number;
+}
+
 // ── Repository interfaces (Dependency Inversion) ─────────────
 export interface IPaginationOptions {
   page: number;

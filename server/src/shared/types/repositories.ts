@@ -1,5 +1,5 @@
 import {
-  IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput,
+  IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput, IBudget, IBudgetInput,
   IEntryFilters, IPaginationOptions, IPaginatedResult, EntryType,
 } from './index';
 
@@ -79,3 +79,10 @@ export interface ISummaryRepository {
   getAccountSummaries(userId: string, year?: number): Promise<IAccountSummaryRow[]>;
 }
 
+// ── Budget Repository ─────────────────────────────────────────
+export interface IBudgetRepository {
+  upsert(userId: string, data: IBudgetInput): Promise<IBudget>;
+  findByMonth(userId: string, month: number, year: number): Promise<IBudget | null>;
+  findMany(userId: string): Promise<IBudget[]>;
+  remove(id: string, userId: string): Promise<boolean>;
+}

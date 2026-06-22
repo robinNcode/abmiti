@@ -4,6 +4,7 @@ interface MonthlySummary {
     investment: number;
     budget: number;
     remainingBudget: number;
+    amountOverBudget: number;
     budgetUsed: number;
     savings: number;
     savingsRate: number;
@@ -62,6 +63,13 @@ export declare const summaryService: {
     yearlyTrend(userId: string, year: number): Promise<MonthlyTrend[]>;
     yearly(userId: string, year: number): Promise<YearlySummary>;
     accountSummaries(userId: string, year?: number): Promise<AccountSummary[]>;
+    budgetWarnings(userId: string): Promise<{
+        month: number;
+        year: number;
+        budget: number;
+        expense: number;
+        overBudget: number;
+    }[]>;
 };
 export {};
 //# sourceMappingURL=summary.service.d.ts.map

@@ -6,6 +6,7 @@ import { MongoCategoryRepository } from './infrastructure/repositories/mongodb/c
 import { MongoEntryRepository }    from './infrastructure/repositories/mongodb/entry.mongo.repo';
 import { MongoAccountRepository }  from './infrastructure/repositories/mongodb/account.mongo.repo';
 import { MongoSummaryRepository }  from './infrastructure/repositories/mongodb/summary.mongo.repo';
+import { MongoBudgetRepository }   from './infrastructure/repositories/mongodb/budget.mongo.repo';
 
 // MySQL repositories
 import { MySQLUserRepository }     from './infrastructure/repositories/mysql/user.mysql.repo';
@@ -13,6 +14,7 @@ import { MySQLCategoryRepository } from './infrastructure/repositories/mysql/cat
 import { MySQLEntryRepository }    from './infrastructure/repositories/mysql/entry.mysql.repo';
 import { MySQLAccountRepository }  from './infrastructure/repositories/mysql/account.mysql.repo';
 import { MySQLSummaryRepository }  from './infrastructure/repositories/mysql/summary.mysql.repo';
+import { MySQLBudgetRepository }   from './infrastructure/repositories/mysql/budget.mysql.repo';
 
 // Repository interfaces
 import {
@@ -21,6 +23,7 @@ import {
   IEntryRepository,
   IAccountRepository,
   ISummaryRepository,
+  IBudgetRepository,
 } from './shared/types/repositories';
 
 export interface AppContainer {
@@ -29,6 +32,7 @@ export interface AppContainer {
   entryRepo:    IEntryRepository;
   accountRepo:  IAccountRepository;
   summaryRepo:  ISummaryRepository;
+  budgetRepo:   IBudgetRepository;
 }
 
 function buildContainer(): AppContainer {
@@ -39,6 +43,7 @@ function buildContainer(): AppContainer {
       entryRepo:    new MySQLEntryRepository(),
       accountRepo:  new MySQLAccountRepository(),
       summaryRepo:  new MySQLSummaryRepository(),
+      budgetRepo:   new MySQLBudgetRepository(),
     };
   }
   // default: mongodb
@@ -48,6 +53,7 @@ function buildContainer(): AppContainer {
     entryRepo:    new MongoEntryRepository(),
     accountRepo:  new MongoAccountRepository(),
     summaryRepo:  new MongoSummaryRepository(),
+    budgetRepo:   new MongoBudgetRepository(),
   };
 }
 

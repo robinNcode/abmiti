@@ -24,6 +24,7 @@ exports.summaryService = {
             investment,
             budget,
             remainingBudget,
+            amountOverBudget: expense > budget && budget > 0 ? expense - budget : 0,
             budgetUsed: budget > 0 ? parseFloat(((expense / budget) * 100).toFixed(1)) : 0,
             savings,
             savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
@@ -114,6 +115,23 @@ exports.summaryService = {
             totalSavings: r.totalSavings,
             count: r.count,
         }));
+    },
+    async budgetWarnings(userId) {
+        const budgets = await container_1.container.budgetRepo.findMany(userId);
+        const warnings = [];
+        for (const b of budgets) {
+            const summary = await this.monthly(userId, b.month, b.year, b.amount);
+            if (summary.amountOverBudget > 0) {
+                warnings.push({
+                    month: b.month,
+                    year: b.year,
+                    budget: b.amount,
+                    expense: summary.expense,
+                    overBudget: summary.amountOverBudget,
+                });
+            }
+        }
+        return warnings;
     },
 };
 //# sourceMappingURL=summary.service.js.map

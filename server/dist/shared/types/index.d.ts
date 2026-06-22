@@ -66,6 +66,20 @@ export interface IAccountInput {
     balance: number;
     isActive: boolean;
 }
+export interface IBudget extends Document {
+    _id: Types.ObjectId;
+    user: Types.ObjectId;
+    month: number;
+    year: number;
+    amount: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface IBudgetInput {
+    month: number;
+    year: number;
+    amount: number;
+}
 export interface IPaginationOptions {
     page: number;
     limit: number;

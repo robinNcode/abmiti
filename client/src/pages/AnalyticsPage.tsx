@@ -1,13 +1,15 @@
-import { useMonthlySummary } from '@/hooks';
+import { useMonthlySummary, useBudgetWarnings } from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { PageHeader, SummaryCard } from '@/components/ui';
 import YearlyTrendChart from '@/components/charts/YearlyTrendChart';
 import CategoryBreakdown from '@/components/charts/CategoryBreakdown';
 import { formatBDT, monthLabel } from '@/utils';
+import { AlertTriangle, Info } from 'lucide-react';
 
 export default function AnalyticsPage() {
   const { month, year } = useMonthStore();
   const { data: summary } = useMonthlySummary();
+  const { data: warnings = [] } = useBudgetWarnings();
 
   return (
     <div className="min-h-full">
@@ -17,6 +19,28 @@ export default function AnalyticsPage() {
       />
 
       <div className="px-4 md:px-8 pb-10 space-y-4 md:space-y-6">
+        {/* Budget Warnings Section */}
+        {warnings.length > 0 && (
+          <div className="space-y-3">
+            {warnings.map((w: any) => (
+              <div key={`${w.month}-${w.year}`} className="bg-orange-50 border border-orange-200 p-4 rounded-xl flex items-start gap-3 animate-fade-up">
+                <AlertTriangle className="text-orange-500 shrink-0 mt-0.5" size={18} />
+                <div className="flex-1">
+                  <p className="font-semibold text-orange-900 text-sm">⚠ Budget Exceeded</p>
+                  <p className="text-orange-800 text-xs mt-1">
+                    Your expenses for {monthLabel(w.month, w.year)} have exceeded your monthly budget.
+                  </p>
+                  <div className="mt-2 text-xs grid grid-cols-1 xs:grid-cols-3 gap-2 bg-white/60 p-2 rounded-lg border border-orange-100">
+                    <div><span className="text-orange-600/70">Budget:</span> <span className="font-semibold">{formatBDT(w.budget)}</span></div>
+                    <div><span className="text-orange-600/70">Expenses:</span> <span className="font-semibold">{formatBDT(w.expense)}</span></div>
+                    <div><span className="text-orange-600/70">Over Budget:</span> <span className="font-semibold text-red-600">{formatBDT(w.overBudget)}</span></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Monthly summary row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           <SummaryCard label="Income" labelBn="আয়" icon="↑" accent="income"
@@ -28,6 +52,47 @@ export default function AnalyticsPage() {
           <SummaryCard label="Savings" labelBn="মিতি" icon="◈" accent="savings"
             value={formatBDT(summary?.savings ?? 0)}
             sub={`${summary?.savingsRate ?? 0}% of income`} />
+        </div>
+
+        {/* Monthly budget card */}
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <p className="font-display font-bold text-base">Monthly Budget Tracking</p>
+          </div>
+          {summary?.budget && summary.budget > 0 ? (
+            <div className="space-y-4">
+               <div className="flex justify-between items-end">
+                 <div>
+                   <p className="text-sm text-ink/50">Total Expense</p>
+                   <p className="font-display text-2xl font-bold mt-1 text-terra">{formatBDT(summary.expense)}</p>
+                 </div>
+                 <div className="text-right">
+                   <p className="text-sm text-ink/50">Budget</p>
+                   <p className="font-semibold mt-1">{formatBDT(summary.budget)}</p>
+                 </div>
+               </div>
+               
+               {/* Progress bar */}
+               <div className="h-3 bg-paper-mist rounded-full overflow-hidden">
+                 <div className={`h-full rounded-full transition-all duration-700 ${summary.amountOverBudget > 0 ? 'bg-red-500' : 'bg-sage'}`}
+                      style={{ width: `${Math.min(100, summary.budgetUsed)}%` }} />
+               </div>
+
+               <div className="flex justify-between text-xs font-semibold">
+                 {summary.amountOverBudget > 0 ? (
+                   <span className="text-red-500">Over Budget: {formatBDT(summary.amountOverBudget)}</span>
+                 ) : (
+                   <span className="text-sage">Remaining: {formatBDT(summary.remainingBudget)}</span>
+                 )}
+                 <span className="text-ink/40">{summary.budgetUsed}% Used</span>
+               </div>
+            </div>
+          ) : (
+            <div className="bg-paper-mist/50 p-4 rounded-xl flex items-start gap-3">
+              <Info className="text-ink/40 mt-0.5" size={16} />
+              <p className="text-sm text-ink/60">No monthly budget has been set for this month. Set one to track overspending.</p>
+            </div>
+          )}
         </div>
 
         {/* Yearly trend chart */}

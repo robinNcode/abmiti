@@ -118,6 +118,13 @@ export const useAccountSummaries = (year?: number) => {
   });
 };
 
+export const useBudgetWarnings = () => {
+  return useQuery({
+    queryKey: ['budget-warnings'],
+    queryFn:  () => summaryApi.budgetWarnings(),
+  });
+};
+
 // ── Categories ───────────────────────────────────────────────
 export const useCategories = (type?: EntryType) =>
   useQuery({
@@ -175,3 +182,5 @@ export const useDeleteAccount = () => {
     },
   });
 };
+
+export * from './budget.hooks';

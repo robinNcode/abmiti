@@ -8,6 +8,20 @@ export interface User {
   budget: number;
 }
 
+export interface IBudget {
+  _id: string;
+  user: string;
+  month: number;
+  year: number;
+  amount: number;
+}
+
+export interface IBudgetInput {
+  month: number;
+  year: number;
+  amount: number;
+}
+
 export interface Category {
   _id: string;
   name: string;
@@ -37,6 +51,7 @@ export interface MonthlySummary {
   investment: number;
   budget: number;
   remainingBudget: number;
+  amountOverBudget: number;
   budgetUsed: number;
   savings: number;
   savingsRate: number;

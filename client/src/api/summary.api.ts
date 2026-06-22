@@ -36,4 +36,8 @@ export const summaryApi = {
   accounts: (year?: number) =>
     apiClient.get<{ data: AccountSummary[] }>('/summary/accounts', { params: year ? { year } : {} })
       .then((r) => r.data.data),
+
+  budgetWarnings: () =>
+    apiClient.get<{ data: any[] }>('/summary/budget-warnings')
+      .then((r) => r.data.data),
 };

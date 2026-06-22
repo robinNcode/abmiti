@@ -6,6 +6,7 @@ interface MonthlySummary {
   investment: number;
   budget: number;
   remainingBudget: number;
+  amountOverBudget: number;
   budgetUsed: number;
   savings: number;
   savingsRate: number;
@@ -78,6 +79,7 @@ export const summaryService = {
       investment,
       budget,
       remainingBudget,
+      amountOverBudget: expense > budget && budget > 0 ? expense - budget : 0,
       budgetUsed: budget > 0 ? parseFloat(((expense / budget) * 100).toFixed(1)) : 0,
       savings,
       savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
@@ -180,6 +182,24 @@ export const summaryService = {
       totalSavings: r.totalSavings,
       count:        r.count,
     }));
+  },
+
+  async budgetWarnings(userId: string) {
+    const budgets = await container.budgetRepo.findMany(userId);
+    const warnings = [];
+    for (const b of budgets) {
+      const summary = await this.monthly(userId, b.month, b.year, b.amount);
+      if (summary.amountOverBudget > 0) {
+        warnings.push({
+          month: b.month,
+          year: b.year,
+          budget: b.amount,
+          expense: summary.expense,
+          overBudget: summary.amountOverBudget,
+        });
+      }
+    }
+    return warnings;
   },
 };
 
