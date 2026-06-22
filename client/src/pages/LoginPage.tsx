@@ -17,7 +17,7 @@ export default function LoginPage() {
     mutationFn: authApi.login,
     onSuccess: (data) => {
       setAuth(data.user, data.accessToken, data.refreshToken);
-      navigate('/');
+      navigate('/dashboard');
     },
     onError: (e: unknown) => {
       const msg = (e as { response?: { data?: { message?: string } } })

@@ -10,6 +10,7 @@ import InvestmentsPage from '@/pages/InvestmentsPage';
 import SettingsPage from '@/pages/SettingsPage';
 import CategoriesPage from '@/pages/CategoriesPage';
 import AnalyticsPage  from '@/pages/AnalyticsPage';
+import LandingPage    from '@/pages/LandingPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.accessToken);
@@ -18,7 +19,7 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.accessToken);
-  return token ? <Navigate to="/" replace /> : <>{children}</>;
+  return token ? <Navigate to="/dashboard" replace /> : <>{children}</>;
 };
 
 export default function App() {
@@ -29,8 +30,9 @@ export default function App() {
           <Route path="/login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         </Route>
+        <Route path="/" element={<LandingPage />} />
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-          <Route index            element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/entries"  element={<EntriesPage />} />
           <Route path="/investments" element={<InvestmentsPage />} />
           <Route path="/settings" element={<SettingsPage />} />

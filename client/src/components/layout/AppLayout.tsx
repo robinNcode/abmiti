@@ -7,7 +7,7 @@ import { monthLabel } from '@/utils';
 import { cx } from '@/utils';
 
 const NAV = [
-  { to: '/',             icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/entries',      icon: List,            label: 'Entries'   },
   { to: '/investments',  icon: TrendingUp,      label: 'Investments' },
   { to: '/analytics',    icon: BarChart2,       label: 'Analytics' },
@@ -52,7 +52,7 @@ export default function AppLayout() {
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           {NAV.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to} end={to === '/'}
+            <NavLink key={to} to={to} end={to === '/dashboard'}
               className={({ isActive }) => cx(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
                 isActive
@@ -107,7 +107,7 @@ export default function AppLayout() {
       {/* Bottom Navbar - Visible on mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-paper-mist2 flex z-20 pb-safe">
         {MOBILE_NAV.map(({ to, icon: Icon, label }) => (
-          <NavLink key={to} to={to} end={to === '/'}
+          <NavLink key={to} to={to} end={to === '/dashboard'}
             className={({ isActive }) => cx(
               'flex-1 flex flex-col items-center justify-center py-2 px-1 text-[10px] font-medium transition-colors',
               isActive

@@ -19,7 +19,7 @@ export default function RegisterPage() {
     onSuccess: (data) => {
       setAuth(data.user, data.accessToken, data.refreshToken);
       toast.success('Account created! Default categories seeded.');
-      navigate('/');
+      navigate('/dashboard');
     },
     onError: (e: unknown) => {
       const msg = (e as { response?: { data?: { message?: string } } })

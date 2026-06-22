@@ -11,7 +11,8 @@ class AppConfig {
   /// For local dev, use your machine's LAN IP (not localhost — the phone can't reach it).
   /// Example: 'http://192.168.26.65:5173'
   /// For production: 'https://abmiti.yoursite.com'
-  static const String baseUrl = 'https://abmiti.yoursite.com';
+  //static const String baseUrl = 'https://abmiti.yoursite.com';
+  static const String baseUrl = 'https://robin.adovasoft.com/noor/';
 
   /// Fallback/offline page shown when no network is available.
   static const String noNetworkAsset = 'assets/html/offline.html';
