@@ -45,7 +45,7 @@ export default function CategoriesPage() {
         }
       />
 
-      <div className="px-8 pb-10 space-y-4">
+      <div className="px-4 md:px-8 pb-10 space-y-4">
         <div className="flex gap-2">
           {(['expense', 'income'] as EntryType[]).map((t) => (
             <button key={t} onClick={() => setTab(t)}
@@ -63,7 +63,7 @@ export default function CategoriesPage() {
         {isLoading ? (
           <div className="flex justify-center py-12"><Spinner className="text-terra" /></div>
         ) : categories.length ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {categories.map((cat, i) => (
               <div key={cat._id}
                 className="card p-4 flex items-center gap-3 group hover:shadow-lift transition-all animate-fade-up"

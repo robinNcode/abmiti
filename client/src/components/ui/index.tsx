@@ -67,7 +67,7 @@ export const Modal = ({ open, onClose, title, children }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ink/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative card w-full max-w-lg shadow-lift animate-fade-up">
+      <div className="relative card w-full max-w-md shadow-lift animate-fade-up">
         <div className="flex items-center justify-between px-6 py-4 border-b border-paper-mist2">
           <h2 className="font-display font-bold text-lg">{title}</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors">

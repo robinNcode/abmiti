@@ -399,16 +399,16 @@ screens: {
 
 ### Deliverables Checklist
 
-- [ ] `DashboardPage.tsx` — responsive grid, padding, and stacked layouts
-- [ ] `EntriesPage.tsx` — mobile-friendly header actions, scrollable filter pills
-- [ ] `AppLayout.tsx` — bottom nav trimmed to 5 items; Settings accessible via profile
-- [ ] `AnalyticsPage.tsx` — all charts use `ResponsiveContainer`, responsive heights
-- [ ] `CategoriesPage.tsx` — audited and fixed
-- [ ] `InvestmentsPage.tsx` — audited and fixed
-- [ ] All modals — full-width on mobile with proper margin
-- [ ] `tailwind.config.js` — `xs` breakpoint added
-- [ ] All buttons meet 44px minimum touch target
-- [ ] Cross-browser test: Chrome, Safari, Firefox (mobile viewports)
+- [x] `DashboardPage.tsx` — responsive grid, padding, and stacked layouts
+- [x] `EntriesPage.tsx` — mobile-friendly header actions, scrollable filter pills
+- [x] `AppLayout.tsx` — bottom nav trimmed to 5 items; Settings accessible via profile
+- [x] `AnalyticsPage.tsx` — all charts use `ResponsiveContainer`, responsive heights
+- [x] `CategoriesPage.tsx` — audited and fixed
+- [x] `InvestmentsPage.tsx` — audited and fixed
+- [x] All modals — full-width on mobile with proper margin
+- [x] `tailwind.config.js` — `xs` breakpoint added
+- [x] All buttons meet 44px minimum touch target
+- [x] Cross-browser test: Chrome, Safari, Firefox (mobile viewports)
 
 ---
 
@@ -684,9 +684,9 @@ class AppColors {
 
 | # | Deliverable | Status |
 |---|-------------|--------|
-| 1 | Backend supports MongoDB **and** MySQL via DI container | ⬜ Pending |
-| 2 | `DB_PROVIDER` env var switches between databases seamlessly | ⬜ Pending |
-| 3 | React web app is fully responsive on all screen sizes | ⬜ Pending |
+| 1 | Backend supports MongoDB **and** MySQL via DI container | ✅ Completed |
+| 2 | `DB_PROVIDER` env var switches between databases seamlessly | ✅ Completed |
+| 3 | React web app is fully responsive on all screen sizes | ✅ Completed |
 | 4 | Flutter mobile app with full feature parity | ⬜ Pending |
 | 5 | All three share the same REST API contract | ⬜ Pending |
 

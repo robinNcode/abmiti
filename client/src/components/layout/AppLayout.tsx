@@ -15,6 +15,8 @@ const NAV = [
   { to: '/settings',     icon: Settings,        label: 'Settings' },
 ];
 
+const MOBILE_NAV = NAV.slice(0, 5);
+
 export default function AppLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -86,22 +88,34 @@ export default function AppLayout() {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 overflow-y-auto md:pb-0 pb-16">
+      <main className="flex-1 min-w-0 overflow-y-auto md:pb-0 pb-16 flex flex-col">
+        {/* Mobile Top Bar */}
+        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/90 backdrop-blur-sm border-b border-paper-mist2 sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <button onClick={prev} className="w-8 h-8 rounded-full bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors">‹</button>
+            <span className="text-sm font-semibold text-ink min-w-[80px] text-center">{monthLabel(month, year)}</span>
+            <button onClick={next} className="w-8 h-8 rounded-full bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors">›</button>
+          </div>
+          <NavLink to="/settings" className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
+            {user?.name?.[0]?.toUpperCase()}
+          </NavLink>
+        </div>
+
         <Outlet />
       </main>
 
       {/* Bottom Navbar - Visible on mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-paper-mist2 flex">
-        {NAV.map(({ to, icon: Icon, label }) => (
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-paper-mist2 flex z-20 pb-safe">
+        {MOBILE_NAV.map(({ to, icon: Icon, label }) => (
           <NavLink key={to} to={to} end={to === '/'}
             className={({ isActive }) => cx(
-              'flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs font-medium transition-colors',
+              'flex-1 flex flex-col items-center justify-center py-2 px-1 text-[10px] font-medium transition-colors',
               isActive
                 ? 'text-terra'
                 : 'text-ink/60',
             )}>
-            <Icon size={18} />
-            <span className="mt-1">{t(label)}</span>
+            <Icon size={20} className="mb-1" />
+            <span className="truncate w-full text-center">{t(label)}</span>
           </NavLink>
         ))}
       </nav>

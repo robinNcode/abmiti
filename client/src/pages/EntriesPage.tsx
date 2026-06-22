@@ -15,7 +15,7 @@ export default function EntriesPage() {
   const { month, year } = useMonthStore();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [page, setPage] = useState(1);
-  const [modal, setModal] = useState<'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable' | null>(null);
+  const [modal, setModal] = useState<'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable' | 'add_menu' | null>(null);
   const { t } = useTranslation();
 
   const { data, isLoading } = useEntries({
@@ -45,20 +45,27 @@ export default function EntriesPage() {
         title={`${t('entriesTitle')} — খাতা`}
         subtitle={`${total} ${t('monthlyEntries')}`}
         action={
-          <div className="flex flex-col md:flex-row gap-2">
-            <button onClick={() => setModal('income')}     className="btn-sage text-sm">↑ {t('addIncome')}</button>
-            <button onClick={() => setModal('expense')}    className="btn-primary text-sm">↓ {t('addExpense')}</button>
-            <button onClick={() => setModal('investment')} className="btn-sage text-sm">💼 {t('addInvestments')}</button>
-            <button onClick={() => setModal('savings')}    className="btn-sage text-sm">💰 {t('addSavings')}</button>
-            <button onClick={() => setModal('payable')}    className="btn-primary text-sm">📤 {t('addPayable')}</button>
-            <button onClick={() => setModal('receivable')} className="btn-sage text-sm">📥 {t('addReceivable')}</button>
-          </div>
+          <>
+            {/* Desktop: 6 buttons */}
+            <div className="hidden xl:flex gap-2">
+              <button onClick={() => setModal('income')}     className="btn-sage text-sm min-h-[44px]">↑ {t('addIncome')}</button>
+              <button onClick={() => setModal('expense')}    className="btn-primary text-sm min-h-[44px]">↓ {t('addExpense')}</button>
+              <button onClick={() => setModal('investment')} className="btn-sage text-sm min-h-[44px]">💼 {t('addInvestments')}</button>
+              <button onClick={() => setModal('savings')}    className="btn-sage text-sm min-h-[44px]">💰 {t('addSavings')}</button>
+              <button onClick={() => setModal('payable')}    className="btn-primary text-sm min-h-[44px]">📤 {t('addPayable')}</button>
+              <button onClick={() => setModal('receivable')} className="btn-sage text-sm min-h-[44px]">📥 {t('addReceivable')}</button>
+            </div>
+            {/* Mobile/Tablet: single Add Entry button */}
+            <div className="xl:hidden">
+              <button onClick={() => setModal('add_menu')} className="btn-primary text-sm min-h-[44px] w-full">Add Entry +</button>
+            </div>
+          </>
         }
       />
 
       <div className="px-4 md:px-8 pb-10 space-y-4">
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:flex-wrap">
           {filterBtns.map(({ key, transKey }) => (
             <button key={key} onClick={() => { setTypeFilter(key); setPage(1); }}
               className={cx(
@@ -71,7 +78,7 @@ export default function EntriesPage() {
                           typeFilter === key && key === 'receivable' ? 'bg-blue-500 text-white border-blue-500' :
                             'border-paper-mist2 text-ink/60 hover:bg-paper-mist',
               )}>
-              {t(transKey)}
+              <span className="whitespace-nowrap">{t(transKey)}</span>
             </button>
           ))}
         </div>
@@ -111,6 +118,16 @@ export default function EntriesPage() {
         </div>
       </div>
 
+      <Modal open={modal === 'add_menu'} onClose={() => setModal(null)} title="Select Entry Type">
+        <div className="flex flex-col gap-3 pb-2">
+          <button onClick={() => setModal('income')} className="btn-sage w-full min-h-[44px] text-left px-4">↑ {t('addIncome')}</button>
+          <button onClick={() => setModal('expense')} className="btn-primary w-full min-h-[44px] text-left px-4">↓ {t('addExpense')}</button>
+          <button onClick={() => setModal('investment')} className="btn-sage w-full min-h-[44px] text-left px-4">💼 {t('addInvestments')}</button>
+          <button onClick={() => setModal('savings')} className="btn-sage w-full min-h-[44px] text-left px-4">💰 {t('addSavings')}</button>
+          <button onClick={() => setModal('payable')} className="btn-primary w-full min-h-[44px] text-left px-4">📤 {t('addPayable')}</button>
+          <button onClick={() => setModal('receivable')} className="btn-sage w-full min-h-[44px] text-left px-4">📥 {t('addReceivable')}</button>
+        </div>
+      </Modal>
       <Modal open={modal === 'income'} onClose={() => setModal(null)} title={`${t('addIncomeTitle')} — আয়`}>
         <SmsEntryForm onSuccess={() => setModal(null)} />
       </Modal>

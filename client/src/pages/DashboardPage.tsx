@@ -31,7 +31,7 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="px-8 space-y-6 pb-10">
+      <div className="px-4 md:px-8 space-y-4 md:space-y-6 pb-10">
         {/* Summary cards */}
         <div className="grid grid-cols-2 gap-4">
           {summary && summary.budget > 0 && (
@@ -50,7 +50,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {sumLoading ? (
             Array(4).fill(0).map((_, i) => (
               <div key={i} className="card p-5 h-28 animate-pulse bg-paper-mist" />
@@ -110,9 +110,9 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Recent entries */}
-          <div className="col-span-3 card p-5">
+          <div className="lg:col-span-3 card p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="font-display font-bold text-base">Recent Entries</p>
               <a href="/entries" className="text-xs text-terra font-semibold hover:underline">View all →</a>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Category breakdown */}
-          <div className="col-span-2 card p-5">
+          <div className="lg:col-span-2 card p-4 md:p-5">
             <p className="font-display font-bold text-base mb-4">Expenses by Category</p>
             <CategoryBreakdown />
           </div>
