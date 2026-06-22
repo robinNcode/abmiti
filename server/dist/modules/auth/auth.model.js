@@ -43,6 +43,7 @@ const userSchema = new mongoose_1.Schema({
     name: { type: String, required: true, trim: true, maxlength: 80 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6, select: false },
+    budget: { type: Number, default: 0, min: 0 },
 }, { timestamps: true });
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password'))

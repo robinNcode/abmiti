@@ -1,43 +1,28 @@
-import { Types } from 'mongoose';
-import { Account } from './account.model';
+import { container } from '../../container';
 import { IAccount, IAccountInput } from '../../shared/types';
 
 export const accountService = {
   async create(userId: string, input: IAccountInput): Promise<IAccount> {
-    const account = new Account({ ...input, user: userId });
-    return account.save();
+    return container.accountRepo.create({ ...input, user: userId });
   },
 
   async findByUser(userId: string): Promise<IAccount[]> {
-    return Account.find({ user: userId, isActive: true }).sort({ createdAt: -1 });
+    return container.accountRepo.findByUser(userId);
   },
 
   async findById(userId: string, accountId: string): Promise<IAccount | null> {
-    return Account.findOne({ _id: accountId, user: userId });
+    return container.accountRepo.findById(userId, accountId);
   },
 
   async update(userId: string, accountId: string, input: Partial<IAccountInput>): Promise<IAccount | null> {
-    return Account.findOneAndUpdate(
-      { _id: accountId, user: userId },
-      input,
-      { new: true }
-    );
+    return container.accountRepo.update(userId, accountId, input);
   },
 
   async delete(userId: string, accountId: string): Promise<boolean> {
-    const result = await Account.findOneAndUpdate(
-      { _id: accountId, user: userId },
-      { isActive: false },
-      { new: true }
-    );
-    return !!result;
+    return container.accountRepo.softDelete(userId, accountId);
   },
 
   async updateBalance(userId: string, accountId: string, amount: number): Promise<IAccount | null> {
-    return Account.findOneAndUpdate(
-      { _id: accountId, user: userId },
-      { $inc: { balance: amount } },
-      { new: true }
-    );
+    return container.accountRepo.updateBalance(userId, accountId, amount);
   },
 };

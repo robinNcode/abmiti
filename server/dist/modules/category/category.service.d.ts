@@ -1,7 +1,5 @@
-import { Types } from 'mongoose';
 import { ICategory, EntryType } from '../../shared/types';
 export declare const categoryService: {
-    seedDefaults(userId: Types.ObjectId): Promise<void>;
     list(userId: string, type?: EntryType): Promise<ICategory[]>;
     create(userId: string, dto: {
         name: string;

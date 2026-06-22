@@ -8,7 +8,7 @@ exports.authController = {
         try {
             const { user, tokens } = await auth_service_1.authService.register(req.body);
             (0, response_1.sendCreated)(res, {
-                user: { _id: user._id, name: user.name, email: user.email },
+                user: { _id: user._id, name: user.name, email: user.email, budget: user.budget },
                 ...tokens,
             }, 'Registration successful');
         }
@@ -20,9 +20,18 @@ exports.authController = {
         try {
             const { user, tokens } = await auth_service_1.authService.login(req.body);
             (0, response_1.sendSuccess)(res, {
-                user: { _id: user._id, name: user.name, email: user.email },
+                user: { _id: user._id, name: user.name, email: user.email, budget: user.budget },
                 ...tokens,
             }, 'Login successful');
+        }
+        catch (err) {
+            next(err);
+        }
+    },
+    async updateMe(req, res, next) {
+        try {
+            const user = await auth_service_1.authService.updateMe(req.user.userId, req.body);
+            (0, response_1.sendSuccess)(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget }, 'Profile updated');
         }
         catch (err) {
             next(err);
@@ -40,7 +49,7 @@ exports.authController = {
     async me(req, res, next) {
         try {
             const user = await auth_service_1.authService.getMe(req.user.userId);
-            (0, response_1.sendSuccess)(res, { _id: user._id, name: user.name, email: user.email });
+            (0, response_1.sendSuccess)(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget });
         }
         catch (err) {
             next(err);

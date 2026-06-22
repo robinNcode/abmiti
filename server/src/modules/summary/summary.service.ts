@@ -1,5 +1,4 @@
-import { Types } from 'mongoose';
-import { Entry } from '../entry/entry.model';
+import { container } from '../../container';
 
 interface MonthlySummary {
   income: number;
@@ -59,16 +58,7 @@ export const summaryService = {
     const start = new Date(year, month - 1, 1);
     const end   = new Date(year, month, 0, 23, 59, 59);
 
-    const result = await Entry.aggregate([
-      { $match: { user: new Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
-      {
-        $group: {
-          _id: '$type',
-          total: { $sum: '$amount' },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    const result = await container.summaryRepo.getMonthlySummary(userId, start, end);
 
     const incomeRow     = result.find((r) => r._id === 'income');
     const expenseRow    = result.find((r) => r._id === 'expense');
@@ -104,19 +94,7 @@ export const summaryService = {
     const start = new Date(year, month - 1, 1);
     const end   = new Date(year, month, 0, 23, 59, 59);
 
-    const rows = await Entry.aggregate([
-      {
-        $match: {
-          user: new Types.ObjectId(userId),
-          type: 'expense',
-          date: { $gte: start, $lte: end },
-        },
-      },
-      { $group: { _id: '$category', total: { $sum: '$amount' }, count: { $sum: 1 } } },
-      { $lookup: { from: 'categories', localField: '_id', foreignField: '_id', as: 'category' } },
-      { $unwind: '$category' },
-      { $sort: { total: -1 } },
-    ]);
+    const rows = await container.summaryRepo.getCategoryBreakdown(userId, start, end);
 
     const grandTotal = rows.reduce((s, r) => s + r.total, 0);
 
@@ -137,15 +115,7 @@ export const summaryService = {
     const start = new Date(year, 0, 1);
     const end   = new Date(year, 11, 31, 23, 59, 59);
 
-    const rows = await Entry.aggregate([
-      { $match: { user: new Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
-      {
-        $group: {
-          _id:   { month: { $month: '$date' }, type: '$type' },
-          total: { $sum: '$amount' },
-        },
-      },
-    ]);
+    const rows = await container.summaryRepo.getYearlyTrend(userId, start, end);
 
     const map: Record<number, MonthlyTrend> = {};
     for (let m = 1; m <= 12; m++) {
@@ -169,16 +139,7 @@ export const summaryService = {
     const start = new Date(year, 0, 1);
     const end   = new Date(year, 11, 31, 23, 59, 59);
 
-    const result = await Entry.aggregate([
-      { $match: { user: new Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
-      {
-        $group: {
-          _id: '$type',
-          total: { $sum: '$amount' },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    const result = await container.summaryRepo.getMonthlySummary(userId, start, end);
 
     const incomeRow     = result.find((r) => r._id === 'income');
     const expenseRow    = result.find((r) => r._id === 'expense');
@@ -207,18 +168,7 @@ export const summaryService = {
   },
 
   async accountSummaries(userId: string, year?: number): Promise<AccountSummary[]> {
-    const match: any = { user: new Types.ObjectId(userId), type: 'savings' };
-    if (year) {
-      match.date = { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31, 23, 59, 59) };
-    }
-
-    const rows = await Entry.aggregate([
-      { $match: match },
-      { $group: { _id: '$account', totalSavings: { $sum: '$amount' }, count: { $sum: 1 } } },
-      { $lookup: { from: 'accounts', localField: '_id', foreignField: '_id', as: 'account' } },
-      { $unwind: '$account' },
-      { $sort: { totalSavings: -1 } },
-    ]);
+    const rows = await container.summaryRepo.getAccountSummaries(userId, year);
 
     return rows.map((r) => ({
       account: {
@@ -232,3 +182,4 @@ export const summaryService = {
     }));
   },
 };
+

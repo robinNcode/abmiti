@@ -1,9 +1,10 @@
 import { IEntry, IEntryFilters, IPaginationOptions, IPaginatedResult, ISmsParseResult } from '../../shared/types';
 interface CreateEntryDto {
-    type: 'income' | 'expense' | 'savings' | 'payable' | 'receivable';
+    type: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
     amount: number;
     note?: string;
     categoryId: string;
+    sector?: string;
     source?: string;
     accountId?: string;
     date?: string;

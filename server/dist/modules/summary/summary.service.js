@@ -1,37 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.summaryService = void 0;
-const mongoose_1 = require("mongoose");
-const entry_model_1 = require("../entry/entry.model");
+const container_1 = require("../../container");
 exports.summaryService = {
-    async monthly(userId, month, year) {
+    async monthly(userId, month, year, budget = 0) {
         const start = new Date(year, month - 1, 1);
         const end = new Date(year, month, 0, 23, 59, 59);
-        const result = await entry_model_1.Entry.aggregate([
-            { $match: { user: new mongoose_1.Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
-            {
-                $group: {
-                    _id: '$type',
-                    total: { $sum: '$amount' },
-                    count: { $sum: 1 },
-                },
-            },
-        ]);
+        const result = await container_1.container.summaryRepo.getMonthlySummary(userId, start, end);
         const incomeRow = result.find((r) => r._id === 'income');
         const expenseRow = result.find((r) => r._id === 'expense');
+        const investmentRow = result.find((r) => r._id === 'investment');
         const savingsRow = result.find((r) => r._id === 'savings');
         const receivableRow = result.find((r) => r._id === 'receivable');
         const payableRow = result.find((r) => r._id === 'payable');
         const income = incomeRow?.total ?? 0;
-        const expense = expenseRow?.total ?? 0;
+        const expense = (expenseRow?.total ?? 0) + (investmentRow?.total ?? 0);
+        const investment = investmentRow?.total ?? 0;
         const savings = income - expense;
+        const remainingBudget = Math.max(0, budget - expense);
         return {
             income,
             expense,
+            investment,
+            budget,
+            remainingBudget,
+            budgetUsed: budget > 0 ? parseFloat(((expense / budget) * 100).toFixed(1)) : 0,
             savings,
             savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
             incomeCount: incomeRow?.count ?? 0,
-            expenseCount: expenseRow?.count ?? 0,
+            expenseCount: (expenseRow?.count ?? 0) + (investmentRow?.count ?? 0),
+            investmentCount: investmentRow?.count ?? 0,
             savingsCount: savingsRow?.count ?? 0,
             receivableCount: receivableRow?.count ?? 0,
             payableCount: payableRow?.count ?? 0,
@@ -40,19 +38,7 @@ exports.summaryService = {
     async categoryBreakdown(userId, month, year) {
         const start = new Date(year, month - 1, 1);
         const end = new Date(year, month, 0, 23, 59, 59);
-        const rows = await entry_model_1.Entry.aggregate([
-            {
-                $match: {
-                    user: new mongoose_1.Types.ObjectId(userId),
-                    type: 'expense',
-                    date: { $gte: start, $lte: end },
-                },
-            },
-            { $group: { _id: '$category', total: { $sum: '$amount' }, count: { $sum: 1 } } },
-            { $lookup: { from: 'categories', localField: '_id', foreignField: '_id', as: 'category' } },
-            { $unwind: '$category' },
-            { $sort: { total: -1 } },
-        ]);
+        const rows = await container_1.container.summaryRepo.getCategoryBreakdown(userId, start, end);
         const grandTotal = rows.reduce((s, r) => s + r.total, 0);
         return rows.map((r) => ({
             category: {
@@ -69,25 +55,21 @@ exports.summaryService = {
     async yearlyTrend(userId, year) {
         const start = new Date(year, 0, 1);
         const end = new Date(year, 11, 31, 23, 59, 59);
-        const rows = await entry_model_1.Entry.aggregate([
-            { $match: { user: new mongoose_1.Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
-            {
-                $group: {
-                    _id: { month: { $month: '$date' }, type: '$type' },
-                    total: { $sum: '$amount' },
-                },
-            },
-        ]);
+        const rows = await container_1.container.summaryRepo.getYearlyTrend(userId, start, end);
         const map = {};
         for (let m = 1; m <= 12; m++) {
-            map[m] = { month: m, year, income: 0, expense: 0, savings: 0 };
+            map[m] = { month: m, year, income: 0, expense: 0, savings: 0, investment: 0 };
         }
         rows.forEach((r) => {
             const m = r._id.month;
             if (r._id.type === 'income')
                 map[m].income = r.total;
             if (r._id.type === 'expense')
-                map[m].expense = r.total;
+                map[m].expense += r.total;
+            if (r._id.type === 'investment')
+                map[m].expense += r.total;
+            if (r._id.type === 'investment')
+                map[m].investment = r.total;
         });
         Object.values(map).forEach((m) => { m.savings = m.income - m.expense; });
         return Object.values(map);
@@ -95,48 +77,33 @@ exports.summaryService = {
     async yearly(userId, year) {
         const start = new Date(year, 0, 1);
         const end = new Date(year, 11, 31, 23, 59, 59);
-        const result = await entry_model_1.Entry.aggregate([
-            { $match: { user: new mongoose_1.Types.ObjectId(userId), date: { $gte: start, $lte: end } } },
-            {
-                $group: {
-                    _id: '$type',
-                    total: { $sum: '$amount' },
-                    count: { $sum: 1 },
-                },
-            },
-        ]);
+        const result = await container_1.container.summaryRepo.getMonthlySummary(userId, start, end);
         const incomeRow = result.find((r) => r._id === 'income');
         const expenseRow = result.find((r) => r._id === 'expense');
+        const investmentRow = result.find((r) => r._id === 'investment');
         const savingsRow = result.find((r) => r._id === 'savings');
         const receivableRow = result.find((r) => r._id === 'receivable');
         const payableRow = result.find((r) => r._id === 'payable');
         const income = incomeRow?.total ?? 0;
-        const expense = expenseRow?.total ?? 0;
+        const investment = investmentRow?.total ?? 0;
+        const expense = (expenseRow?.total ?? 0) + investment;
         const savings = income - expense;
         return {
             income,
             expense,
+            investment,
             savings,
             savingsRate: income > 0 ? parseFloat(((savings / income) * 100).toFixed(1)) : 0,
             incomeCount: incomeRow?.count ?? 0,
-            expenseCount: expenseRow?.count ?? 0,
+            expenseCount: (expenseRow?.count ?? 0) + (investmentRow?.count ?? 0),
+            investmentCount: investmentRow?.count ?? 0,
             savingsCount: savingsRow?.count ?? 0,
             receivableCount: receivableRow?.count ?? 0,
             payableCount: payableRow?.count ?? 0,
         };
     },
     async accountSummaries(userId, year) {
-        const match = { user: new mongoose_1.Types.ObjectId(userId), type: 'savings' };
-        if (year) {
-            match.date = { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31, 23, 59, 59) };
-        }
-        const rows = await entry_model_1.Entry.aggregate([
-            { $match: match },
-            { $group: { _id: '$account', totalSavings: { $sum: '$amount' }, count: { $sum: 1 } } },
-            { $lookup: { from: 'accounts', localField: '_id', foreignField: '_id', as: 'account' } },
-            { $unwind: '$account' },
-            { $sort: { totalSavings: -1 } },
-        ]);
+        const rows = await container_1.container.summaryRepo.getAccountSummaries(userId, year);
         return rows.map((r) => ({
             account: {
                 _id: String(r.account._id),

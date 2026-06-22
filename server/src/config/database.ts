@@ -1,16 +1,3 @@
-import mongoose from 'mongoose';
-import { env } from './env';
-import { logger } from './logger';
-
-export const connectDB = async (): Promise<void> => {
-  try {
-    mongoose.set('strictQuery', true);
-    const conn = await mongoose.connect(env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000,
-    });
-    logger.info(`MongoDB connected: ${conn.connection.host}`);
-  } catch (err) {
-    logger.error('MongoDB connection error:', err);
-    throw err;
-  }
-};
+// Backward-compat shim — business code should use the infrastructure layer directly.
+// app.ts calls connectDB() which routes to the correct provider based on DB_PROVIDER.
+export { connectMongoDB as connectDB } from '../infrastructure/database/mongodb/connection';

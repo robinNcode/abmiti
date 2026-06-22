@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.refreshValidator = exports.loginValidator = exports.registerValidator = void 0;
+exports.updateProfileValidator = exports.refreshValidator = exports.loginValidator = exports.registerValidator = void 0;
 const express_validator_1 = require("express-validator");
 exports.registerValidator = [
     (0, express_validator_1.body)('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 80 }),
@@ -13,5 +13,8 @@ exports.loginValidator = [
 ];
 exports.refreshValidator = [
     (0, express_validator_1.body)('refreshToken').notEmpty().withMessage('Refresh token is required'),
+];
+exports.updateProfileValidator = [
+    (0, express_validator_1.body)('budget').optional().isFloat({ min: 0 }).withMessage('Budget must be a positive number'),
 ];
 //# sourceMappingURL=auth.validators.js.map

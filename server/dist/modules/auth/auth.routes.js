@@ -9,5 +9,6 @@ router.post('/register', auth_validators_1.registerValidator, middleware_1.valid
 router.post('/login', auth_validators_1.loginValidator, middleware_1.validate, auth_controller_1.authController.login);
 router.post('/refresh', auth_validators_1.refreshValidator, middleware_1.validate, auth_controller_1.authController.refresh);
 router.get('/me', middleware_1.authenticate, auth_controller_1.authController.me);
+router.patch('/me', middleware_1.authenticate, auth_validators_1.updateProfileValidator, middleware_1.validate, auth_controller_1.authController.updateMe);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map

@@ -7,7 +7,7 @@ exports.authService = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_1 = require("../../config/env");
 const errors_1 = require("../../shared/utils/errors");
-const auth_model_1 = require("./auth.model");
+const container_1 = require("../../container");
 const signTokens = (user) => {
     const payload = {
         userId: String(user._id),
@@ -20,14 +20,14 @@ const signTokens = (user) => {
 };
 exports.authService = {
     async register(dto) {
-        const exists = await auth_model_1.User.findOne({ email: dto.email });
+        const exists = await container_1.container.userRepo.findByEmail(dto.email);
         if (exists)
             throw new errors_1.ConflictError('Email already registered');
-        const user = await auth_model_1.User.create(dto);
+        const user = await container_1.container.userRepo.create(dto);
         return { user, tokens: signTokens(user) };
     },
     async login(dto) {
-        const user = await auth_model_1.User.findOne({ email: dto.email }).select('+password');
+        const user = await container_1.container.userRepo.findByEmail(dto.email, true);
         if (!user || !(await user.comparePassword(dto.password))) {
             throw new errors_1.UnauthorizedError('Invalid email or password');
         }
@@ -41,13 +41,25 @@ exports.authService = {
         catch {
             throw new errors_1.UnauthorizedError('Invalid refresh token');
         }
-        const user = await auth_model_1.User.findById(payload.userId);
+        const user = await container_1.container.userRepo.findById(payload.userId);
         if (!user)
             throw new errors_1.UnauthorizedError('User not found');
         return signTokens(user);
     },
     async getMe(userId) {
-        const user = await auth_model_1.User.findById(userId);
+        const user = await container_1.container.userRepo.findById(userId);
+        if (!user)
+            throw new errors_1.UnauthorizedError('User not found');
+        return user;
+    },
+    async updateMe(userId, dto) {
+        if (dto.budget !== undefined) {
+            const updated = await container_1.container.userRepo.updateBudget(userId, dto.budget);
+            if (!updated)
+                throw new errors_1.UnauthorizedError('User not found');
+            return updated;
+        }
+        const user = await container_1.container.userRepo.findById(userId);
         if (!user)
             throw new errors_1.UnauthorizedError('User not found');
         return user;

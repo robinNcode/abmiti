@@ -4,7 +4,7 @@ export const createEntryValidator = [
   body('type').isIn(['income', 'expense', 'investment', 'savings', 'payable', 'receivable'])
     .withMessage('Type must be income, expense, investment, savings, payable or receivable'),
   body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be a positive number'),
-  body('categoryId').notEmpty().isMongoId().withMessage('Valid category ID required'),
+  body('categoryId').notEmpty().isUUID().withMessage('Valid category ID required'),
   body('note').optional().isString().isLength({ max: 300 }),
   body('sector').optional().isString().isLength({ max: 120 }),
   body('source').optional().isIn(['bank','bkash','nagad','cash','card','other']),

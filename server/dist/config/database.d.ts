@@ -1,2 +1,2 @@
-export declare const connectDB: () => Promise<void>;
+export { connectMongoDB as connectDB } from '../infrastructure/database/mongodb/connection';
 //# sourceMappingURL=database.d.ts.map

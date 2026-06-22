@@ -1,0 +1,49 @@
+curl 'http://localhost:5173/api/v1/summary/monthly?month=6&year=2026' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:152.0) Gecko/20100101 Firefox/152.0' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Accept-Encoding: gzip, deflate, br, zstd' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjA3ZmNiMC0yMWRlLTQ0NzktOTllNy05YWY5ZjZiMWYxZjQiLCJlbWFpbCI6InRlc3RAYWJtaXRpLmNvbSIsImlhdCI6MTc4MjEwMjc5MSwiZXhwIjoxNzgyNzA3NTkxfQ.JBzI5dgWzwo4gweh2IhjCoXlY15I2cidpnpQMIZAAoE' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://localhost:5173/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin'
+
+curl 'http://localhost:5173/api/v1/entries?month=6&year=2026&limit=8' \
+  --compressed \
+  -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:152.0) Gecko/20100101 Firefox/152.0' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Accept-Encoding: gzip, deflate, br, zstd' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjA3ZmNiMC0yMWRlLTQ0NzktOTllNy05YWY5ZjZiMWYxZjQiLCJlbWFpbCI6InRlc3RAYWJtaXRpLmNvbSIsImlhdCI6MTc4MjEwMjc5MSwiZXhwIjoxNzgyNzA3NTkxfQ.JBzI5dgWzwo4gweh2IhjCoXlY15I2cidpnpQMIZAAoE' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://localhost:5173/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin'
+
+curl 'http://localhost:5173/api/v1/summary/monthly?month=6&year=2026' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:152.0) Gecko/20100101 Firefox/152.0' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Accept-Encoding: gzip, deflate, br, zstd' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjA3ZmNiMC0yMWRlLTQ0NzktOTllNy05YWY5ZjZiMWYxZjQiLCJlbWFpbCI6InRlc3RAYWJtaXRpLmNvbSIsImlhdCI6MTc4MjEwMjc5MSwiZXhwIjoxNzgyNzA3NTkxfQ.JBzI5dgWzwo4gweh2IhjCoXlY15I2cidpnpQMIZAAoE' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://localhost:5173/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin'
+
+curl 'http://localhost:5173/api/v1/entries?month=6&year=2026&limit=8' \
+  --compressed \
+  -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:152.0) Gecko/20100101 Firefox/152.0' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Accept-Encoding: gzip, deflate, br, zstd' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MjA3ZmNiMC0yMWRlLTQ0NzktOTllNy05YWY5ZjZiMWYxZjQiLCJlbWFpbCI6InRlc3RAYWJtaXRpLmNvbSIsImlhdCI6MTc4MjEwMjc5MSwiZXhwIjoxNzgyNzA3NTkxfQ.JBzI5dgWzwo4gweh2IhjCoXlY15I2cidpnpQMIZAAoE' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://localhost:5173/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin'

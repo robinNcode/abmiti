@@ -1,10 +1,15 @@
 interface MonthlySummary {
     income: number;
     expense: number;
+    investment: number;
+    budget: number;
+    remainingBudget: number;
+    budgetUsed: number;
     savings: number;
     savingsRate: number;
     incomeCount: number;
     expenseCount: number;
+    investmentCount: number;
     savingsCount: number;
     payableCount: number;
     receivableCount: number;
@@ -26,14 +31,17 @@ interface MonthlyTrend {
     income: number;
     expense: number;
     savings: number;
+    investment?: number;
 }
 interface YearlySummary {
     income: number;
     expense: number;
+    investment: number;
     savings: number;
     savingsRate: number;
     incomeCount: number;
     expenseCount: number;
+    investmentCount: number;
     savingsCount: number;
     payableCount: number;
     receivableCount: number;
@@ -49,7 +57,7 @@ interface AccountSummary {
     count: number;
 }
 export declare const summaryService: {
-    monthly(userId: string, month: number, year: number): Promise<MonthlySummary>;
+    monthly(userId: string, month: number, year: number, budget?: number): Promise<MonthlySummary>;
     categoryBreakdown(userId: string, month: number, year: number): Promise<CategoryBreakdown[]>;
     yearlyTrend(userId: string, year: number): Promise<MonthlyTrend[]>;
     yearly(userId: string, year: number): Promise<YearlySummary>;

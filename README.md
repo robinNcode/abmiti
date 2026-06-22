@@ -1,8 +1,16 @@
-# abmiti — আয় ব্যয় মিতি
+# Abmiti - আয় ব্যয় মিতি
+## Personal Finance Tracker
+Abmiti is a modern, AI-ready personal finance tracker built with React, Node.js, and MongoDB. It helps you manage your income and expenses effortlessly, with intelligent SMS parsing capabilities.
 
-> Personal finance tracker: Income · Expense · Savings
+## 🚀 Features
 
-## Architecture
+- **Financial Tracking**: Monitor your income and expenses with ease.
+- **AI-Powered SMS Parsing**: Automatically parses bank and mobile banking SMS to create entries.
+- **Intuitive Dashboard**: Visualizes your financial health with charts and summaries.
+- **Category Management**: Organize your expenses with custom categories.
+- **Secure Authentication**: Built-in login and registration system.
+
+## 🛠️ Architecture
 
 ```
 abmiti/
