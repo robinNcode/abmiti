@@ -1,5 +1,5 @@
 import {
-  IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput, IBudget, IBudgetInput,
+  IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput, IBudget, IBudgetInput, IBudgetLineInput,
   IEntryFilters, IPaginationOptions, IPaginatedResult, EntryType,
 } from './index';
 
@@ -81,8 +81,20 @@ export interface ISummaryRepository {
 
 // ── Budget Repository ─────────────────────────────────────────
 export interface IBudgetRepository {
-  upsert(userId: string, data: IBudgetInput): Promise<IBudget>;
-  findByMonth(userId: string, month: number, year: number): Promise<IBudget | null>;
-  findMany(userId: string): Promise<IBudget[]>;
+  create(userId: string, data: IBudgetInput): Promise<IBudget>;
+  update(id: string, userId: string, data: Partial<IBudgetInput>): Promise<IBudget | null>;
+  findById(id: string, userId: string): Promise<IBudget | null>;
+  findByMonth(userId: string, month: number, year: number, isTemplate?: boolean): Promise<IBudget | null>;
+  findMany(userId: string, templatesOnly?: boolean): Promise<IBudget[]>;
   remove(id: string, userId: string): Promise<boolean>;
+  addLine(budgetId: string, userId: string, line: IBudgetLineInput): Promise<IBudget | null>;
+  updateLine(budgetId: string, lineId: string, userId: string, line: Partial<IBudgetLineInput>): Promise<IBudget | null>;
+  removeLine(budgetId: string, lineId: string, userId: string): Promise<IBudget | null>;
+  reorderLines(budgetId: string, userId: string, order: string[]): Promise<IBudget | null>;
+  findExpenseEntriesByCategories(
+    userId: string,
+    categoryIds: string[],
+    start: Date,
+    end: Date,
+  ): Promise<IEntry[]>;
 }

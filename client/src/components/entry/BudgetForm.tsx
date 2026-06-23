@@ -15,7 +15,7 @@ export default function BudgetForm({ onSuccess, initialData }: Props) {
     defaultValues: initialData || {
       month: new Date().getMonth() + 1,
       year: new Date().getFullYear(),
-      amount: 0,
+      totalIncome: 0,
     },
   });
 
@@ -29,7 +29,7 @@ export default function BudgetForm({ onSuccess, initialData }: Props) {
     await upsertBudget.mutateAsync({
       month: Number(data.month),
       year: Number(data.year),
-      amount: Number(data.amount),
+      totalIncome: Number(data.totalIncome),
     });
     reset();
     onSuccess?.();
@@ -53,8 +53,8 @@ export default function BudgetForm({ onSuccess, initialData }: Props) {
       </div>
 
       <div>
-        <label className="label">Budget Amount (BDT) *</label>
-        <input {...register('amount', { required: true, min: 0.01 })} type="number" step="0.01" min="0.01"
+        <label className="label">Declared Income (BDT) *</label>
+        <input {...register('totalIncome', { required: true, min: 0 })} type="number" step="0.01" min="0"
           placeholder="0" className="input w-full" />
       </div>
 

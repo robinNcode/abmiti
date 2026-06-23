@@ -11,6 +11,7 @@ import SettingsPage from '@/pages/SettingsPage';
 import CategoriesPage from '@/pages/CategoriesPage';
 import AnalyticsPage  from '@/pages/AnalyticsPage';
 import LandingPage    from '@/pages/LandingPage';
+import BudgetPage     from '@/pages/BudgetPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.accessToken);
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/investments" element={<InvestmentsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/budget" element={<BudgetPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,7 +4,7 @@ import { PageHeader, Modal, Spinner, EmptyState } from '@/components/ui';
 import { useBudgets, useDeleteBudget } from '@/hooks';
 import BudgetForm from '@/components/entry/BudgetForm';
 import { formatBDT, SHORT_MONTHS } from '@/utils';
-import { IBudgetInput } from '@/types';
+import { IBudget, IBudgetInput } from '@/types';
 import { t } from 'i18next';
 
 export default function SettingsPage() {
@@ -14,8 +14,8 @@ export default function SettingsPage() {
   const { data: budgets = [], isLoading } = useBudgets();
   const deleteBudget = useDeleteBudget();
 
-  const handleEdit = (b: any) => {
-    setEditData({ month: b.month, year: b.year, amount: b.amount });
+  const handleEdit = (b: IBudget) => {
+    setEditData({ month: b.month, year: b.year, totalIncome: b.totalIncome });
     setModalOpen(true);
   };
 
@@ -47,11 +47,11 @@ export default function SettingsPage() {
             <div className="flex justify-center py-8"><Spinner className="text-terra" /></div>
           ) : budgets.length > 0 ? (
             <div className="space-y-3">
-              {budgets.map((b: any) => (
+              {budgets.map((b: IBudget) => (
                 <div key={b._id} className="flex items-center justify-between p-4 border border-paper-mist2 rounded-xl hover:bg-paper-mist transition-colors">
                   <div>
                     <p className="font-semibold">{SHORT_MONTHS[b.month - 1]} {b.year}</p>
-                    <p className="text-sm text-ink/60 mt-0.5">Budget: {formatBDT(b.amount)}</p>
+                    <p className="text-sm text-ink/60 mt-0.5">Declared income: {formatBDT(b.totalIncome)}</p>
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => handleEdit(b)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-ink/50 hover:text-ink transition-colors shadow-sm border border-transparent hover:border-paper-mist2">

@@ -6,9 +6,18 @@ const resources = {
     translation: {
       // Navigation
       dashboard: 'Dashboard',
+      Dashboard: 'Dashboard',
       entries: 'Entries',
+      Entries: 'Entries',
       analytics: 'Analytics',
+      Analytics: 'Analytics',
       categories: 'Categories',
+      Categories: 'Categories',
+      Budget: 'Budget',
+      Investments: 'Investments',
+      Settings: 'Settings',
+      Period: 'Period',
+      'Sign out': 'Sign out',
       signOut: 'Sign out',
 
       // Common
@@ -66,6 +75,12 @@ const resources = {
 
       // Dashboard
       totalIncome: 'Total Income',
+      budget: 'Budget',
+      budgetHealth: 'Budget Health',
+      planned: 'Planned',
+      spent: 'Spent',
+      remaining: 'Remaining',
+      allocated: 'Allocated',
       totalExpense: 'Total Expense',
       totalSavings: 'Total Savings',
       netSavings: 'Net Savings',
@@ -126,9 +141,18 @@ const resources = {
     translation: {
       // Navigation
       dashboard: 'ড্যাশবোর্ড',
+      Dashboard: 'ড্যাশবোর্ড',
       entries: 'এন্ট্রি',
+      Entries: 'এন্ট্রি',
       analytics: 'অ্যানালিটিক্স',
+      Analytics: 'অ্যানালিটিক্স',
       categories: 'ক্যাটাগরি',
+      Categories: 'ক্যাটাগরি',
+      Budget: 'বাজেট',
+      Investments: 'বিনিয়োগ',
+      Settings: 'সেটিংস',
+      Period: 'সময়কাল',
+      'Sign out': 'সাইন আউট',
       signOut: 'সাইন আউট',
 
       // Common
@@ -187,6 +211,12 @@ const resources = {
 
       // Dashboard
       totalIncome: 'মোট আয়',
+      budget: 'বাজেট',
+      budgetHealth: 'বাজেট স্বাস্থ্য',
+      planned: 'পরিকল্পিত',
+      spent: 'ব্যয়',
+      remaining: 'অবশিষ্ট',
+      allocated: 'বরাদ্দ',
       totalExpense: 'মোট ব্যয়',
       totalSavings: 'মোট সঞ্চয়',
       netSavings: 'নেট সঞ্চয়',

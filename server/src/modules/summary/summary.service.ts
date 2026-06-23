@@ -188,12 +188,13 @@ export const summaryService = {
     const budgets = await container.budgetRepo.findMany(userId);
     const warnings = [];
     for (const b of budgets) {
-      const summary = await this.monthly(userId, b.month, b.year, b.amount);
+      if (b.isTemplate) continue;
+      const summary = await this.monthly(userId, b.month, b.year, b.totalIncome);
       if (summary.amountOverBudget > 0) {
         warnings.push({
           month: b.month,
           year: b.year,
-          budget: b.amount,
+          budget: b.totalIncome,
           expense: summary.expense,
           overBudget: summary.amountOverBudget,
         });
@@ -202,4 +203,3 @@ export const summaryService = {
     return warnings;
   },
 };
-

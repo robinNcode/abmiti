@@ -1,0 +1,14 @@
+-- migrate:up
+CREATE TABLE IF NOT EXISTS users (
+  id         VARCHAR(36)   NOT NULL PRIMARY KEY,
+  name       VARCHAR(80)   NOT NULL,
+  email      VARCHAR(255)  NOT NULL,
+  password   VARCHAR(255)  NOT NULL,
+  budget     DECIMAL(15,2) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_users_email (email)
+);
+
+-- migrate:down
+DROP TABLE IF EXISTS users;

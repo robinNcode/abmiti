@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings } from 'lucide-react';
+import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings, WalletCards } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
@@ -9,6 +9,7 @@ import { cx } from '@/utils';
 const NAV = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/entries',      icon: List,            label: 'Entries'   },
+  { to: '/budget',       icon: WalletCards,     label: 'Budget'   },
   { to: '/investments',  icon: TrendingUp,      label: 'Investments' },
   { to: '/analytics',    icon: BarChart2,       label: 'Analytics' },
   { to: '/categories',   icon: Tag,             label: 'Categories'},

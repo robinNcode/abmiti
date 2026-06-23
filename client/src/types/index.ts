@@ -13,13 +13,69 @@ export interface IBudget {
   user: string;
   month: number;
   year: number;
-  amount: number;
+  totalIncome: number;
+  lines: BudgetLine[];
+  isTemplate: boolean;
+  templateName?: string;
+  notes?: string;
 }
 
 export interface IBudgetInput {
   month: number;
   year: number;
-  amount: number;
+  totalIncome: number;
+  lines?: BudgetLineInput[];
+  notes?: string;
+  isTemplate?: boolean;
+  templateName?: string;
+}
+
+export type AllocationMethod = 'percentage' | 'fixed';
+
+export interface BudgetSubItem {
+  _id?: string;
+  name: string;
+  expectedAmount: number;
+  note?: string;
+}
+
+export interface BudgetLine {
+  _id: string;
+  name: string;
+  icon: string;
+  color: string;
+  allocationMethod: AllocationMethod;
+  allocationValue: number;
+  linkedCategoryIds: string[];
+  subItems: BudgetSubItem[];
+  order: number;
+  isActive: boolean;
+  note?: string;
+}
+
+export type BudgetLineInput = Omit<BudgetLine, '_id'>;
+
+export interface BudgetLineSummary {
+  lineId: string;
+  name: string;
+  icon: string;
+  color: string;
+  plannedAmount: number;
+  actualAmount: number;
+  variance: number;
+  usedPercent: number;
+  status: 'on_track' | 'warning' | 'over_budget' | 'unused';
+  subItems: (BudgetSubItem & { variance: number })[];
+}
+
+export interface BudgetSummary {
+  budgetId: string;
+  totalIncome: number;
+  totalPlanned: number;
+  totalActual: number;
+  totalVariance: number;
+  allocationPercent: number;
+  lines: BudgetLineSummary[];
 }
 
 export interface Category {

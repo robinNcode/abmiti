@@ -6,7 +6,7 @@ export const useBudgets = () => {
   return useQuery({
     queryKey: ['budgets'],
     queryFn: async () => {
-      const res = await apiClient.get<{ data: IBudget[] }>('/budgets');
+      const res = await apiClient.get<{ data: IBudget[] }>('/budgets/list/all');
       return res.data.data;
     },
   });
@@ -16,7 +16,7 @@ export const useMonthlyBudget = (month: number, year: number) => {
   return useQuery({
     queryKey: ['budget', month, year],
     queryFn: async () => {
-      const res = await apiClient.get<{ data: IBudget | null }>(`/budgets/monthly?month=${month}&year=${year}`);
+      const res = await apiClient.get<{ data: IBudget | null }>(`/budgets?month=${month}&year=${year}`);
       return res.data.data;
     },
   });

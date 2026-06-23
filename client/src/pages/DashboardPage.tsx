@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMonthlySummary, useEntries } from '@/hooks';
+import { useMonthlySummary, useEntries, useBudget, useBudgetSummary } from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { SummaryCard, PageHeader, Modal, EmptyState, Spinner } from '@/components/ui';
 import SmsEntryForm from '@/components/entry/SmsEntryForm';
@@ -16,7 +16,12 @@ export default function DashboardPage() {
 
   const { data: summary, isLoading: sumLoading } = useMonthlySummary();
   const { data: recentRes, isLoading: entriesLoading } = useEntries({ month, year, limit: 8 });
+  const { data: budget } = useBudget();
+  const { data: budgetSummary } = useBudgetSummary(budget?._id);
   const recent = recentRes?.data ?? [];
+  const healthLines = [...(budgetSummary?.lines ?? [])]
+    .sort((a, b) => b.usedPercent - a.usedPercent)
+    .slice(0, 3);
 
   return (
     <div className="min-h-full">
@@ -136,6 +141,34 @@ export default function DashboardPage() {
             <CategoryBreakdown />
           </div>
         </div>
+
+        {budgetSummary && (
+          <div className="card p-4 md:p-5">
+            <div className="flex items-center justify-between mb-4">
+              <p className="font-display font-bold text-base">Budget Health</p>
+              <a href="/budget" className="text-xs text-terra font-semibold hover:underline">Manage →</a>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {healthLines.map((line) => (
+                <div key={line.lineId} className="rounded-lg border border-paper-mist2 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold text-sm truncate">{line.icon} {line.name}</p>
+                    <span className={line.status === 'over_budget' ? 'text-terra text-xs font-bold' : line.status === 'warning' ? 'text-mustard text-xs font-bold' : 'text-sage text-xs font-bold'}>
+                      {line.usedPercent}%
+                    </span>
+                  </div>
+                  <div className="mt-3 h-2 bg-paper-mist rounded-full overflow-hidden">
+                    <div
+                      className={line.status === 'over_budget' ? 'h-full bg-terra' : line.status === 'warning' ? 'h-full bg-mustard' : 'h-full bg-sage'}
+                      style={{ width: `${Math.min(100, line.usedPercent)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-ink/45 mt-2">{formatBDT(line.actualAmount)} of {formatBDT(line.plannedAmount)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modals */}
