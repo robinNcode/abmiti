@@ -6,12 +6,14 @@ import { useMonthStore } from '@/store/monthStore';
 import ExpenseForm from '@/components/entry/ExpenseForm';
 import EntryRow from '@/components/entry/EntryRow';
 import { formatBDT } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function InvestmentsPage() {
   const { month, year } = useMonthStore();
   const [page, setPage] = useState(1);
   const [modal, setModal] = useState(false);
   const { data, isLoading } = useEntries({ month, year, type: 'investment', page, limit: 20 });
+  const { t } = useTranslation();
 
   const entries = data?.data ?? [];
   const totalPages = data?.meta?.totalPages ?? 1;
@@ -20,10 +22,10 @@ export default function InvestmentsPage() {
   return (
     <div className="min-h-full">
       <PageHeader
-        title="Investments"
-        subtitle="Track your investment entries and see how they affect your balance"
+        title={t('investments')}
+        subtitle={t('trackYourInvestmentEntries')}
         action={
-          <button onClick={() => setModal(true)} className="btn-secondary text-sm">+ Add Investment</button>
+          <button onClick={() => setModal(true)} className="btn-primary text-sm">+ {t('addInvestment')}</button>
         }
       />
 
@@ -45,8 +47,8 @@ export default function InvestmentsPage() {
           ) : (
             <EmptyState
               icon="📈"
-              title="No investments yet"
-              subtitle="Add your first investment entry to see it on the dashboard"
+              title={t('noInvestmentsYet')}
+              subtitle={t('addYourFirstInvestmentEntry')}
             />
           )}
         </div>
@@ -68,7 +70,7 @@ export default function InvestmentsPage() {
         )}
       </div>
 
-      <Modal open={modal} onClose={() => setModal(false)} title="Add Investment">
+      <Modal open={modal} onClose={() => setModal(false)} title={t('addInvestment')}>
         <ExpenseForm type="investment" onSuccess={() => setModal(false)} />
       </Modal>
     </div>

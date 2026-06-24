@@ -1,7 +1,12 @@
-import 'dotenv/config';
+import path from 'path';
+import dotenv from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+
+dotenv.config({
+  path: path.resolve(process.cwd(), process.env.NODE_ENV === 'production' ? '.env.production' : '.env'),
+});
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import morgan from 'morgan';

@@ -25,7 +25,7 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/abmiti">
       <Routes>
         <Route element={<AuthLayout />}>
           <Route path="/login"    element={<PublicRoute><LoginPage /></PublicRoute>} />

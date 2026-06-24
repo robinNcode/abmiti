@@ -71,14 +71,77 @@ export interface IBudget extends Document {
     user: Types.ObjectId;
     month: number;
     year: number;
-    amount: number;
+    totalIncome: number;
+    lines: IBudgetLine[];
+    isTemplate: boolean;
+    templateName?: string;
+    notes?: string;
     createdAt: Date;
     updatedAt: Date;
+}
+export type AllocationMethod = 'percentage' | 'fixed';
+export interface IBudgetSubItem {
+    _id?: Types.ObjectId | string;
+    name: string;
+    expectedAmount: number;
+    note?: string;
+}
+export interface IBudgetLine {
+    _id: Types.ObjectId | string;
+    name: string;
+    icon: string;
+    color: string;
+    allocationMethod: AllocationMethod;
+    allocationValue: number;
+    linkedCategoryIds: (Types.ObjectId | string)[];
+    subItems: IBudgetSubItem[];
+    order: number;
+    isActive: boolean;
+    note?: string;
 }
 export interface IBudgetInput {
     month: number;
     year: number;
-    amount: number;
+    totalIncome: number;
+    lines?: IBudgetLineInput[];
+    notes?: string;
+    isTemplate?: boolean;
+    templateName?: string;
+}
+export interface IBudgetLineInput {
+    name: string;
+    icon?: string;
+    color?: string;
+    allocationMethod: AllocationMethod;
+    allocationValue: number;
+    linkedCategoryIds?: string[];
+    subItems?: IBudgetSubItem[];
+    order?: number;
+    isActive?: boolean;
+    note?: string;
+}
+export interface IBudgetLineSummary {
+    lineId: string;
+    name: string;
+    icon: string;
+    color: string;
+    plannedAmount: number;
+    actualAmount: number;
+    variance: number;
+    usedPercent: number;
+    status: 'on_track' | 'warning' | 'over_budget' | 'unused';
+    subItems: (IBudgetSubItem & {
+        variance: number;
+    })[];
+}
+export interface IBudgetSummary {
+    budgetId: string;
+    totalIncome: number;
+    totalPlanned: number;
+    totalActual: number;
+    totalVariance: number;
+    allocationPercent: number;
+    lines: IBudgetLineSummary[];
 }
 export interface IPaginationOptions {
     page: number;

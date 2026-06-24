@@ -39,7 +39,11 @@ exports.authService = {
     async refresh(refreshToken) {
         let payload;
         try {
-            payload = jsonwebtoken_1.default.verify(refreshToken, env_1.env.JWT_REFRESH_SECRET);
+            const decoded = jsonwebtoken_1.default.verify(refreshToken, env_1.env.JWT_REFRESH_SECRET);
+            if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
+                throw new errors_1.UnauthorizedError('Invalid refresh token');
+            }
+            payload = decoded;
         }
         catch {
             throw new errors_1.UnauthorizedError('Invalid refresh token');

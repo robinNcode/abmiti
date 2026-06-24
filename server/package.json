@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
+    "build:prod": "tsc",
     "start": "node dist/app.js",
+    "start:prod": "NODE_ENV=production node dist/app.js",
     "migrate:mysql": "node scripts/run-mysql-migrations.js",
     "lint": "eslint src --ext .ts"
   },

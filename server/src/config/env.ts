@@ -1,5 +1,6 @@
 const required = (key: string): string => {
   const val = process.env[key];
+  if (key === 'MYSQL_PASSWORD') return val ?? '';
   if (!val) throw new Error(`Missing required environment variable: ${key}`);
   return val;
 };

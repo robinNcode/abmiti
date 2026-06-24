@@ -22,7 +22,11 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
 
   const token = header.split(' ')[1];
   try {
-    req.user = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, env.JWT_SECRET);
+    if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
+      throw new UnauthorizedError('Invalid or expired token');
+    }
+    req.user = decoded as JwtPayload;
     next();
   } catch {
     throw new UnauthorizedError('Invalid or expired token');

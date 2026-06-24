@@ -16,7 +16,11 @@ const authenticate = (req, _res, next) => {
         throw new errors_1.UnauthorizedError('No token provided');
     const token = header.split(' ')[1];
     try {
-        req.user = jsonwebtoken_1.default.verify(token, env_1.env.JWT_SECRET);
+        const decoded = jsonwebtoken_1.default.verify(token, env_1.env.JWT_SECRET);
+        if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
+            throw new errors_1.UnauthorizedError('Invalid or expired token');
+        }
+        req.user = decoded;
         next();
     }
     catch {

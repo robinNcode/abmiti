@@ -42,6 +42,21 @@ const resources = {
       noEntriesSubtitle: 'Try changing filters or add a new entry',
       monthlyEntries: 'entries this month',
 
+      // Investments
+      investments: 'Investments',
+      trackYourInvestmentEntries: 'Track your investment entries',
+      addInvestment: 'Add Investment',
+      noInvestmentsYet: 'No investments yet',
+      addYourFirstInvestmentEntry: 'Add your first investment entry to see it on the dashboard',
+
+      // Budget
+      budgetSubtitle: 'Plan monthly income, allocations, and category spending.',
+      monthlyBudget: 'Monthly Budget',
+      monthlyBudgetSubtitle: 'Your budget helps the dashboard show remaining budget and investment impact.',
+      monthlyBudgetInputPlaceholder: 'Enter your monthly budget',
+      monthlyBudgetLabel: 'Monthly budget (BDT)',
+      budgetLines: 'Budget Lines',
+
       // Modals
       addIncomeTitle: 'Add Income',
       addExpenseTitle: 'Add Expense',
@@ -124,10 +139,6 @@ const resources = {
       system: 'System',
       save: 'Save',
       logout: 'Logout',
-      monthlyBudget: 'Monthly Budget',
-      monthlyBudgetSubtitle: 'Your budget helps the dashboard show remaining budget and investment impact.',
-      monthlyBudgetInputPlaceholder: 'Enter your monthly budget',
-      monthlyBudgetLabel: 'Monthly budget (BDT)',
       deleteAccount: 'Delete Account',
       deleteAccountConfirm: 'Are you sure you want to delete your account?',
       deleteAccountConfirmation: 'This action cannot be undone. All your data will be permanently removed. Proceed?',
@@ -137,6 +148,9 @@ const resources = {
       deleteAccountConfirmationButtonText: 'Delete Account',
     },
   },
+
+
+  // Bengali translations ........................................................
   bn: {
     translation: {
       // Navigation
@@ -177,6 +191,20 @@ const resources = {
       noEntriesSubtitle: 'ফিল্টার পরিবর্তন করুন বা নতুন এন্ট্রি',
       monthlyEntries: 'মাসিক এন্ট্রি',
 
+      // Investments
+      investments: 'বিনিয়োগ',
+      trackYourInvestmentEntries: 'আপনার বিনিয়োগ এন্ট্রি ট্র্যাক করুন',
+      addInvestment: 'বিনিয়োগ যোগ করুন',
+      noInvestmentsYet: 'কোন বিনিয়োগ নেই',
+      addYourFirstInvestmentEntry: 'ড্যাশবোর্ডে দেখতে আপনার প্রথম বিনিয়োগ এন্ট্রি যোগ করুন',
+
+      // Budget
+      budgetSubtitle: 'মাসিক আয়, বরাদ্দ এবং ক্যাটাগরি ব্যয় পরিকল্পনা করুন।',
+      monthlyBudget: 'মাসিক বাজেট',
+      monthlyBudgetSubtitle: 'আপনার বাজেট ড্যাশবোর্ডকে বাকি বাজেট এবং বিনিয়োগ প্রভাব দেখাতে সাহায্য করে।',
+      monthlyBudgetInputPlaceholder: 'আপনার মাসিক বাজেট লিখুন',
+      monthlyBudgetLabel: 'মাসিক বাজেট (BDT)',
+      budgetLines: 'বাজেট লাইন',
 
       // Modals
       addIncomeTitle: 'আয়',
@@ -272,10 +300,6 @@ const resources = {
       deleteAccountConfirmationMessage: 'এই কার্যকরী হতে পারে না। আপনার সমস্ত ডেটা অনাকাঙ্কিতভাবে মুছে ফেলা হবে। চালিয়ে যান?',
       deleteAccountConfirmationButton: 'অ্যাকাউন্ট মুছুন',
       deleteAccountConfirmationButtonText: 'অ্যাকাউন্ট মুছুন',
-      monthlyBudget: 'মাসিক বাজেট',
-      monthlyBudgetSubtitle: 'আপনার বাজেট ড্যাশবোর্ডকে বাকি বাজেট এবং বিনিয়োগ প্রভাব দেখাতে সাহায্য করে।',
-      monthlyBudgetInputPlaceholder: 'আপনার মাসিক বাজেট লিখুন',
-      monthlyBudgetLabel: 'মাসিক বাজেট (BDT)',
     },
   },
 };

@@ -10,6 +10,7 @@ import { useBudget, useBudgetMutations, useBudgetSummary, useBudgetTemplates, us
 import { useMonthStore } from '@/store/monthStore';
 import { BudgetLine } from '@/types';
 import { formatBDT } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function BudgetPage() {
   const [editingLine, setEditingLine] = useState<BudgetLine | null>(null);
@@ -21,6 +22,7 @@ export default function BudgetPage() {
   const { data: templates = [] } = useBudgetTemplates();
   const { data: categories = [] } = useCategories('expense');
   const mutations = useBudgetMutations();
+  const { t } = useTranslation();
 
   const activePercentage = useMemo(() => (
     budget?.lines
@@ -39,15 +41,15 @@ export default function BudgetPage() {
   return (
     <div className="min-h-full">
       <PageHeader
-        title="Budget"
-        subtitle="Plan monthly income, allocations, and category spending."
+        title={t('budget')}
+        subtitle={t('budgetSubtitle')}
         action={<BudgetMonthNavigator />}
       />
 
       <div className="px-4 md:px-8 space-y-4 md:space-y-6 pb-10">
         <div className="card p-4 md:p-5 flex flex-col lg:flex-row lg:items-end gap-4">
           <div className="flex-1">
-            <p className="label">Declared monthly income</p>
+            <p className="label">{t('monthlyBudgetLabel')}</p>
             <p className="font-display text-3xl font-black text-sage mt-1">{formatBDT(budget.totalIncome)}</p>
           </div>
           <form
@@ -62,11 +64,11 @@ export default function BudgetPage() {
               className="input w-44"
               type="number"
               min={0}
-              placeholder="New income"
+              placeholder={t('monthlyBudgetInputPlaceholder')}
               value={incomeDraft}
               onChange={(event) => setIncomeDraft(event.target.value)}
             />
-            <button className="btn-primary" type="submit">Update</button>
+            <button className="btn-primary" type="submit">{t('update')}</button>
           </form>
         </div>
 
@@ -84,7 +86,7 @@ export default function BudgetPage() {
         <BudgetOverview summary={summary} />
 
         <div className="flex items-center justify-between">
-          <h2 className="font-display font-bold text-lg">Budget Lines</h2>
+          <h2 className="font-display font-bold text-lg">{t('budgetLines')}</h2>
           <div className="flex gap-2">
             <button
               className="btn-ghost text-sm"

@@ -3,10 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require("dotenv/config");
+const path_1 = __importDefault(require("path"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
+dotenv_1.default.config({
+    path: path_1.default.resolve(process.cwd(), process.env.NODE_ENV === 'production' ? '.env.production' : '.env'),
+});
 const compression_1 = __importDefault(require("compression"));
 const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
 const morgan_1 = __importDefault(require("morgan"));

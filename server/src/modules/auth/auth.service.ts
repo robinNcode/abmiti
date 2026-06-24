@@ -41,7 +41,11 @@ export const authService = {
   async refresh(refreshToken: string): Promise<AuthTokens> {
     let payload: JwtPayload;
     try {
-      payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as JwtPayload;
+      const decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+      if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
+        throw new UnauthorizedError('Invalid refresh token');
+      }
+      payload = decoded as JwtPayload;
     } catch {
       throw new UnauthorizedError('Invalid refresh token');
     }

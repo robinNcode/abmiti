@@ -13,7 +13,7 @@ router.get('/monthly', async (req, res, next) => {
         const month = parseInt(String(req.query.month ?? now.getMonth() + 1), 10);
         const year = parseInt(String(req.query.year ?? now.getFullYear()), 10);
         const budgetDoc = await container_1.container.budgetRepo.findByMonth(req.user.userId, month, year);
-        const budget = budgetDoc?.amount ?? 0;
+        const budget = budgetDoc?.totalIncome ?? 0;
         const data = await summary_service_1.summaryService.monthly(req.user.userId, month, year, budget);
         (0, response_1.sendSuccess)(res, data);
     }

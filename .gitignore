@@ -3,12 +3,14 @@
 /server/node_modules
 
 # ignoring build files
-/client/build
+/client/dist
 /server/dist
 
-# ignoring .env file
+# ignoring .env files
 /client/.env
+/client/.env.production
 /server/.env
+/server/.env.production
 
 # ignoring .DS_Store files
 .DS_Store
