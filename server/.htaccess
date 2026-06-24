@@ -1,0 +1,9 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/voltwavebd/public_html/abmiti/api"
+PassengerBaseURI "/abmiti/api"
+PassengerNodejs "/home/voltwavebd/nodevenv/public_html/abmiti/api/24/bin/node"
+PassengerAppType node
+PassengerStartupFile app.js
+PassengerAppEnv production
+PassengerAppLogFile "/home/voltwavebd/public_html/abmiti/api/error_log"
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
