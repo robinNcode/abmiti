@@ -1,5 +1,5 @@
 // src/app/navigation/RootNavigator.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -12,7 +12,11 @@ import { Routes, RootStackParamList } from '../../core/constants/routes';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const RootNavigator: React.FC = () => {
-    const { isAuthenticated, isLoading } = useAuthStore();
+    const { isAuthenticated, isLoading, hydrate } = useAuthStore();
+
+    useEffect(() => {
+        hydrate();
+    }, [hydrate]);
 
     return (
         <NavigationContainer>

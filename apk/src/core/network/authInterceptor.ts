@@ -76,13 +76,13 @@ api.interceptors.response.use(
             if (!refreshToken) throw new Error('No refresh token available');
 
             // Call the refresh endpoint directly (no interceptor interference)
-            const { data } = await axios.post<{ accessToken: string; refreshToken?: string }>(
+            const { data } = await axios.post<{ data: { accessToken: string; refreshToken?: string } }>(
                 `${api.defaults.baseURL}/auth/refresh`,
                 { refreshToken },
             );
 
-            const newAccess = data.accessToken;
-            const newRefresh = data.refreshToken ?? refreshToken;
+            const newAccess = data.data.accessToken;
+            const newRefresh = data.data.refreshToken ?? refreshToken;
 
             await SecureStorage.setTokens(newAccess, newRefresh);
             processQueue(null, newAccess);

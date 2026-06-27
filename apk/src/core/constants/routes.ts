@@ -5,6 +5,12 @@ export const Routes = {
     Login: 'Login',
     Register: 'Register',
     Home: 'Home',
+    Dashboard: 'Dashboard',
+    Entries: 'Entries',
+    AddEntry: 'AddEntry',
+    Analytics: 'Analytics',
+    Categories: 'Categories',
+    Accounts: 'Accounts',
     Profile: 'Profile',
 } as const;
 
@@ -15,5 +21,11 @@ export type RootStackParamList = {
     Login: undefined;
     Register: undefined;
     Home: undefined;
+    Dashboard: undefined;
+    Entries: undefined;
+    AddEntry: { type?: import('../../models/common').EntryType } | undefined;
+    Analytics: undefined;
+    Categories: undefined;
+    Accounts: undefined;
     Profile: undefined;
 };
