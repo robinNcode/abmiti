@@ -26,7 +26,17 @@ const app = express();
 
 // ── Security middleware ──────────────────────────────────────
 app.use(helmet());
-app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow server-to-server requests (no origin) in development
+      if (!origin && env.NODE_ENV === 'development') return callback(null, true);
+      if (origin && env.CLIENT_URLS.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin "${origin}" is not allowed`));
+    },
+    credentials: true,
+  }),
+);
 if (env.DB_PROVIDER === 'mongodb') {
   app.use(mongoSanitize());
 }
@@ -41,7 +51,7 @@ if (env.NODE_ENV === 'development') {
 }
 
 // ── Rate limiting ────────────────────────────────────────────
-app.use('/api', rateLimiter);
+app.use(env.API_PREFIX, rateLimiter);
 
 // ── Routes ───────────────────────────────────────────────────
 registerRoutes(app);
