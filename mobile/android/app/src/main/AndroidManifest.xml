@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internet access is required for the WebView to load content -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Required by connectivity_plus to detect network changes -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
-        android:label="mobile"
+        android:label="Abmiti"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

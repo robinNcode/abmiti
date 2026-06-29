@@ -1,30 +1,57 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:mobile/main.dart';
+import 'package:abmiti/shared/widgets/loading_overlay.dart';
+import 'package:abmiti/shared/widgets/no_internet_screen.dart';
+import 'package:abmiti/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('LoadingOverlay builds and displays brand elements',
+      (WidgetTester tester) async {
+    // Build the LoadingOverlay widget.
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: LoadingOverlay(),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the Bengali brand name is displayed.
+    expect(find.text('আবমিতি'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verify that 'Personal Finance' subtitle is displayed.
+    expect(find.text('Personal Finance'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that CircularProgressIndicator is present.
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets('NoInternetScreen displays offline UI and handles retry callback',
+      (WidgetTester tester) async {
+    bool retryCalled = false;
+
+    // Build the NoInternetScreen widget.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NoInternetScreen(
+          onRetry: () {
+            retryCalled = true;
+          },
+        ),
+      ),
+    );
+
+    // Verify key UI text and icons are rendered.
+    expect(find.text('ইন্টারনেট সংযোগ নেই'), findsOneWidget);
+    expect(find.byIcon(Icons.wifi_off_rounded), findsOneWidget);
+    expect(find.text('আবার চেষ্টা করুন'), findsOneWidget);
+
+    // Tap the retry button and verify callback.
+    await tester.tap(find.text('আবার চেষ্টা করুন'));
+    await tester.pump(); // Start delayed execution of retry
+    await tester.pump(const Duration(milliseconds: 900)); // Advance time past Future.delayed (800ms)
+
+    expect(retryCalled, isTrue);
   });
 }
+
+
+
