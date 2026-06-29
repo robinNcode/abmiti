@@ -197,24 +197,26 @@ class _WebViewScreenState extends State<WebViewScreen> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         backgroundColor: AppColors.paper,
-        body: Stack(
-          children: [
-            // Pull-to-refresh wrapping the WebView
-            RefreshIndicator(
-              color: AppColors.terra,
-              backgroundColor: AppColors.paper,
-              onRefresh: () async {
-                await _controller.reload();
-              },
-              // Disable pull-to-refresh — WebView handles scrolling
-              // Re-enable this line to allow pull-to-refresh:
-              // child: _buildWebView(),
-              child: _buildWebView(),
-            ),
-
-            // Branded full-screen loading overlay
-            if (_isLoading) const LoadingOverlay(),
-          ],
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // Pull-to-refresh wrapping the WebView
+              RefreshIndicator(
+                color: AppColors.terra,
+                backgroundColor: AppColors.paper,
+                onRefresh: () async {
+                  await _controller.reload();
+                },
+                // Disable pull-to-refresh — WebView handles scrolling
+                // Re-enable this line to allow pull-to-refresh:
+                // child: _buildWebView(),
+                child: _buildWebView(),
+              ),
+  
+              // Branded full-screen loading overlay
+              if (_isLoading) const LoadingOverlay(),
+            ],
+          ),
         ),
       ),
     );

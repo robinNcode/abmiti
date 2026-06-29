@@ -16,9 +16,9 @@ Future<void> main() async {
   // Brand the system UI
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: AppColors.terra,
-      statusBarIconBrightness: Brightness.light,
-      statusBarBrightness: Brightness.dark,
+      statusBarColor: AppColors.paper,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
       systemNavigationBarColor: AppColors.ink,
       systemNavigationBarIconBrightness: Brightness.light,
     ),
@@ -53,8 +53,9 @@ class AbmitiApp extends StatelessWidget {
           foregroundColor: AppColors.paper,
           elevation: 0,
           systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: AppColors.terra,
-            statusBarIconBrightness: Brightness.light,
+            statusBarColor: AppColors.paper,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
           ),
         ),
         snackBarTheme: const SnackBarThemeData(
