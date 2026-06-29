@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:abmiti/shared/widgets/loading_overlay.dart';
 import 'package:abmiti/shared/widgets/no_internet_screen.dart';
-import 'package:abmiti/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('LoadingOverlay builds and displays brand elements',
@@ -15,7 +14,7 @@ void main() {
     );
 
     // Verify that the Bengali brand name is displayed.
-    expect(find.text('আবমিতি'), findsOneWidget);
+    expect(find.text('অবমিতি'), findsOneWidget);
 
     // Verify that 'Personal Finance' subtitle is displayed.
     expect(find.text('Personal Finance'), findsOneWidget);
@@ -47,11 +46,9 @@ void main() {
     // Tap the retry button and verify callback.
     await tester.tap(find.text('আবার চেষ্টা করুন'));
     await tester.pump(); // Start delayed execution of retry
-    await tester.pump(const Duration(milliseconds: 900)); // Advance time past Future.delayed (800ms)
+    await tester.pump(const Duration(
+        milliseconds: 900)); // Advance time past Future.delayed (800ms)
 
     expect(retryCalled, isTrue);
   });
 }
-
-
-

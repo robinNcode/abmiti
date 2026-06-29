@@ -96,7 +96,7 @@ class _NoInternetScreenState extends State<NoInternetScreen>
 
                 // App name
                 const Text(
-                  'আবমিতি',
+                  'অবমিতি',
                   style: TextStyle(
                     color: AppColors.paper,
                     fontSize: 28,
@@ -159,7 +159,9 @@ class _NoInternetScreenState extends State<NoInternetScreen>
                           )
                         : const Icon(Icons.refresh_rounded, size: 20),
                     label: Text(
-                      _isRetrying ? 'পুনরায় চেষ্টা করা হচ্ছে...' : 'আবার চেষ্টা করুন',
+                      _isRetrying
+                          ? 'পুনরায় চেষ্টা করা হচ্ছে...'
+                          : 'আবার চেষ্টা করুন',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

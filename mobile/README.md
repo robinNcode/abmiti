@@ -1,4 +1,4 @@
-# আবমিতি — Flutter Mobile App
+# অবমিতি — Flutter Mobile App
 
 A native-feeling Flutter WebView wrapper for the [Abmiti Personal Finance Tracker](https://voltwavebd.com/abmiti/).
 

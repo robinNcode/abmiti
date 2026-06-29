@@ -77,7 +77,7 @@ class _LoadingOverlayState extends State<LoadingOverlay>
             const SizedBox(height: 28),
             // App name
             const Text(
-              'আবমিতি',
+              'অবমিতি',
               style: TextStyle(
                 color: AppColors.paper,
                 fontSize: 26,

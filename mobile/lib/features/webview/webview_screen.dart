@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -29,7 +28,7 @@ class WebViewScreen extends StatefulWidget {
 }
 
 class _WebViewScreenState extends State<WebViewScreen> {
-  static const String _initialUrl = 'https://voltwavebd.com/abmiti/login';
+  static const String _initialUrl = 'https://voltwavebd.com/abmiti';
   static const String _userAgent =
       'Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 (KHTML, like Gecko) '
       'Chrome/120.0.0.0 Mobile Safari/537.36 AbmitiApp/1.0';
@@ -68,8 +67,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
           },
           onPageFinished: (url) {
             setState(() => _isLoading = false);
-            // Remove native splash once the first page is fully loaded
-            FlutterNativeSplash.remove();
           },
           onWebResourceError: _handleWebResourceError,
           onNavigationRequest: _handleNavigationRequest,
@@ -118,7 +115,6 @@ class _WebViewScreenState extends State<WebViewScreen> {
         _isLoading = false;
         _hasError = true;
       });
-      FlutterNativeSplash.remove();
     }
   }
 

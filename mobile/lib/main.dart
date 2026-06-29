@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'core/constants/app_colors.dart';
 import 'features/webview/webview_screen.dart';
 
 Future<void> main() async {
-  // Preserve the native splash screen until the app is ready
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
@@ -36,7 +33,7 @@ class AbmitiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'আবমিতি — Abmiti',
+      title: 'অবমিতি — Abmiti',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

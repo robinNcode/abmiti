@@ -19,7 +19,6 @@ dependencies:
   connectivity_plus: ^6.0.3
 
   # Splash screen & icons (also in dev_dependencies for tooling)
-  flutter_native_splash: ^2.4.1
   flutter_launcher_icons: ^0.14.1
 
   # URL launcher for external links
@@ -32,7 +31,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-
 
 # Flutter Launcher Icons configuration
 flutter_launcher_icons:
@@ -49,26 +47,9 @@ flutter_launcher_icons:
   macos:
     generate: false
 
-# Flutter Native Splash configuration
-flutter_native_splash:
-  color: "#C2552A"
-  image: assets/splash/logo.png
-  color_dark: "#9A3D1A"
-  image_dark: assets/splash/logo.png
-  android_12:
-    color: "#C2552A"
-    icon_background_color: "#C2552A"
-    image: assets/splash/logo.png
-    color_dark: "#9A3D1A"
-    icon_background_color_dark: "#9A3D1A"
-    image_dark: assets/splash/logo.png
-  fullscreen: true
-  android: true
-  ios: true
-
 flutter:
   uses-material-design: true
 
   assets:
     - assets/icons/
-    - assets/splash/
+
