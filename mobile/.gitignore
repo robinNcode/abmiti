@@ -1,0 +1,54 @@
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Android
+android/.gradle/
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/GeneratedPluginRegistrant.java
+android/app/google-services.json
+*.jks
+*.keystore
+key.properties
+
+# iOS
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Pods/
+.symlinks/
+ios/Flutter/ephemeral/
+ios/.bundle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Coverage
+coverage/
+
+# Signing / secrets (NEVER commit these)
+*.jks
+*.keystore
+key.properties
+google-services.json
+GoogleService-Info.plist

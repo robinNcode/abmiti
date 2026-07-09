@@ -10,7 +10,8 @@ const category_routes_1 = __importDefault(require("./modules/category/category.r
 const summary_routes_1 = __importDefault(require("./modules/summary/summary.routes"));
 const account_routes_1 = __importDefault(require("./modules/account/account.routes"));
 const budget_routes_1 = __importDefault(require("./modules/budget/budget.routes"));
-const API_V1 = '/api/v1';
+const env_1 = require("./config/env");
+const API_V1 = env_1.env.API_PREFIX;
 const registerRoutes = (app) => {
     app.get('/health', (_, res) => res.json({ status: 'ok', service: 'abmiti-api' }));
     app.use(`${API_V1}/auth`, auth_routes_1.default);

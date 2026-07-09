@@ -1,0 +1,420 @@
+{"_e":"root:init","_t":1782545822056,"format":"v0-jsonl","version":"56.1.16"}
+{"_e":"env:mode","_t":1782545822127,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1782545822237,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1782545830044,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\src\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1782545845193,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"metro:instantiate","_t":1782545872639,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1782546089752,"id":"3","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782546089756,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1782546089769,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1782546106120,"id":"3","progress":0.010000000000000002,"total":1,"current":1}
+{"_e":"metro:bundling:progress","_t":1782546106219,"id":"3","progress":0.010000000000000002,"total":3,"current":1}
+{"_e":"metro:bundling:progress","_t":1782546106304,"id":"3","progress":0.04000000000000001,"total":3,"current":2}
+{"_e":"metro:bundling:progress","_t":1782546106406,"id":"3","progress":0.04000000000000001,"total":8,"current":2}
+{"_e":"metro:bundling:progress","_t":1782546106479,"id":"3","progress":0.09,"total":8,"current":3}
+{"_e":"metro:bundling:progress","_t":1782546106590,"id":"3","progress":0.1111111111111111,"total":12,"current":4}
+{"_e":"metro:bundling:progress","_t":1782546106698,"id":"3","progress":0.17361111111111113,"total":12,"current":5}
+{"_e":"metro:bundling:progress","_t":1782546106803,"id":"3","progress":0.17361111111111113,"total":13,"current":5}
+{"_e":"metro:bundling:progress","_t":1782546106970,"id":"3","progress":0.21301775147928997,"total":13,"current":6}
+{"_e":"metro:bundling:progress","_t":1782546107085,"id":"3","progress":0.21301775147928997,"total":16,"current":7}
+{"_e":"metro:bundling:progress","_t":1782546107133,"id":"3","progress":0.25,"total":16,"current":8}
+{"_e":"metro:bundling:progress","_t":1782546107241,"id":"3","progress":0.25,"total":18,"current":8}
+{"_e":"metro:bundling:progress","_t":1782546108615,"id":"3","progress":0.25,"total":18,"current":9}
+{"_e":"metro:bundling:progress","_t":1782546108719,"id":"3","progress":0.2743764172335601,"total":21,"current":11}
+{"_e":"metro:bundling:progress","_t":1782546108903,"id":"3","progress":0.2743764172335601,"total":22,"current":11}
+{"_e":"metro:bundling:progress","_t":1782546109107,"id":"3","progress":0.2743764172335601,"total":28,"current":11}
+{"_e":"metro:bundling:progress","_t":1782546109108,"id":"3","progress":0.2743764172335601,"total":28,"current":12}
+{"_e":"metro:bundling:progress","_t":1782546109402,"id":"3","progress":0.2743764172335601,"total":29,"current":14}
+{"_e":"metro:bundling:progress","_t":1782546109514,"id":"3","progress":0.2743764172335601,"total":30,"current":15}
+{"_e":"metro:bundling:progress","_t":1782546109625,"id":"3","progress":0.2743764172335601,"total":36,"current":15}
+{"_e":"metro:bundling:progress","_t":1782546109733,"id":"3","progress":0.2743764172335601,"total":126,"current":18}
+{"_e":"metro:bundling:progress","_t":1782546109834,"id":"3","progress":0.2743764172335601,"total":130,"current":19}
+{"_e":"metro:bundling:progress","_t":1782546109869,"id":"3","progress":0.2743764172335601,"total":130,"current":20}
+{"_e":"metro:bundling:progress","_t":1782546109981,"id":"3","progress":0.2743764172335601,"total":136,"current":24}
+{"_e":"metro:bundling:progress","_t":1782546110122,"id":"3","progress":0.2743764172335601,"total":155,"current":27}
+{"_e":"metro:bundling:progress","_t":1782546110248,"id":"3","progress":0.2743764172335601,"total":162,"current":31}
+{"_e":"metro:bundling:progress","_t":1782546110810,"id":"3","progress":0.2743764172335601,"total":167,"current":32}
+{"_e":"metro:bundling:progress","_t":1782546110945,"id":"3","progress":0.2743764172335601,"total":169,"current":37}
+{"_e":"metro:bundling:progress","_t":1782546111002,"id":"3","progress":0.2743764172335601,"total":169,"current":38}
+{"_e":"metro:bundling:progress","_t":1782546111105,"id":"3","progress":0.2743764172335601,"total":192,"current":40}
+{"_e":"metro:bundling:progress","_t":1782546111214,"id":"3","progress":0.2743764172335601,"total":202,"current":43}
+{"_e":"metro:bundling:progress","_t":1782546111340,"id":"3","progress":0.2743764172335601,"total":207,"current":49}
+{"_e":"metro:bundling:progress","_t":1782546111444,"id":"3","progress":0.2743764172335601,"total":216,"current":53}
+{"_e":"metro:bundling:progress","_t":1782546111578,"id":"3","progress":0.2743764172335601,"total":220,"current":55}
+{"_e":"metro:bundling:progress","_t":1782546111633,"id":"3","progress":0.2743764172335601,"total":220,"current":56}
+{"_e":"metro:bundling:progress","_t":1782546111734,"id":"3","progress":0.2743764172335601,"total":224,"current":59}
+{"_e":"metro:bundling:progress","_t":1782546111865,"id":"3","progress":0.2743764172335601,"total":228,"current":61}
+{"_e":"metro:bundling:progress","_t":1782546111917,"id":"3","progress":0.2743764172335601,"total":228,"current":62}
+{"_e":"metro:bundling:progress","_t":1782546112017,"id":"3","progress":0.2743764172335601,"total":228,"current":64}
+{"_e":"metro:bundling:progress","_t":1782546112157,"id":"3","progress":0.2743764172335601,"total":236,"current":68}
+{"_e":"metro:bundling:progress","_t":1782546112274,"id":"3","progress":0.2743764172335601,"total":240,"current":73}
+{"_e":"metro:bundling:progress","_t":1782546112402,"id":"3","progress":0.2743764172335601,"total":248,"current":80}
+{"_e":"metro:bundling:progress","_t":1782546112539,"id":"3","progress":0.2743764172335601,"total":252,"current":86}
+{"_e":"metro:bundling:progress","_t":1782546112672,"id":"3","progress":0.2743764172335601,"total":266,"current":93}
+{"_e":"metro:bundling:progress","_t":1782546112821,"id":"3","progress":0.2743764172335601,"total":272,"current":99}
+{"_e":"metro:bundling:progress","_t":1782546112925,"id":"3","progress":0.2743764172335601,"total":276,"current":107}
+{"_e":"metro:bundling:progress","_t":1782546113029,"id":"3","progress":0.2743764172335601,"total":281,"current":112}
+{"_e":"metro:bundling:progress","_t":1782546113144,"id":"3","progress":0.2743764172335601,"total":281,"current":118}
+{"_e":"metro:bundling:progress","_t":1782546113275,"id":"3","progress":0.2743764172335601,"total":285,"current":123}
+{"_e":"metro:bundling:progress","_t":1782546113294,"id":"3","progress":0.2743764172335601,"total":285,"current":124}
+{"_e":"metro:bundling:progress","_t":1782546113405,"id":"3","progress":0.2743764172335601,"total":300,"current":129}
+{"_e":"metro:bundling:progress","_t":1782546113517,"id":"3","progress":0.2743764172335601,"total":305,"current":131}
+{"_e":"metro:bundling:progress","_t":1782546113639,"id":"3","progress":0.2743764172335601,"total":305,"current":133}
+{"_e":"metro:bundling:progress","_t":1782546113652,"id":"3","progress":0.2743764172335601,"total":305,"current":134}
+{"_e":"metro:bundling:progress","_t":1782546113762,"id":"3","progress":0.2743764172335601,"total":312,"current":137}
+{"_e":"metro:bundling:progress","_t":1782546113869,"id":"3","progress":0.2743764172335601,"total":313,"current":141}
+{"_e":"metro:bundling:progress","_t":1782546114028,"id":"3","progress":0.2743764172335601,"total":313,"current":144}
+{"_e":"metro:bundling:progress","_t":1782546114181,"id":"3","progress":0.2743764172335601,"total":322,"current":148}
+{"_e":"metro:bundling:progress","_t":1782546114316,"id":"3","progress":0.2743764172335601,"total":326,"current":150}
+{"_e":"metro:bundling:progress","_t":1782546114419,"id":"3","progress":0.2743764172335601,"total":361,"current":152}
+{"_e":"metro:bundling:progress","_t":1782546114603,"id":"3","progress":0.2743764172335601,"total":363,"current":157}
+{"_e":"metro:bundling:progress","_t":1782546114714,"id":"3","progress":0.2743764172335601,"total":363,"current":158}
+{"_e":"metro:bundling:progress","_t":1782546114823,"id":"3","progress":0.2743764172335601,"total":374,"current":170}
+{"_e":"metro:bundling:progress","_t":1782546114928,"id":"3","progress":0.2743764172335601,"total":381,"current":180}
+{"_e":"metro:bundling:progress","_t":1782546115032,"id":"3","progress":0.2743764172335601,"total":382,"current":186}
+{"_e":"metro:bundling:progress","_t":1782546115204,"id":"3","progress":0.2743764172335601,"total":382,"current":188}
+{"_e":"metro:bundling:progress","_t":1782546115381,"id":"3","progress":0.2743764172335601,"total":383,"current":193}
+{"_e":"metro:bundling:progress","_t":1782546115496,"id":"3","progress":0.2743764172335601,"total":385,"current":200}
+{"_e":"metro:bundling:progress","_t":1782546115635,"id":"3","progress":0.2745020906166526,"total":397,"current":208}
+{"_e":"metro:bundling:progress","_t":1782546115786,"id":"3","progress":0.2860387119130714,"total":402,"current":215}
+{"_e":"metro:bundling:progress","_t":1782546115901,"id":"3","progress":0.2958298631766806,"total":410,"current":223}
+{"_e":"metro:bundling:progress","_t":1782546116032,"id":"3","progress":0.3047681583406129,"total":413,"current":228}
+{"_e":"metro:bundling:progress","_t":1782546116138,"id":"3","progress":0.3098330672085934,"total":415,"current":231}
+{"_e":"metro:bundling:progress","_t":1782546116252,"id":"3","progress":0.31508098967604137,"total":424,"current":238}
+{"_e":"metro:bundling:progress","_t":1782546116357,"id":"3","progress":0.3227093389759527,"total":426,"current":242}
+{"_e":"metro:bundling:progress","_t":1782546116470,"id":"3","progress":0.3235417894116657,"total":436,"current":248}
+{"_e":"metro:bundling:progress","_t":1782546116570,"id":"3","progress":0.33023484367641937,"total":442,"current":254}
+{"_e":"metro:bundling:progress","_t":1782546116689,"id":"3","progress":0.3338271604938271,"total":450,"current":260}
+{"_e":"metro:bundling:progress","_t":1782546116828,"id":"3","progress":0.3441777777777778,"total":450,"current":264}
+{"_e":"metro:bundling:progress","_t":1782546116939,"id":"3","progress":0.35311527475282817,"total":451,"current":268}
+{"_e":"metro:bundling:progress","_t":1782546117039,"id":"3","progress":0.36052999624772786,"total":453,"current":272}
+{"_e":"metro:bundling:progress","_t":1782546117170,"id":"3","progress":0.36210372087010234,"total":457,"current":275}
+{"_e":"metro:bundling:progress","_t":1782546117319,"id":"3","progress":0.36730945821854916,"total":462,"current":280}
+{"_e":"metro:bundling:progress","_t":1782546117420,"id":"3","progress":0.36730945821854916,"total":481,"current":283}
+{"_e":"metro:bundling:progress","_t":1782546117548,"id":"3","progress":0.36730945821854916,"total":487,"current":288}
+{"_e":"metro:bundling:progress","_t":1782546117596,"id":"3","progress":0.36730945821854916,"total":487,"current":289}
+{"_e":"metro:bundling:progress","_t":1782546117704,"id":"3","progress":0.37192466131745716,"total":487,"current":297}
+{"_e":"metro:bundling:progress","_t":1782546117822,"id":"3","progress":0.3767763897151166,"total":492,"current":302}
+{"_e":"metro:bundling:progress","_t":1782546117934,"id":"3","progress":0.3827417516632448,"total":493,"current":305}
+{"_e":"metro:bundling:progress","_t":1782546118036,"id":"3","progress":0.3899977419719037,"total":498,"current":311}
+{"_e":"metro:bundling:progress","_t":1782546118148,"id":"3","progress":0.39624767860827603,"total":502,"current":316}
+{"_e":"metro:bundling:progress","_t":1782546118254,"id":"3","progress":0.39624767860827603,"total":548,"current":318}
+{"_e":"metro:bundling:progress","_t":1782546118373,"id":"3","progress":0.39624767860827603,"total":548,"current":325}
+{"_e":"metro:bundling:progress","_t":1782546118484,"id":"3","progress":0.39624767860827603,"total":550,"current":327}
+{"_e":"metro:bundling:progress","_t":1782546118596,"id":"3","progress":0.39624767860827603,"total":551,"current":334}
+{"_e":"metro:bundling:progress","_t":1782546118707,"id":"3","progress":0.39624767860827603,"total":552,"current":334}
+{"_e":"metro:bundling:progress","_t":1782546118807,"id":"3","progress":0.39624767860827603,"total":553,"current":336}
+{"_e":"metro:bundling:progress","_t":1782546118914,"id":"3","progress":0.39624767860827603,"total":555,"current":338}
+{"_e":"metro:bundling:progress","_t":1782546119085,"id":"3","progress":0.39624767860827603,"total":555,"current":339}
+{"_e":"metro:bundling:progress","_t":1782546119237,"id":"3","progress":0.39624767860827603,"total":556,"current":339}
+{"_e":"metro:bundling:progress","_t":1782546119384,"id":"3","progress":0.39624767860827603,"total":562,"current":342}
+{"_e":"metro:bundling:progress","_t":1782546119505,"id":"3","progress":0.39624767860827603,"total":575,"current":345}
+{"_e":"metro:bundling:progress","_t":1782546119616,"id":"3","progress":0.39624767860827603,"total":575,"current":348}
+{"_e":"metro:bundling:progress","_t":1782546119731,"id":"3","progress":0.39624767860827603,"total":575,"current":352}
+{"_e":"metro:bundling:progress","_t":1782546119851,"id":"3","progress":0.39624767860827603,"total":576,"current":356}
+{"_e":"metro:bundling:progress","_t":1782546119971,"id":"3","progress":0.39624767860827603,"total":583,"current":362}
+{"_e":"metro:bundling:progress","_t":1782546120075,"id":"3","progress":0.39624767860827603,"total":584,"current":363}
+{"_e":"metro:bundling:progress","_t":1782546120174,"id":"3","progress":0.39624767860827603,"total":596,"current":369}
+{"_e":"metro:bundling:progress","_t":1782546120294,"id":"3","progress":0.39624767860827603,"total":603,"current":378}
+{"_e":"metro:bundling:progress","_t":1782546120454,"id":"3","progress":0.39624767860827603,"total":621,"current":382}
+{"_e":"metro:bundling:progress","_t":1782546120556,"id":"3","progress":0.39624767860827603,"total":624,"current":387}
+{"_e":"metro:bundling:progress","_t":1782546120659,"id":"3","progress":0.39624767860827603,"total":630,"current":388}
+{"_e":"metro:bundling:progress","_t":1782546120768,"id":"3","progress":0.39624767860827603,"total":631,"current":390}
+{"_e":"metro:bundling:progress","_t":1782546120892,"id":"3","progress":0.39624767860827603,"total":631,"current":391}
+{"_e":"metro:bundling:progress","_t":1782546120993,"id":"3","progress":0.39624767860827603,"total":632,"current":394}
+{"_e":"metro:bundling:progress","_t":1782546121171,"id":"3","progress":0.39624767860827603,"total":633,"current":395}
+{"_e":"metro:bundling:progress","_t":1782546121285,"id":"3","progress":0.39624767860827603,"total":633,"current":396}
+{"_e":"metro:bundling:progress","_t":1782546121410,"id":"3","progress":0.39731811953909385,"total":633,"current":399}
+{"_e":"metro:bundling:progress","_t":1782546121593,"id":"3","progress":0.3993121847617479,"total":633,"current":400}
+{"_e":"metro:bundling:progress","_t":1782546121706,"id":"3","progress":0.407338359675459,"total":633,"current":404}
+{"_e":"metro:bundling:progress","_t":1782546121761,"id":"3","progress":0.40935738190966053,"total":633,"current":405}
+{"_e":"metro:bundling:progress","_t":1782546121863,"id":"3","progress":0.40935738190966053,"total":640,"current":408}
+{"_e":"metro:bundling:progress","_t":1782546121983,"id":"3","progress":0.40935738190966053,"total":646,"current":413}
+{"_e":"metro:bundling:progress","_t":1782546122086,"id":"3","progress":0.41739188598429555,"total":647,"current":418}
+{"_e":"metro:bundling:progress","_t":1782546122218,"id":"3","progress":0.4281359548849261,"total":648,"current":424}
+{"_e":"metro:bundling:progress","_t":1782546122342,"id":"3","progress":0.4389828134311173,"total":649,"current":430}
+{"_e":"metro:bundling:progress","_t":1782546122470,"id":"3","progress":0.44173854848304583,"total":656,"current":436}
+{"_e":"metro:bundling:progress","_t":1782546122574,"id":"3","progress":0.4519282607079119,"total":656,"current":441}
+{"_e":"metro:bundling:progress","_t":1782546122678,"id":"3","progress":0.4628969370947228,"total":657,"current":447}
+{"_e":"metro:bundling:progress","_t":1782546122782,"id":"3","progress":0.47670747741669567,"total":659,"current":455}
+{"_e":"metro:bundling:progress","_t":1782546122885,"id":"3","progress":0.47880519755642087,"total":659,"current":456}
+{"_e":"metro:bundling:progress","_t":1782546122986,"id":"3","progress":0.4821947217002616,"total":661,"current":459}
+{"_e":"metro:bundling:progress","_t":1782546123100,"id":"3","progress":0.48557564341434445,"total":663,"current":462}
+{"_e":"metro:bundling:progress","_t":1782546123221,"id":"3","progress":0.48767997743243946,"total":663,"current":463}
+{"_e":"metro:bundling:progress","_t":1782546123371,"id":"3","progress":0.49418801514813987,"total":670,"current":471}
+{"_e":"metro:bundling:progress","_t":1782546123477,"id":"3","progress":0.5059612386621316,"total":672,"current":478}
+{"_e":"metro:bundling:progress","_t":1782546123611,"id":"3","progress":0.517202475443171,"total":673,"current":484}
+{"_e":"metro:bundling:progress","_t":1782546123802,"id":"3","progress":0.5301051599698848,"total":673,"current":490}
+{"_e":"metro:bundling:progress","_t":1782546123929,"id":"3","progress":0.5437421303348625,"total":674,"current":497}
+{"_e":"metro:bundling:progress","_t":1782546124085,"id":"3","progress":0.544316049382716,"total":675,"current":498}
+{"_e":"metro:bundling:progress","_t":1782546124220,"id":"3","progress":0.5465978080040604,"total":679,"current":502}
+{"_e":"metro:bundling:progress","_t":1782546124340,"id":"3","progress":0.551029070353213,"total":683,"current":507}
+{"_e":"metro:bundling:progress","_t":1782546124440,"id":"3","progress":0.5515885229643309,"total":684,"current":508}
+{"_e":"metro:bundling:progress","_t":1782546124566,"id":"3","progress":0.5592248977891865,"total":686,"current":513}
+{"_e":"metro:bundling:progress","_t":1782546124683,"id":"3","progress":0.5723826806857687,"total":686,"current":519}
+{"_e":"metro:bundling:progress","_t":1782546124788,"id":"3","progress":0.5834643728378482,"total":686,"current":524}
+{"_e":"metro:bundling:progress","_t":1782546124903,"id":"3","progress":0.5969026511062567,"total":686,"current":530}
+{"_e":"metro:bundling:progress","_t":1782546125008,"id":"3","progress":0.5977166794747569,"total":692,"current":535}
+{"_e":"metro:bundling:progress","_t":1782546125108,"id":"3","progress":0.5977166794747569,"total":705,"current":541}
+{"_e":"metro:bundling:progress","_t":1782546125222,"id":"3","progress":0.5977166794747569,"total":705,"current":542}
+{"_e":"metro:bundling:progress","_t":1782546125360,"id":"3","progress":0.5977166794747569,"total":711,"current":548}
+{"_e":"metro:bundling:progress","_t":1782546125471,"id":"3","progress":0.6049382716049383,"total":711,"current":553}
+{"_e":"metro:bundling:progress","_t":1782546125583,"id":"3","progress":0.6164014171190506,"total":712,"current":559}
+{"_e":"metro:bundling:progress","_t":1782546125707,"id":"3","progress":0.6274775912132308,"total":712,"current":564}
+{"_e":"metro:bundling:progress","_t":1782546125888,"id":"3","progress":0.6279395478481182,"total":713,"current":565}
+{"_e":"metro:bundling:progress","_t":1782546126048,"id":"3","progress":0.6297761671617171,"total":717,"current":569}
+{"_e":"metro:bundling:progress","_t":1782546126149,"id":"3","progress":0.6404439049632483,"total":721,"current":577}
+{"_e":"metro:bundling:progress","_t":1782546126248,"id":"3","progress":0.6493543218022433,"total":721,"current":581}
+{"_e":"metro:bundling:progress","_t":1782546126396,"id":"3","progress":0.6528818564756876,"total":724,"current":585}
+{"_e":"metro:bundling:progress","_t":1782546126515,"id":"3","progress":0.6608549388964466,"total":727,"current":591}
+{"_e":"metro:bundling:progress","_t":1782546126650,"id":"3","progress":0.6608549388964466,"total":730,"current":593}
+{"_e":"metro:bundling:progress","_t":1782546126770,"id":"3","progress":0.6722657638626512,"total":733,"current":601}
+{"_e":"metro:bundling:progress","_t":1782546126877,"id":"3","progress":0.6884025421526627,"total":734,"current":609}
+{"_e":"metro:bundling:progress","_t":1782546127004,"id":"3","progress":0.7054176508600453,"total":737,"current":619}
+{"_e":"metro:bundling:progress","_t":1782546127111,"id":"3","progress":0.7191592303684489,"total":737,"current":625}
+{"_e":"metro:bundling:progress","_t":1782546127219,"id":"3","progress":0.725140735155651,"total":741,"current":631}
+{"_e":"metro:bundling:progress","_t":1782546127322,"id":"3","progress":0.7413186761151815,"total":741,"current":638}
+{"_e":"metro:bundling:progress","_t":1782546127422,"id":"3","progress":0.7429238332770307,"total":746,"current":643}
+{"_e":"metro:bundling:progress","_t":1782546127532,"id":"3","progress":0.750802583239602,"total":749,"current":649}
+{"_e":"metro:bundling:progress","_t":1782546127633,"id":"3","progress":0.7612736305772925,"total":753,"current":657}
+{"_e":"metro:bundling:progress","_t":1782546127734,"id":"3","progress":0.7612736305772925,"total":759,"current":659}
+{"_e":"metro:bundling:progress","_t":1782546127859,"id":"3","progress":0.7613193097815483,"total":761,"current":664}
+{"_e":"metro:bundling:progress","_t":1782546127936,"id":"3","progress":0.7636141669875552,"total":761,"current":665}
+{"_e":"metro:bundling:progress","_t":1782546128041,"id":"3","progress":0.7731071017697592,"total":762,"current":670}
+{"_e":"metro:bundling:progress","_t":1782546128141,"id":"3","progress":0.7731071017697592,"total":769,"current":674}
+{"_e":"metro:bundling:progress","_t":1782546128247,"id":"3","progress":0.7755874847125283,"total":771,"current":679}
+{"_e":"metro:bundling:progress","_t":1782546128347,"id":"3","progress":0.7781433729764557,"total":772,"current":681}
+{"_e":"metro:bundling:progress","_t":1782546128393,"id":"3","progress":0.7804303471234127,"total":772,"current":682}
+{"_e":"metro:bundling:progress","_t":1782546128493,"id":"3","progress":0.789611801659105,"total":772,"current":686}
+{"_e":"metro:bundling:progress","_t":1782546128595,"id":"3","progress":0.7988469489113801,"total":772,"current":690}
+{"_e":"metro:bundling:progress","_t":1782546128748,"id":"3","progress":0.7990925963426043,"total":773,"current":691}
+{"_e":"metro:bundling:progress","_t":1782546128848,"id":"3","progress":0.8132590856585808,"total":774,"current":698}
+{"_e":"metro:bundling:progress","_t":1782546128949,"id":"3","progress":0.8160421537889255,"total":776,"current":701}
+{"_e":"metro:bundling:progress","_t":1782546129058,"id":"3","progress":0.8324210861940695,"total":776,"current":708}
+{"_e":"metro:bundling:progress","_t":1782546129180,"id":"3","progress":0.8442199622701668,"total":776,"current":713}
+{"_e":"metro:bundling:progress","_t":1782546129326,"id":"3","progress":0.8495207146517786,"total":779,"current":718}
+{"_e":"metro:bundling:progress","_t":1782546129488,"id":"3","progress":0.8520710059171599,"total":780,"current":720}
+{"_e":"metro:bundling:progress","_t":1782546129651,"id":"3","progress":0.8551531263015411,"total":784,"current":725}
+{"_e":"metro:bundling:progress","_t":1782546129850,"id":"3","progress":0.8551531263015411,"total":788,"current":728}
+{"_e":"metro:bundling:progress","_t":1782546129973,"id":"3","progress":0.855859787678116,"total":788,"current":729}
+{"_e":"metro:bundling:progress","_t":1782546130129,"id":"3","progress":0.855859787678116,"total":791,"current":731}
+{"_e":"metro:bundling:progress","_t":1782546130212,"id":"3","progress":0.8563852825960833,"total":791,"current":732}
+{"_e":"metro:bundling:progress","_t":1782546130327,"id":"3","progress":0.8569069659727554,"total":794,"current":735}
+{"_e":"metro:bundling:progress","_t":1782546130367,"id":"3","progress":0.859240271811889,"total":794,"current":736}
+{"_e":"metro:bundling:progress","_t":1782546130488,"id":"3","progress":0.859240271811889,"total":796,"current":737}
+{"_e":"metro:bundling:progress","_t":1782546130636,"id":"3","progress":0.8595805661473195,"total":796,"current":738}
+{"_e":"metro:bundling:progress","_t":1782546130741,"id":"3","progress":0.8595805661473195,"total":804,"current":741}
+{"_e":"metro:bundling:progress","_t":1782546130860,"id":"3","progress":0.8595805661473195,"total":805,"current":743}
+{"_e":"metro:bundling:progress","_t":1782546130994,"id":"3","progress":0.8595805661473195,"total":810,"current":748}
+{"_e":"metro:bundling:progress","_t":1782546131103,"id":"3","progress":0.8595805661473195,"total":811,"current":751}
+{"_e":"metro:bundling:progress","_t":1782546131133,"id":"3","progress":0.8597931341708718,"total":811,"current":752}
+{"_e":"metro:bundling:progress","_t":1782546131260,"id":"3","progress":0.8653326122228231,"total":817,"current":760}
+{"_e":"metro:bundling:progress","_t":1782546131380,"id":"3","progress":0.8701996687344673,"total":819,"current":764}
+{"_e":"metro:bundling:progress","_t":1782546131487,"id":"3","progress":0.87065699350584,"total":822,"current":767}
+{"_e":"metro:bundling:progress","_t":1782546131667,"id":"3","progress":0.8756422405876952,"total":825,"current":772}
+{"_e":"metro:bundling:progress","_t":1782546131770,"id":"3","progress":0.8756422405876952,"total":832,"current":776}
+{"_e":"metro:bundling:progress","_t":1782546131902,"id":"3","progress":0.8756422405876952,"total":833,"current":778}
+{"_e":"metro:bundling:progress","_t":1782546132047,"id":"3","progress":0.8756422405876952,"total":838,"current":783}
+{"_e":"metro:bundling:progress","_t":1782546132199,"id":"3","progress":0.8756422405876952,"total":847,"current":787}
+{"_e":"metro:bundling:progress","_t":1782546132212,"id":"3","progress":0.8756422405876952,"total":847,"current":788}
+{"_e":"metro:bundling:progress","_t":1782546132348,"id":"3","progress":0.8756422405876952,"total":849,"current":794}
+{"_e":"metro:bundling:progress","_t":1782546132454,"id":"3","progress":0.883467142803631,"total":849,"current":798}
+{"_e":"metro:bundling:progress","_t":1782546132570,"id":"3","progress":0.8925919737752365,"total":851,"current":804}
+{"_e":"metro:bundling:progress","_t":1782546132722,"id":"3","progress":0.8975069252077561,"total":855,"current":810}
+{"_e":"metro:bundling:progress","_t":1782546132806,"id":"3","progress":0.8997243596320236,"total":855,"current":811}
+{"_e":"metro:bundling:progress","_t":1782546132971,"id":"3","progress":0.9022785683624844,"total":858,"current":815}
+{"_e":"metro:bundling:progress","_t":1782546133071,"id":"3","progress":0.904710654407788,"total":860,"current":818}
+{"_e":"metro:bundling:progress","_t":1782546133199,"id":"3","progress":0.9070294784580498,"total":861,"current":820}
+{"_e":"metro:bundling:progress","_t":1782546133233,"id":"3","progress":0.9092430944219846,"total":861,"current":821}
+{"_e":"metro:bundling:progress","_t":1782546133334,"id":"3","progress":0.9159001296334517,"total":861,"current":824}
+{"_e":"metro:bundling:progress","_t":1782546133436,"id":"3","progress":0.9184027777777779,"total":864,"current":828}
+{"_e":"metro:bundling:progress","_t":1782546133538,"id":"3","progress":0.9208020203851959,"total":866,"current":831}
+{"_e":"metro:bundling:progress","_t":1782546133589,"id":"3","progress":0.9230194838097169,"total":866,"current":832}
+{"_e":"metro:bundling:progress","_t":1782546133857,"id":"3","progress":0.9253241699692293,"total":867,"current":834}
+{"_e":"metro:bundling:progress","_t":1782546134157,"id":"3","progress":0.9301629176836966,"total":872,"current":841}
+{"_e":"metro:bundling:progress","_t":1782546134261,"id":"3","progress":0.945711640434307,"total":872,"current":848}
+{"_e":"metro:bundling:progress","_t":1782546134388,"id":"3","progress":0.9591880114783717,"total":873,"current":855}
+{"_e":"metro:bundling:progress","_t":1782546134500,"id":"3","progress":0.9681838638865597,"total":873,"current":859}
+{"_e":"metro:bundling:progress","_t":1782546134551,"id":"3","progress":0.9704393875577495,"total":873,"current":860}
+{"_e":"metro:bundling:progress","_t":1782546134657,"id":"3","progress":0.9749867779587262,"total":874,"current":863}
+{"_e":"metro:bundling:progress","_t":1782546134757,"id":"3","progress":0.9818597869458959,"total":878,"current":870}
+{"_e":"metro:bundling:progress","_t":1782546134863,"id":"3","progress":0.9841362288566099,"total":879,"current":872}
+{"_e":"metro:bundling:progress","_t":1782546134967,"id":"3","progress":0.9886686466942147,"total":880,"current":875}
+{"_e":"metro:bundling:progress","_t":1782546135087,"id":"3","progress":0.9886686466942147,"total":899,"current":879}
+{"_e":"metro:bundling:progress","_t":1782546135171,"id":"3","progress":0.9886686466942147,"total":899,"current":880}
+{"_e":"metro:bundling:progress","_t":1782546135272,"id":"3","progress":0.9886686466942147,"total":902,"current":883}
+{"_e":"metro:bundling:progress","_t":1782546135388,"id":"3","progress":0.9886686466942147,"total":905,"current":887}
+{"_e":"metro:bundling:progress","_t":1782546135532,"id":"3","progress":0.9886686466942147,"total":911,"current":891}
+{"_e":"metro:bundling:progress","_t":1782546135633,"id":"3","progress":0.9886686466942147,"total":927,"current":895}
+{"_e":"metro:bundling:progress","_t":1782546135789,"id":"3","progress":0.9886686466942147,"total":929,"current":897}
+{"_e":"metro:bundling:progress","_t":1782546135953,"id":"3","progress":0.9886686466942147,"total":930,"current":898}
+{"_e":"metro:bundling:progress","_t":1782546136176,"id":"3","progress":0.9886686466942147,"total":931,"current":900}
+{"_e":"metro:bundling:progress","_t":1782546136404,"id":"3","progress":0.9886686466942147,"total":931,"current":902}
+{"_e":"metro:bundling:progress","_t":1782546136500,"id":"3","progress":0.9886686466942147,"total":942,"current":908}
+{"_e":"metro:bundling:progress","_t":1782546136622,"id":"3","progress":0.9886686466942147,"total":945,"current":913}
+{"_e":"metro:bundling:progress","_t":1782546136739,"id":"3","progress":0.9886686466942147,"total":949,"current":918}
+{"_e":"metro:bundling:progress","_t":1782546136848,"id":"3","progress":0.9886686466942147,"total":954,"current":925}
+{"_e":"metro:bundling:progress","_t":1782546136955,"id":"3","progress":0.9886686466942147,"total":954,"current":926}
+{"_e":"metro:bundling:progress","_t":1782546137089,"id":"3","progress":0.9886686466942147,"total":958,"current":931}
+{"_e":"metro:bundling:progress","_t":1782546137193,"id":"3","progress":0.9886686466942147,"total":959,"current":937}
+{"_e":"metro:bundling:progress","_t":1782546137376,"id":"3","progress":0.9886686466942147,"total":965,"current":944}
+{"_e":"metro:bundling:progress","_t":1782546137488,"id":"3","progress":0.9886686466942147,"total":967,"current":949}
+{"_e":"metro:bundling:progress","_t":1782546137599,"id":"3","progress":0.9886686466942147,"total":968,"current":954}
+{"_e":"metro:bundling:progress","_t":1782546137740,"id":"3","progress":0.9886686466942147,"total":971,"current":960}
+{"_e":"metro:bundling:progress","_t":1782546137843,"id":"3","progress":0.9938303489135496,"total":971,"current":968}
+{"_e":"metro:bundling:progress","_t":1782546137950,"id":"3","progress":0.9979413283894103,"total":971,"current":970}
+{"_e":"metro:bundling:progress","_t":1782546140536,"id":"3","progress":0.999,"total":971,"current":971}
+{"_e":"metro:bundling:progress","_t":1782546140640,"id":"3","progress":0.999,"total":979,"current":973}
+{"_e":"metro:bundling:progress","_t":1782546140760,"id":"3","progress":0.999,"total":981,"current":981}
+{"_e":"metro:bundling:done","_t":1782546142503,"id":"3","total":981,"ms":52747.3998}
+{"_e":"metro:client_log","_t":1782546150237,"level":"warn","data":["Found screens with the same name nested inside one another. Check:\n\nLogin, Login > Login\n\nThis can cause confusing behavior during navigation. Consider using unique names for each screen instead."]}
+{"_e":"metro:bundling:started","_t":1782546385979,"id":"7","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782546385980,"id":"7","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1782546386140,"id":"7","total":1,"ms":160.3137}
+{"_e":"metro:client_log","_t":1782546393783,"level":"warn","data":["Found screens with the same name nested inside one another. Check:\n\nLogin, Login > Login\n\nThis can cause confusing behavior during navigation. Consider using unique names for each screen instead."]}
+{"_e":"metro:bundling:started","_t":1782547503263,"id":"b","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782547503264,"id":"b","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1782547503571,"id":"b","total":1,"ms":307.3614}
+{"_e":"metro:bundling:started","_t":1782548182509,"id":"c","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782548182510,"id":"c","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1782548182682,"id":"c","total":1,"ms":171.4574}
+{"_e":"metro:bundling:failed","_t":1782548278292,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Unexpected reserved word 'await'. (23:17)\n\n  21 |         if (!email || !password) return;\n  22 |         try {\n> 23 |             let  await login({ email, password });\n     |                  ^\n  24 |\n  25 |             // authStore state changes to isAuthenticated = true,\n  26 |             // RootNavigator will automatically swap to HomeScreen","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782548283413,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Missing semicolon. (23:25)\n\n  21 |         if (!email || !password) return;\n  22 |         try {\n> 23 |             let  response await login({ email, password });\n     |                          ^\n  24 |\n  25 |             // authStore state changes to isAuthenticated = true,\n  26 |             // RootNavigator will automatically swap to HomeScreen","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782548292252,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Missing semicolon. (23:14)\n\n  21 |         if (!email || !password) return;\n  22 |         try {\n> 23 |             le  t response = await login({ email, password });\n     |               ^\n  24 |             console.log(response);\n  25 |\n  26 |             // authStore state changes to isAuthenticated = true,","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782548295277,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Missing semicolon. (23:14)\n\n  21 |         if (!email || !password) return;\n  22 |         try {\n> 23 |             le t response = await login({ email, password });\n     |               ^\n  24 |             console.log(response);\n  25 |\n  26 |             // authStore state changes to isAuthenticated = true,","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"root:init","_t":1782552796169,"format":"v0-jsonl","version":"56.1.16"}
+{"_e":"env:mode","_t":1782552796204,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1782552796285,"mode":"development","files":["../..\\..\\.env"],"env":{"EXPO_PUBLIC_API_URL":"http://localhost:5000/api/v1","EXPO_PUBLIC_WEB_URL":"http://localhost:5173"}}
+{"_e":"devserver:start","_t":1782552805846,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\src\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1782552821150,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"metro:instantiate","_t":1782552859834,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1782552881861,"id":"3","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782552881862,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1782552881870,"id":"3","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1782552881977,"id":"3","progress":0.14984391259105098,"total":31,"current":12}
+{"_e":"metro:bundling:progress","_t":1782552882076,"id":"3","progress":0.19140625,"total":64,"current":28}
+{"_e":"metro:bundling:progress","_t":1782552882179,"id":"3","progress":0.19140625,"total":190,"current":66}
+{"_e":"metro:bundling:progress","_t":1782552882279,"id":"3","progress":0.19140625,"total":229,"current":84}
+{"_e":"metro:bundling:progress","_t":1782552882379,"id":"3","progress":0.2448008352656946,"total":287,"current":142}
+{"_e":"metro:bundling:progress","_t":1782552882479,"id":"3","progress":0.36804444444444445,"total":300,"current":182}
+{"_e":"metro:bundling:progress","_t":1782552882579,"id":"3","progress":0.4526910840219715,"total":379,"current":255}
+{"_e":"metro:bundling:progress","_t":1782552882694,"id":"3","progress":0.4854734653635117,"total":432,"current":301}
+{"_e":"metro:bundling:progress","_t":1782552882793,"id":"3","progress":0.6868309427923961,"total":473,"current":392}
+{"_e":"metro:bundling:progress","_t":1782552882911,"id":"3","progress":0.7700957934194085,"total":490,"current":430}
+{"_e":"metro:bundling:progress","_t":1782552883045,"id":"3","progress":0.8261326688966583,"total":527,"current":479}
+{"_e":"metro:bundling:progress","_t":1782552883145,"id":"3","progress":0.8573388203017833,"total":540,"current":500}
+{"_e":"metro:bundling:progress","_t":1782552883245,"id":"3","progress":0.9190901792564898,"total":581,"current":557}
+{"_e":"metro:bundling:progress","_t":1782552883355,"id":"3","progress":0.9190901792564898,"total":630,"current":601}
+{"_e":"metro:bundling:progress","_t":1782552883455,"id":"3","progress":0.9262253377805415,"total":665,"current":640}
+{"_e":"metro:bundling:progress","_t":1782552883556,"id":"3","progress":0.9882698961937717,"total":680,"current":676}
+{"_e":"metro:bundling:progress","_t":1782552883666,"id":"3","progress":0.9942029107623214,"total":689,"current":687}
+{"_e":"metro:bundling:progress","_t":1782552893385,"id":"3","progress":0.9970993488807111,"total":689,"current":688}
+{"_e":"metro:bundling:progress","_t":1782552893490,"id":"3","progress":0.9970993488807111,"total":702,"current":689}
+{"_e":"metro:bundling:progress","_t":1782552893526,"id":"3","progress":0.9970993488807111,"total":702,"current":690}
+{"_e":"metro:bundling:progress","_t":1782552893627,"id":"3","progress":0.9970993488807111,"total":777,"current":715}
+{"_e":"metro:bundling:progress","_t":1782552893727,"id":"3","progress":0.9970993488807111,"total":809,"current":749}
+{"_e":"metro:bundling:progress","_t":1782552893830,"id":"3","progress":0.9970993488807111,"total":874,"current":773}
+{"_e":"metro:bundling:progress","_t":1782552893930,"id":"3","progress":0.9970993488807111,"total":902,"current":831}
+{"_e":"metro:bundling:progress","_t":1782552894030,"id":"3","progress":0.9970993488807111,"total":915,"current":861}
+{"_e":"metro:bundling:progress","_t":1782552894135,"id":"3","progress":0.9970993488807111,"total":930,"current":874}
+{"_e":"metro:bundling:progress","_t":1782552894287,"id":"3","progress":0.9970993488807111,"total":931,"current":874}
+{"_e":"metro:bundling:progress","_t":1782552894422,"id":"3","progress":0.9970993488807111,"total":935,"current":876}
+{"_e":"metro:bundling:progress","_t":1782552894531,"id":"3","progress":0.9970993488807111,"total":935,"current":877}
+{"_e":"metro:bundling:progress","_t":1782552894709,"id":"3","progress":0.9970993488807111,"total":935,"current":878}
+{"_e":"metro:bundling:progress","_t":1782552894809,"id":"3","progress":0.9970993488807111,"total":942,"current":896}
+{"_e":"metro:bundling:progress","_t":1782552895036,"id":"3","progress":0.9970993488807111,"total":956,"current":927}
+{"_e":"metro:bundling:progress","_t":1782552895140,"id":"3","progress":0.9970993488807111,"total":969,"current":949}
+{"_e":"metro:bundling:progress","_t":1782552895240,"id":"3","progress":0.9970993488807111,"total":969,"current":952}
+{"_e":"metro:bundling:progress","_t":1782552895347,"id":"3","progress":0.9970993488807111,"total":970,"current":953}
+{"_e":"metro:bundling:progress","_t":1782552895465,"id":"3","progress":0.9970993488807111,"total":979,"current":958}
+{"_e":"metro:bundling:progress","_t":1782552895574,"id":"3","progress":0.9970993488807111,"total":990,"current":970}
+{"_e":"metro:bundling:progress","_t":1782552895674,"id":"3","progress":0.9970993488807111,"total":1001,"current":985}
+{"_e":"metro:bundling:progress","_t":1782552895790,"id":"3","progress":0.9970993488807111,"total":1002,"current":989}
+{"_e":"metro:bundling:progress","_t":1782552895893,"id":"3","progress":0.9970993488807111,"total":1004,"current":998}
+{"_e":"metro:bundling:progress","_t":1782552895995,"id":"3","progress":0.9970993488807111,"total":1004,"current":1002}
+{"_e":"metro:bundling:progress","_t":1782552896109,"id":"3","progress":0.9970993488807111,"total":1006,"current":1004}
+{"_e":"metro:bundling:progress","_t":1782552896141,"id":"3","progress":0.998012916536566,"total":1006,"current":1005}
+{"_e":"metro:bundling:progress","_t":1782552896263,"id":"3","progress":0.999,"total":1007,"current":1007}
+{"_e":"metro:bundling:done","_t":1782552896474,"id":"3","total":1007,"ms":14612.0224}
+{"_e":"metro:bundling:failed","_t":1782553020303,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: 'return' outside of function. (33:4)\n\n  31 |     };\n  32 |\n> 33 |     return (\n     |     ^\n  34 |         <SafeAreaView style={styles.safeArea}>\n  35 |             <View style={styles.container}>\n  36 |                 <View style={styles.header}>","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553020497,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: 'return' outside of function. (33:4)\n\n  31 |     };\n  32 |\n> 33 |     return (\n     |     ^\n  34 |         <SafeAreaView style={styles.safeArea}>\n  35 |             <View style={styles.container}>\n  36 |                 <View style={styles.header}>","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:started","_t":1782553027121,"id":"5","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782553027122,"id":"5","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1782553027275,"id":"5","total":1,"ms":152.6938}
+{"_e":"metro:client_log","_t":1782553258191,"level":"error","data":["[Error: Uncaught (in promise, id: 0): \"AxiosError: Network Error\"]"]}
+{"_e":"metro:bundling:failed","_t":1782553311472,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Expected corresponding JSX closing tag for <TouchableOpacity>. (71:16)\n\n  69 |                         )}\n  70 |                     </TouchableOpacity>\n> 71 |                 </View>\n     |                 ^\n  72 |\n  73 |                 <TouchableOpacity\n  74 |                     style={styles.footer}","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:client_log","_t":1782553334115,"level":"error","data":["Text strings must be rendered within a <Text> component."]}
+{"_e":"metro:bundling:failed","_t":1782553366007,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Unexpected token (56:20)\n\n  54 |                     {/** Password field with show hide icon */}\n  55 |                     <\n> 56 |                     <Text style={styles.label}>Password</Text>\n     |                     ^\n  57 |                     <TextInput\n  58 |                         style={styles.input}\n  59 |                         placeholder=\"••••••••\"","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553367548,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Expected corresponding JSX closing tag for <View>. (85:8)\n\n  83 |                 </TouchableOpacity>\n  84 |             </View>\n> 85 |         </SafeAreaView>\n     |         ^\n  86 |     );\n  87 | };\n  88 |","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553368798,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Expected corresponding JSX closing tag for <View>. (86:8)\n\n  84 |                 </TouchableOpacity>\n  85 |             </View>\n> 86 |         </SafeAreaView>\n     |         ^\n  87 |     );\n  88 | };\n  89 |","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553374234,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Unexpected token (57:20)\n\n  55 |                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>\n  56 |                         <\n> 57 |                     <Text style={styles.label}>Password</Text>\n     |                     ^\n  58 |                     <TextInput\n  59 |                         style={styles.input}\n  60 |                         placeholder=\"••••••••\"","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553377576,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Expected corresponding JSX closing tag for <View>. (87:8)\n\n  85 |                 </TouchableOpacity>\n  86 |             </View>\n> 87 |         </SafeAreaView>\n     |         ^\n  88 |     );\n  89 | };\n  90 |","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553384234,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Expected corresponding JSX closing tag for <View>. (87:8)\n\n  85 |                 </TouchableOpacity>\n  86 |             </View>\n> 87 |         </SafeAreaView>\n     |         ^\n  88 |     );\n  89 | };\n  90 |","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553389179,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Unexpected token (58:20)\n\n  56 |                         <ActivityIndicator size=\"small\" color={AppColors.terra} animating={isLoading} />\n  57 |                             <\n> 58 |                     <Text style={styles.label}>Password</Text>\n     |                     ^\n  59 |                     <TextInput\n  60 |                         style={styles.input}\n  61 |                         placeholder=\"••••••••\"","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:bundling:failed","_t":1782553394055,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Expected corresponding JSX closing tag for <View>. (86:8)\n\n  84 |                 </TouchableOpacity>\n  85 |             </View>\n> 86 |         </SafeAreaView>\n     |         ^\n  87 |     );\n  88 | };\n  89 |","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"metro:client_log","_t":1782553439647,"level":"error","data":["[ReferenceError: Property 'showPassword' doesn't exist]"]}
+{"_e":"metro:client_log","_t":1782553450774,"level":"error","data":["[ReferenceError: Property 'showPassword' doesn't exist]"]}
+{"_e":"metro:bundling:failed","_t":1782553573826,"id":null,"message":"SyntaxError: E:\\xampp\\htdocs\\js_works\\abmiti\\apk\\src\\screens\\LoginScreen.tsx: Unexpected keyword 'const'. (157:4)\n\n  155 |         color: AppColors.ink,\n  156 |     },\n> 157 |     const styles = StyleSheet.create({\n      |     ^\n  158 |     fieldContainer: {\n  159 |         marginBottom: 16,\n  160 |     },","importStack":null,"filename":"src\\screens\\LoginScreen.tsx","targetModuleName":null,"originModulePath":null}
+{"_e":"root:init","_t":1782554080572,"format":"v0-jsonl","version":"56.1.16"}
+{"_e":"env:mode","_t":1782554080601,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1782554080647,"mode":"development","files":["../..\\..\\.env"],"env":{"EXPO_PUBLIC_API_URL":"http://localhost:5000/api/v1","EXPO_PUBLIC_WEB_URL":"http://localhost:5173"}}
+{"_e":"devserver:start","_t":1782554088594,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\src\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1782554101551,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"metro:instantiate","_t":1782554140920,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1782555011060,"id":"2","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782555011064,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1782555011504,"id":"2","total":1,"ms":440.331}
+{"_e":"metro:client_log","_t":1782555497452,"level":"error","data":["[Error: Uncaught (in promise, id: 0): \"AxiosError: Network Error\"]"]}
+{"_e":"metro:client_log","_t":1782555605180,"level":"log","data":["Login api:","[Function wrap]"]}
+{"_e":"metro:client_log","_t":1782555605241,"level":"log","data":["Login payload:","{\"email\": \"admin@abmiti.com\", \"password\": \"123456\"}"]}
+{"_e":"metro:client_log","_t":1782555607431,"level":"error","data":["[Error: Uncaught (in promise, id: 1): \"AxiosError: Network Error\"]"]}
+{"_e":"metro:client_log","_t":1782555669397,"level":"log","data":["Login api:","[Function wrap]"]}
+{"_e":"metro:client_log","_t":1782555669530,"level":"log","data":["Login payload:","{\"email\": \"admin@abmiti.com\", \"password\": \"123456\"}"]}
+{"_e":"metro:client_log","_t":1782555669530,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://localhost:5000/api/v1\", \"data\": {\"email\": \"admin@abmiti.com\", \"password\": \"123456\"}, \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"post\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/auth/login\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782555671718,"level":"error","data":["[Error: Uncaught (in promise, id: 2): \"AxiosError: Network Error\"]"]}
+{"_e":"root:init","_t":1782555755968,"format":"v0-jsonl","version":"56.1.16"}
+{"_e":"env:mode","_t":1782555755988,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1782555756021,"mode":"development","files":["../..\\..\\.env"],"env":{"EXPO_PUBLIC_API_URL":"http://192.168.0.151:5000/api/v1","EXPO_PUBLIC_WEB_URL":"http://localhost:5173"}}
+{"_e":"devserver:start","_t":1782555758797,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\src\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1782555760719,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"metro:instantiate","_t":1782555775628,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"root:init","_t":1782555849530,"format":"v0-jsonl","version":"56.1.16"}
+{"_e":"env:mode","_t":1782555849532,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1782555849539,"mode":"development","files":["../..\\..\\.env"],"env":{"EXPO_PUBLIC_API_URL":"http://192.168.0.151:5000/api/v1","EXPO_PUBLIC_WEB_URL":"http://localhost:5173"}}
+{"_e":"devserver:start","_t":1782555850009,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\src\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1782555850682,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"metro:instantiate","_t":1782555858778,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"root:init","_t":1782556235084,"format":"v0-jsonl","version":"56.1.16"}
+{"_e":"env:mode","_t":1782556235106,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1782556235138,"mode":"development","files":["../..\\..\\.env"],"env":{"EXPO_PUBLIC_API_URL":"http://192.168.0.151:5000/api/v1","EXPO_PUBLIC_WEB_URL":"http://localhost:5173"}}
+{"_e":"devserver:start","_t":1782556239294,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\src\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1782556247583,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"metro:instantiate","_t":1782556275296,"atlas":false,"workers":6,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1782556345547,"id":"2","platform":"android","environment":null,"entry":"index.ts"}
+{"_e":"metro:bundling:progress","_t":1782556345548,"id":"2","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:done","_t":1782556346480,"id":"2","total":1,"ms":932.0003}
+{"_e":"metro:client_log","_t":1782556368805,"level":"log","data":["Login api:","[Function wrap]"]}
+{"_e":"metro:client_log","_t":1782556368847,"level":"log","data":["Login payload:","{\"email\": \"admin@abmiti.com\", \"password\": \"123456\"}"]}
+{"_e":"metro:client_log","_t":1782556368967,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"data\": {\"email\": \"admin@abmiti.com\", \"password\": \"123456\"}, \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"post\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/auth/login\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556373647,"level":"error","data":["[Error: Uncaught (in promise, id: 0): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556373745,"level":"error","data":["[Error: Uncaught (in promise, id: 1): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556388111,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"params\": {\"limit\": 20, \"month\": undefined, \"page\": 1, \"type\": undefined, \"year\": undefined}, \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/entries\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556390009,"level":"error","data":["[Error: Uncaught (in promise, id: 2): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556394434,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"params\": {\"year\": 2026}, \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/summary/yearly\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556396392,"level":"error","data":["[Error: Uncaught (in promise, id: 3): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556396565,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/categories\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556400158,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/accounts\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556405748,"level":"error","data":["[Error: Uncaught (in promise, id: 4): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556405801,"level":"error","data":["[Error: Uncaught (in promise, id: 5): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556420444,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/auth/me\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556422857,"level":"error","data":["[Error: Uncaught (in promise, id: 6): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556422917,"level":"error","data":["[Error: Uncaught (in promise, id: 7): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556427215,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/auth/me\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556429634,"level":"error","data":["[Error: Uncaught (in promise, id: 8): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556429718,"level":"error","data":["[Error: Uncaught (in promise, id: 9): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556453831,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"params\": {\"limit\": 20, \"month\": undefined, \"page\": 1, \"type\": undefined, \"year\": undefined}, \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/entries\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556454625,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"params\": {\"year\": 2026}, \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/summary/yearly\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556455714,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/categories\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}
+{"_e":"metro:client_log","_t":1782556455775,"level":"error","data":["[Error: Uncaught (in promise, id: 10): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556456579,"level":"error","data":["[Error: Uncaught (in promise, id: 11): \"AsyncStorageError: Native module is null, cannot access legacy storage\"]"]}
+{"_e":"metro:client_log","_t":1782556457295,"level":"log","data":["Request config:","{\"adapter\": [\"xhr\", \"http\", \"fetch\"], \"allowAbsoluteUrls\": true, \"baseURL\": \"http://192.168.0.151:5000/api/v1\", \"env\": {\"Blob\": [Function Blob], \"FormData\": [Function FormData]}, \"headers\": {\"Accept\": \"application/json\", \"Authorization\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NmZiMjExMS00ZjAxLTQyOTktYTAyYi1lMDAyOWIyNjhjNGQiLCJlbWFpbCI6ImFkbWluQGFibWl0aS5jb20iLCJpYXQiOjE3ODI1NTYzNzAsImV4cCI6MTc4MzE2MTE3MH0.ehswNBQXj51iCoOC_PeXKwUVIZDTjkUAjTzVxhim5pY\", \"Content-Type\": \"application/json\"}, \"maxBodyLength\": -1, \"maxContentLength\": -1, \"method\": \"get\", \"timeout\": 15000, \"transformRequest\": [[Function transformRequest]], \"transformResponse\": [[Function transformResponse]], \"transitional\": {\"advertiseZstdAcceptEncoding\": false, \"clarifyTimeoutError\": false, \"forcedJSONParsing\": true, \"legacyInterceptorReqResOrdering\": true, \"silentJSONParsing\": true, \"validateStatusUndefinedResolves\": true}, \"url\": \"/accounts\", \"validateStatus\": [Function validateStatus], \"xsrfCookieName\": \"XSRF-TOKEN\", \"xsrfHeaderName\": \"X-XSRF-TOKEN\"}"]}

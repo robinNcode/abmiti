@@ -1,0 +1,28 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Style
+    prefer_const_constructors: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_locals: true
+    avoid_print: true
+    use_string_buffers: true
+
+    # Correctness
+    cancel_subscriptions: true
+    close_sinks: true
+    avoid_function_literals_in_foreach_calls: true
+    always_declare_return_types: true
+
+    # Flutter-specific
+    use_build_context_synchronously: true
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - build/**
+  errors:
+    # Treat missing return types as errors
+    always_declare_return_types: error

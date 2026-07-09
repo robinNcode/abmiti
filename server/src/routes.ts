@@ -6,7 +6,9 @@ import summaryRouter from './modules/summary/summary.routes';
 import accountRouter from './modules/account/account.routes';
 import budgetRouter from './modules/budget/budget.routes';
 
-const API_V1 = '/api/v1';
+import { env } from './config/env';
+
+const API_V1 = env.API_PREFIX;
 
 export const registerRoutes = (app: Express): void => {
   app.get('/health', (_, res) => res.json({ status: 'ok', service: 'abmiti-api' }));

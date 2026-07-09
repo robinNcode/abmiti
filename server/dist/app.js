@@ -26,7 +26,17 @@ const connection_2 = require("./infrastructure/database/mysql/connection");
 const app = (0, express_1.default)();
 // ── Security middleware ──────────────────────────────────────
 app.use((0, helmet_1.default)());
-app.use((0, cors_1.default)({ origin: env_1.env.CLIENT_URL, credentials: true }));
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        // Allow server-to-server requests (no origin) in development
+        if (!origin && env_1.env.NODE_ENV === 'development')
+            return callback(null, true);
+        if (origin && env_1.env.CLIENT_URLS.includes(origin))
+            return callback(null, true);
+        callback(new Error(`CORS: origin "${origin}" is not allowed`));
+    },
+    credentials: true,
+}));
 if (env_1.env.DB_PROVIDER === 'mongodb') {
     app.use((0, express_mongo_sanitize_1.default)());
 }
@@ -38,7 +48,7 @@ if (env_1.env.NODE_ENV === 'development') {
     app.use((0, morgan_1.default)('dev'));
 }
 // ── Rate limiting ────────────────────────────────────────────
-app.use('/api', rateLimiter_1.rateLimiter);
+app.use(env_1.env.API_PREFIX, rateLimiter_1.rateLimiter);
 // ── Routes ───────────────────────────────────────────────────
 (0, routes_1.registerRoutes)(app);
 // ── Error handling ───────────────────────────────────────────
