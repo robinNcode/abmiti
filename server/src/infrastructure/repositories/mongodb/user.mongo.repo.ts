@@ -21,6 +21,10 @@ export class MongoUserRepository implements IUserRepository {
   }
 
   async updateProfile(id: string, data: { name?: string; avatar?: string }): Promise<IUser | null> {
-    return User.findByIdAndUpdate(id, data, { new: true });
+    const update: Partial<{ name: string; avatar: string }> = {};
+    if (data.name !== undefined) update.name = data.name;
+    if (data.avatar !== undefined) update.avatar = data.avatar;
+    if (Object.keys(update).length === 0) return this.findById(id);
+    return User.findByIdAndUpdate(id, update, { new: true });
   }
 }

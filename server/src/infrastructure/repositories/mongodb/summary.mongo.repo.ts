@@ -104,7 +104,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
         },
       },
       { $lookup: { from: 'categories', localField: '_id', foreignField: '_id', as: 'category' } },
-      { $unwind: '$category' },
+      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
       { $sort: { total: -1 } },
     ]);
   }
@@ -135,7 +135,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
     const transactions = await Entry.aggregate([
       { $match: match },
       { $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' } },
-      { $unwind: '$category' },
+      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
       { $sort: { date: 1 } },
       {
         $project: {

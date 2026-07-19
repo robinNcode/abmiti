@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import { PageHeader } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
-import { User, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 const MINECRAFT_AVATARS = [
   '🧱', '⛏️', '🗡️', '🛡️', '🏹', '🪓', '🔱', '🎣',

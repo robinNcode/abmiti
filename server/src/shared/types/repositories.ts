@@ -79,7 +79,7 @@ export interface ICategoryReportRow {
   count: number;
   minAmount: number;
   maxAmount: number;
-  category: { _id: string; name: string; icon: string; color: string };
+  category?: { _id: string; name: string; icon: string; color: string };
 }
 
 export interface ITransactionStatementRow {
@@ -88,7 +88,7 @@ export interface ITransactionStatementRow {
   type: EntryType;
   amount: number;
   note: string;
-  category: { _id: string; name: string; icon: string; color: string };
+  category?: { _id: string; name: string; icon: string; color: string };
   source: string;
   runningBalance: number;
 }

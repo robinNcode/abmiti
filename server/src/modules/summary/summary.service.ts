@@ -217,12 +217,14 @@ export const summaryService = {
     const rows = await container.summaryRepo.getCategoryReport(userId, filters);
 
     return rows.map((r) => ({
-      category: {
-        _id: String(r.category._id),
-        name: r.category.name,
-        icon: r.category.icon,
-        color: r.category.color,
-      },
+      category: r.category
+        ? {
+            _id: String(r.category._id),
+            name: r.category.name,
+            icon: r.category.icon,
+            color: r.category.color,
+          }
+        : { _id: String(r._id), name: 'Deleted Category', icon: '🗑️', color: '#9ca3af' },
       total: r.total,
       count: r.count,
       avgAmount: r.count > 0 ? parseFloat((r.total / r.count).toFixed(2)) : 0,
@@ -248,12 +250,14 @@ export const summaryService = {
       type: r.type,
       amount: r.amount,
       note: r.note,
-      category: {
-        _id: String(r.category._id),
-        name: r.category.name,
-        icon: r.category.icon,
-        color: r.category.color,
-      },
+      category: r.category
+        ? {
+            _id: String(r.category._id),
+            name: r.category.name,
+            icon: r.category.icon,
+            color: r.category.color,
+          }
+        : { _id: '', name: 'Deleted Category', icon: '🗑️', color: '#9ca3af' },
       source: r.source,
       runningBalance: r.runningBalance,
     }));

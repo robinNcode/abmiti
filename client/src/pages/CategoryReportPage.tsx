@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import { PageHeader, Spinner, EmptyState } from '@/components/ui';
-import { formatBDT, cx } from '@/utils';
+import { formatBDT } from '@/utils';
 import { Category, EntryType } from '@/types';
 
 interface CategoryReportFilters {
@@ -34,7 +34,7 @@ export default function CategoryReportPage() {
     endDate: new Date().toISOString().split('T')[0],
   });
 
-  const { register, handleSubmit, watch, reset } = useForm<CategoryReportFilters>({
+  const { register, handleSubmit, reset } = useForm<CategoryReportFilters>({
     defaultValues: filters,
   });
 
@@ -94,7 +94,7 @@ export default function CategoryReportPage() {
 
     const csv = [
       headers.join(','),
-      ...rows.map(row => row.join(',')),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csv], { type: 'text/csv' });
