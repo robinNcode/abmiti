@@ -6,7 +6,7 @@ import { container } from '../../container';
 
 interface RegisterDto { name: string; email: string; password: string; }
 interface LoginDto { email: string; password: string; }
-interface UpdateProfileDto { budget?: number; }
+interface UpdateProfileDto { budget?: number; name?: string; avatar?: string; }
 
 const signTokens = (user: IUser): AuthTokens => {
   const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
@@ -63,6 +63,14 @@ export const authService = {
   async updateMe(userId: string, dto: UpdateProfileDto): Promise<IUser> {
     if (dto.budget !== undefined) {
       const updated = await container.userRepo.updateBudget(userId, dto.budget);
+      if (!updated) throw new UnauthorizedError('User not found');
+      return updated;
+    }
+    if (dto.name !== undefined || dto.avatar !== undefined) {
+      const updated = await container.userRepo.updateProfile(userId, {
+        name: dto.name,
+        avatar: dto.avatar,
+      });
       if (!updated) throw new UnauthorizedError('User not found');
       return updated;
     }

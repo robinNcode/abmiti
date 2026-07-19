@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings, WalletCards } from 'lucide-react';
+import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings, WalletCards, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
@@ -7,16 +7,17 @@ import { monthLabel } from '@/utils';
 import { cx } from '@/utils';
 
 const NAV = [
-  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/entries',      icon: List,            label: 'Entries'   },
-  { to: '/budget',       icon: WalletCards,     label: 'Budget'   },
-  { to: '/investments',  icon: TrendingUp,      label: 'Investments' },
-  { to: '/analytics',    icon: BarChart2,       label: 'Analytics' },
-  { to: '/categories',   icon: Tag,             label: 'Categories'},
-  { to: '/settings',     icon: Settings,        label: 'Settings' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/entries', icon: List, label: 'Entries' },
+  { to: '/budget', icon: WalletCards, label: 'Budget' },
+  { to: '/investments', icon: TrendingUp, label: 'Investments' },
+  { to: '/analytics', icon: BarChart2, label: 'Analytics' },
+  { to: '/categories', icon: Tag, label: 'Categories' },
+  { to: '/category-report', icon: FileText, label: 'Report' },
+  { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 
-const MOBILE_NAV = NAV.slice(0, 5);
+const MOBILE_NAV = NAV.slice(0, 6); // Include Categories
 
 export default function AppLayout() {
   const { user, logout } = useAuthStore();
@@ -68,22 +69,28 @@ export default function AppLayout() {
 
         {/* User */}
         <div className="px-4 py-4 border-t border-paper-mist2">
-          <div className="flex items-center gap-2.5 mb-3">
+          <NavLink to="/profile" className="flex items-center gap-2.5 mb-3">
             <div className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm">
-              {user?.name?.[0]?.toUpperCase()}
+              {user?.avatar || user?.name?.[0]?.toUpperCase()}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold truncate">{user?.name}</p>
               <p className="text-xs text-ink/40 truncate">{user?.email}</p>
             </div>
-          </div>
+          </NavLink>
           <button onClick={toggleLanguage}
             className="flex items-center gap-2 text-xs text-ink/40 hover:text-terra transition-colors w-full mb-2">
-            <Languages size={13} /> {i18n.language === 'en' ? 'বাংলা' : 'English'}
+            <div className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm">
+              <Languages size={13} />
+            </div>
+            {i18n.language === 'en' ? 'বাংলা' : 'English'}
           </button>
           <button onClick={handleLogout}
             className="flex items-center gap-2 text-xs text-ink/40 hover:text-terra transition-colors w-full">
-            <LogOut size={13} /> {t('Sign out')}
+            <div className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm">
+              <LogOut size={13} />
+            </div>
+            {t('Sign out')}
           </button>
         </div>
       </aside>
@@ -97,11 +104,24 @@ export default function AppLayout() {
             <span className="text-sm font-semibold text-ink min-w-[80px] text-center">{monthLabel(month, year)}</span>
             <button onClick={next} className="w-8 h-8 rounded-full bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors">›</button>
           </div>
-          <NavLink to="/settings" className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
-            {user?.name?.[0]?.toUpperCase()}
-          </NavLink>
+          { /** On hover dropdown with profile and settings */}
+          <div className="flex items-center gap-2">
+            <button onClick={toggleLanguage}
+              className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
+              {i18n.language === 'en' ? 'BN' : 'EN'}
+            </button>
+            <button onClick={handleLogout}
+              className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
+              <LogOut size={13} />
+            </button>
+            <NavLink to="/settings" className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
+              <Settings size={13} />
+            </NavLink>
+            <NavLink to="/profile" className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
+              {user?.avatar || user?.name?.[0]?.toUpperCase()}
+            </NavLink>
+          </div>
         </div>
-
         <Outlet />
       </main>
 

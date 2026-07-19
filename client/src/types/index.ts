@@ -6,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   budget: number;
+  avatar?: string;
 }
 
 export interface IBudget {
