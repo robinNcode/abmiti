@@ -72,11 +72,31 @@ export interface IAccountSummaryRow {
   account: { _id: string; name: string; type: string; balance: number };
 }
 
+export interface ICategoryReportRow {
+  _id: string; // category id
+  total: number;
+  count: number;
+  minAmount: number;
+  maxAmount: number;
+  category: { _id: string; name: string; icon: string; color: string };
+}
+
 export interface ISummaryRepository {
   getMonthlySummary(userId: string, start: Date, end: Date): Promise<IMonthlySummaryRow[]>;
   getCategoryBreakdown(userId: string, start: Date, end: Date): Promise<ICategoryBreakdownRow[]>;
   getYearlyTrend(userId: string, start: Date, end: Date): Promise<IMonthlyTrendRow[]>;
   getAccountSummaries(userId: string, year?: number): Promise<IAccountSummaryRow[]>;
+  getCategoryReport(
+    userId: string,
+    filters: {
+      startDate: Date;
+      endDate: Date;
+      categoryIds?: string[];
+      minAmount?: number;
+      maxAmount?: number;
+      type?: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
+    }
+  ): Promise<ICategoryReportRow[]>;
 }
 
 // ── Budget Repository ─────────────────────────────────────────

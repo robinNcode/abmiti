@@ -202,4 +202,32 @@ export const summaryService = {
     }
     return warnings;
   },
+
+  async categoryReport(
+    userId: string,
+    filters: {
+      startDate: Date;
+      endDate: Date;
+      categoryIds?: string[];
+      minAmount?: number;
+      maxAmount?: number;
+      type?: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
+    }
+  ) {
+    const rows = await container.summaryRepo.getCategoryReport(userId, filters);
+
+    return rows.map((r) => ({
+      category: {
+        _id: String(r.category._id),
+        name: r.category.name,
+        icon: r.category.icon,
+        color: r.category.color,
+      },
+      total: r.total,
+      count: r.count,
+      avgAmount: r.count > 0 ? parseFloat((r.total / r.count).toFixed(2)) : 0,
+      minAmount: r.minAmount ?? 0,
+      maxAmount: r.maxAmount ?? 0,
+    }));
+  },
 };

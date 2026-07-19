@@ -129,6 +129,14 @@ const resources = {
       card: 'Card',
       other: 'Other',
 
+      // Report Page
+      reportTitle: 'Report',
+      reportSubtitle: 'View your monthly income, expense, and savings report',
+      monthlyReport: 'Monthly Report',
+      monthlyReportSubtitle: 'View your monthly income, expense, and savings report',
+      categoryReport: 'Category Report',
+      categoryReportSubtitle: 'View your category-wise income, expense, and savings report',
+
       // Settings Page
       settings: 'Settings',
       settingsSubtitle: 'Set your monthly budget and profile preferences',
@@ -162,6 +170,7 @@ const resources = {
       Analytics: 'অ্যানালিটিক্স',
       categories: 'ক্যাটাগরি',
       Categories: 'ক্যাটাগরি',
+      Report: ' রিপোর্ট',
       Budget: 'বাজেট',
       Investments: 'বিনিয়োগ',
       Settings: 'সেটিংস',
@@ -282,6 +291,14 @@ const resources = {
       ExpenseCategory: 'ব্যয় ক্যাটাগরি',
       IncomeCategory: 'আয় ক্যাটাগরি',
       noCategories: 'কোন ক্যাটাগরি পাওয়া যায়নি',
+
+      // Report Page
+      reportTitle: 'রিপোর্ট',
+      reportSubtitle: 'আপনার মাসিক আয়, ব্যয় এবং সঞ্চয় রিপোর্ট দেখুন',
+      monthlyReport: 'মাসিক রিপোর্ট',
+      monthlyReportSubtitle: 'আপনার মাসিক আয়, ব্যয় এবং সঞ্চয় রিপোর্ট দেখুন',
+      categoryReport: 'ক্যাটাগরি রিপোর্ট',
+      categoryReportSubtitle: 'আপনার ক্যাটাগরি ভিত্তিক আয়, ব্যয় এবং সঞ্চয় রিপোর্ট দেখুন',
 
       // Settings Page
       settings: 'সেটিংস',

@@ -12,6 +12,7 @@ import CategoriesPage from '@/pages/CategoriesPage';
 import AnalyticsPage  from '@/pages/AnalyticsPage';
 import LandingPage    from '@/pages/LandingPage';
 import BudgetPage     from '@/pages/BudgetPage';
+import CategoryReportPage from '@/pages/CategoryReportPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.accessToken);
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/budget" element={<BudgetPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/category-report" element={<CategoryReportPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

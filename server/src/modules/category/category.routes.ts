@@ -9,7 +9,7 @@ router.use(authenticate);
 
 const createValidator = [
   body('name').trim().notEmpty().withMessage('Name is required'),
-  body('type').isIn(['income', 'expense']).withMessage('Type must be income or expense'),
+  body('type').isIn(['income', 'expense', 'savings', 'investment', 'payable', 'receivable']).withMessage('Type must be income, expense, savings, investment, payable, or receivable'),
   body('icon').optional().isString(),
   body('color').optional().matches(/^#[0-9a-fA-F]{6}$/).withMessage('Invalid hex color'),
 ];

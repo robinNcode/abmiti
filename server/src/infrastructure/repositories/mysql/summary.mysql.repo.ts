@@ -1,7 +1,7 @@
 import { getMySQLPool } from '../../database/mysql/connection';
 import {
   ISummaryRepository, IMonthlySummaryRow, ICategoryBreakdownRow,
-  IMonthlyTrendRow, IAccountSummaryRow,
+  IMonthlyTrendRow, IAccountSummaryRow, ICategoryReportRow,
 } from '../../../shared/types/repositories';
 
 export class MySQLSummaryRepository implements ISummaryRepository {
@@ -78,6 +78,72 @@ export class MySQLSummaryRepository implements ISummaryRepository {
       totalSavings: Number(r.totalSavings),
       count: Number(r.count),
       account: { _id: r._id, name: r.name, type: r.type, balance: Number(r.balance) },
+    }));
+  }
+
+  async getCategoryReport(
+    userId: string,
+    filters: {
+      startDate: Date;
+      endDate: Date;
+      categoryIds?: string[];
+      minAmount?: number;
+      maxAmount?: number;
+      type?: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
+    }
+  ): Promise<ICategoryReportRow[]> {
+    const conditions = ['e.user_id = ?', 'e.date >= ?', 'e.date <= ?'];
+    const params: any[] = [
+      userId,
+      filters.startDate.toISOString().split('T')[0],
+      filters.endDate.toISOString().split('T')[0],
+    ];
+
+    if (filters.type) {
+      conditions.push('e.type = ?');
+      params.push(filters.type);
+    }
+
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      const placeholders = filters.categoryIds.map(() => '?').join(',');
+      conditions.push(`e.category_id IN (${placeholders})`);
+      params.push(...filters.categoryIds);
+    }
+
+    if (filters.minAmount !== undefined) {
+      conditions.push('e.amount >= ?');
+      params.push(filters.minAmount);
+    }
+
+    if (filters.maxAmount !== undefined) {
+      conditions.push('e.amount <= ?');
+      params.push(filters.maxAmount);
+    }
+
+    const where = conditions.join(' AND ');
+
+    const [rows] = await this.pool.execute<any[]>(
+      `SELECT e.category_id AS _id,
+              SUM(e.amount) AS total,
+              COUNT(*) AS count,
+              MIN(e.amount) AS minAmount,
+              MAX(e.amount) AS maxAmount,
+              c.name, c.icon, c.color
+       FROM entries e
+       JOIN categories c ON e.category_id = c.id
+       WHERE ${where}
+       GROUP BY e.category_id
+       ORDER BY total DESC`,
+      params,
+    );
+
+    return rows.map((r) => ({
+      _id: r._id,
+      total: Number(r.total),
+      count: Number(r.count),
+      minAmount: Number(r.minAmount),
+      maxAmount: Number(r.maxAmount),
+      category: { _id: r._id, name: r.name, icon: r.icon, color: r.color },
     }));
   }
 }

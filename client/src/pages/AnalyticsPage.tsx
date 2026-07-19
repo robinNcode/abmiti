@@ -4,18 +4,25 @@ import { PageHeader, SummaryCard } from '@/components/ui';
 import YearlyTrendChart from '@/components/charts/YearlyTrendChart';
 import CategoryBreakdown from '@/components/charts/CategoryBreakdown';
 import { formatBDT, monthLabel } from '@/utils';
-import { AlertTriangle, Info } from 'lucide-react';
+import { AlertTriangle, Info, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function AnalyticsPage() {
   const { month, year } = useMonthStore();
   const { data: summary } = useMonthlySummary();
   const { data: warnings = [] } = useBudgetWarnings();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-full">
       <PageHeader
         title="Analytics — বিশ্লেষণ"
         subtitle={`Financial insights for ${year}`}
+        action={
+          <button onClick={() => navigate('/category-report')} className="btn-primary text-sm">
+            <FileText size={14} /> Category Report
+          </button>
+        }
       />
 
       <div className="px-4 md:px-8 pb-10 space-y-4 md:space-y-6">

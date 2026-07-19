@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings, WalletCards } from 'lucide-react';
+import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings, WalletCards, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
@@ -13,10 +13,11 @@ const NAV = [
   { to: '/investments',  icon: TrendingUp,      label: 'Investments' },
   { to: '/analytics',    icon: BarChart2,       label: 'Analytics' },
   { to: '/categories',   icon: Tag,             label: 'Categories'},
+  { to: '/category-report', icon: FileText,     label: 'Report' },
   { to: '/settings',     icon: Settings,        label: 'Settings' },
 ];
 
-const MOBILE_NAV = NAV.slice(0, 5);
+const MOBILE_NAV = NAV.slice(0, 6); // Include Categories
 
 export default function AppLayout() {
   const { user, logout } = useAuthStore();
