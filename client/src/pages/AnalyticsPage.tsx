@@ -4,7 +4,7 @@ import { PageHeader, SummaryCard } from '@/components/ui';
 import YearlyTrendChart from '@/components/charts/YearlyTrendChart';
 import CategoryBreakdown from '@/components/charts/CategoryBreakdown';
 import { formatBDT, monthLabel } from '@/utils';
-import { AlertTriangle, Info, FileText } from 'lucide-react';
+import { AlertTriangle, Info, FileText, Receipt } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function AnalyticsPage() {
@@ -19,9 +19,14 @@ export default function AnalyticsPage() {
         title="Analytics — বিশ্লেষণ"
         subtitle={`Financial insights for ${year}`}
         action={
-          <button onClick={() => navigate('/category-report')} className="btn-primary text-sm">
-            <FileText size={14} /> Category Report
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => navigate('/transaction-statement')} className="btn-ghost text-sm">
+              <Receipt size={14} /> Statement
+            </button>
+            <button onClick={() => navigate('/category-report')} className="btn-primary text-sm">
+              <FileText size={14} /> Category Report
+            </button>
+          </div>
         }
       />
 

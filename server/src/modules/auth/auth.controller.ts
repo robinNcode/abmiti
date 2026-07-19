@@ -7,7 +7,7 @@ export const authController = {
     try {
       const { user, tokens } = await authService.register(req.body);
       sendCreated(res, {
-        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget },
+        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar },
         ...tokens,
       }, 'Registration successful');
     } catch (err) { next(err); }
@@ -17,7 +17,7 @@ export const authController = {
     try {
       const { user, tokens } = await authService.login(req.body);
       sendSuccess(res, {
-        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget },
+        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar },
         ...tokens,
       }, 'Login successful');
     } catch (err) { next(err); }
@@ -26,7 +26,7 @@ export const authController = {
   async updateMe(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = await authService.updateMe(req.user!.userId, req.body);
-      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget }, 'Profile updated');
+      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar }, 'Profile updated');
     } catch (err) { next(err); }
   },
 
@@ -40,7 +40,7 @@ export const authController = {
   async me(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = await authService.getMe(req.user!.userId);
-      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget });
+      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar });
     } catch (err) { next(err); }
   },
 };

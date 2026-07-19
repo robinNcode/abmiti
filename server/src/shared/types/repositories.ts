@@ -9,6 +9,7 @@ export interface IUserRepository {
   findById(id: string): Promise<IUser | null>;
   create(data: { name: string; email: string; password: string }): Promise<IUser>;
   updateBudget(id: string, budget: number): Promise<IUser | null>;
+  updateProfile(id: string, data: { name?: string; avatar?: string }): Promise<IUser | null>;
 }
 
 // ── Category Repository ──────────────────────────────────────
@@ -81,6 +82,17 @@ export interface ICategoryReportRow {
   category: { _id: string; name: string; icon: string; color: string };
 }
 
+export interface ITransactionStatementRow {
+  _id: string;
+  date: Date;
+  type: EntryType;
+  amount: number;
+  note: string;
+  category: { _id: string; name: string; icon: string; color: string };
+  source: string;
+  runningBalance: number;
+}
+
 export interface ISummaryRepository {
   getMonthlySummary(userId: string, start: Date, end: Date): Promise<IMonthlySummaryRow[]>;
   getCategoryBreakdown(userId: string, start: Date, end: Date): Promise<ICategoryBreakdownRow[]>;
@@ -97,6 +109,15 @@ export interface ISummaryRepository {
       type?: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
     }
   ): Promise<ICategoryReportRow[]>;
+  getTransactionStatement(
+    userId: string,
+    filters: {
+      startDate: Date;
+      endDate: Date;
+      categoryIds?: string[];
+      type?: EntryType;
+    }
+  ): Promise<ITransactionStatementRow[]>;
 }
 
 // ── Budget Repository ─────────────────────────────────────────

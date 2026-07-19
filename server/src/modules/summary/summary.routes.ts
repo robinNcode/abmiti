@@ -81,4 +81,21 @@ router.get('/category-report', async (req: Request, res: Response, next: NextFun
   } catch (err) { next(err); }
 });
 
+router.get('/transaction-statement', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const startDate = req.query.startDate ? new Date(String(req.query.startDate)) : new Date(now.getFullYear(), now.getMonth(), 1);
+    const endDate = req.query.endDate ? new Date(String(req.query.endDate)) : new Date();
+    const categoryIds = req.query.categoryIds ? String(req.query.categoryIds).split(',') : undefined;
+    const type = req.query.type as 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable' | undefined;
+
+    const data = await summaryService.transactionStatement(req.user!.userId, {
+      startDate,
+      endDate,
+      categoryIds,
+      type,
+    });
+    sendSuccess(res, data);
+  } catch (err) { next(err); }
+});
+
 export default router;

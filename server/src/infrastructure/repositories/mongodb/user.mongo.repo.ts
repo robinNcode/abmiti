@@ -19,4 +19,8 @@ export class MongoUserRepository implements IUserRepository {
   async updateBudget(id: string, budget: number): Promise<IUser | null> {
     return User.findByIdAndUpdate(id, { budget }, { new: true });
   }
+
+  async updateProfile(id: string, data: { name?: string; avatar?: string }): Promise<IUser | null> {
+    return User.findByIdAndUpdate(id, data, { new: true });
+  }
 }

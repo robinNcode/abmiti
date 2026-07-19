@@ -17,4 +17,6 @@ export const refreshValidator = [
 
 export const updateProfileValidator = [
   body('budget').optional().isFloat({ min: 0 }).withMessage('Budget must be a positive number'),
+  body('name').optional().trim().isLength({ min: 1, max: 80 }).withMessage('Name must be 1-80 characters'),
+  body('avatar').optional().isString().withMessage('Avatar must be a string'),
 ];

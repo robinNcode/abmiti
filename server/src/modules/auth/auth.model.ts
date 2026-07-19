@@ -8,6 +8,7 @@ const userSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6, select: false },
     budget: { type: Number, default: 0, min: 0 },
+    avatar: { type: String, default: '' },
   },
   { timestamps: true },
 );

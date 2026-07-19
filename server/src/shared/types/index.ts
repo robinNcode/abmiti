@@ -11,6 +11,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   budget: number;
+  avatar?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;

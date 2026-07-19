@@ -165,7 +165,7 @@ export const summaryService = {
       investmentCount: investmentRow?.count ?? 0,
       savingsCount:    savingsRow?.count    ?? 0,
       receivableCount: receivableRow?.count ?? 0,
-      payableCount:    payableRow?.count ?? 0,
+      payableCount:    payableRow?.count    ?? 0,
     };
   },
 
@@ -228,6 +228,34 @@ export const summaryService = {
       avgAmount: r.count > 0 ? parseFloat((r.total / r.count).toFixed(2)) : 0,
       minAmount: r.minAmount ?? 0,
       maxAmount: r.maxAmount ?? 0,
+    }));
+  },
+
+  async transactionStatement(
+    userId: string,
+    filters: {
+      startDate: Date;
+      endDate: Date;
+      categoryIds?: string[];
+      type?: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
+    }
+  ) {
+    const rows = await container.summaryRepo.getTransactionStatement(userId, filters);
+
+    return rows.map((r) => ({
+      _id: String(r._id),
+      date: r.date,
+      type: r.type,
+      amount: r.amount,
+      note: r.note,
+      category: {
+        _id: String(r.category._id),
+        name: r.category.name,
+        icon: r.category.icon,
+        color: r.category.color,
+      },
+      source: r.source,
+      runningBalance: r.runningBalance,
     }));
   },
 };

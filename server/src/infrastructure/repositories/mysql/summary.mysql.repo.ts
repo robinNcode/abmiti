@@ -146,4 +146,70 @@ export class MySQLSummaryRepository implements ISummaryRepository {
       category: { _id: r._id, name: r.name, icon: r.icon, color: r.color },
     }));
   }
+
+  async getTransactionStatement(
+    userId: string,
+    filters: {
+      startDate: Date;
+      endDate: Date;
+      categoryIds?: string[];
+      type?: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
+    }
+  ): Promise<any[]> {
+    const conditions = ['e.user_id = ?', 'e.date >= ?', 'e.date <= ?'];
+    const params: any[] = [
+      userId,
+      filters.startDate.toISOString().split('T')[0],
+      filters.endDate.toISOString().split('T')[0],
+    ];
+
+    if (filters.type) {
+      conditions.push('e.type = ?');
+      params.push(filters.type);
+    }
+
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      const placeholders = filters.categoryIds.map(() => '?').join(',');
+      conditions.push(`e.category_id IN (${placeholders})`);
+      params.push(...filters.categoryIds);
+    }
+
+    const where = conditions.join(' AND ');
+
+    const [rows] = await this.pool.execute<any[]>(
+      `SELECT e.id AS _id, e.date, e.type, e.amount, e.note, e.source,
+              c.id AS category_id, c.name AS category_name, c.icon AS category_icon, c.color AS category_color
+       FROM entries e
+       JOIN categories c ON e.category_id = c.id
+       WHERE ${where}
+       ORDER BY e.date ASC, e.id ASC`,
+      params,
+    );
+
+    // Calculate running balance
+    let balance = 0;
+    return rows.map((r: any) => {
+      // Income adds, expenses/investments subtract
+      if (r.type === 'income' || r.type === 'receivable') {
+        balance += Number(r.amount);
+      } else {
+        balance -= Number(r.amount);
+      }
+      return {
+        _id: r._id,
+        date: r.date,
+        type: r.type,
+        amount: Number(r.amount),
+        note: r.note,
+        source: r.source,
+        category: {
+          _id: r.category_id,
+          name: r.category_name,
+          icon: r.category_icon,
+          color: r.category_color,
+        },
+        runningBalance: balance,
+      };
+    });
+  }
 }

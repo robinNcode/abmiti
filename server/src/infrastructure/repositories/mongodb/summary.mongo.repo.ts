@@ -108,4 +108,66 @@ export class MongoSummaryRepository implements ISummaryRepository {
       { $sort: { total: -1 } },
     ]);
   }
+
+  async getTransactionStatement(
+    userId: string,
+    filters: {
+      startDate: Date;
+      endDate: Date;
+      categoryIds?: string[];
+      type?: 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
+    }
+  ): Promise<any[]> {
+    const match: any = {
+      user: new Types.ObjectId(userId),
+      date: { $gte: filters.startDate, $lte: filters.endDate },
+    };
+
+    if (filters.type) {
+      match.type = filters.type;
+    }
+
+    if (filters.categoryIds && filters.categoryIds.length > 0) {
+      match.category = { $in: filters.categoryIds.map(id => new Types.ObjectId(id)) };
+    }
+
+    // Fetch transactions sorted by date
+    const transactions = await Entry.aggregate([
+      { $match: match },
+      { $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' } },
+      { $unwind: '$category' },
+      { $sort: { date: 1 } },
+      {
+        $project: {
+          _id: 1,
+          date: 1,
+          type: 1,
+          amount: 1,
+          note: 1,
+          source: 1,
+          category: {
+            _id: 1,
+            name: 1,
+            icon: 1,
+            color: 1,
+          },
+        },
+      },
+    ]);
+
+    // Calculate running balance
+    let balance = 0;
+    return transactions.map((t) => {
+      // Income adds, expenses/investments subtract
+      if (t.type === 'income' || t.type === 'receivable') {
+        balance += t.amount;
+      } else {
+        balance -= t.amount;
+      }
+      return {
+        ...t,
+        runningBalance: balance,
+      };
+    });
+  }
 }
