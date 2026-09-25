@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 
 import { Spinner } from '@/components/ui';
 import GoogleAuthButton from '@/components/auth/GoogleAuthButton';
+import HomeButton from '@/components/auth/HomeButton';
 
 interface FormData { name: string; email: string; password: string; }
 
@@ -74,6 +75,7 @@ export default function RegisterPage() {
       </div>
 
       <GoogleAuthButton />
+      <HomeButton />
 
       <p className="text-center text-sm text-ink/50 mt-6">
         Already have an account?{' '}

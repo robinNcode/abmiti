@@ -1,6 +1,7 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 export default function AuthLayout() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex">
       {/* Left decorative panel */}
@@ -15,11 +16,12 @@ export default function AuthLayout() {
         </div>
         <div className="space-y-4">
           {[
-            { icon: '↑', label: 'আয়', sub: 'Income from bank, bKash, Nagad' },
-            { icon: '↓', label: 'ব্যয়', sub: 'Categorised expenses' },
-            { icon: '◈', label: 'মিতি', sub: 'Savings & analytics' },
+            { icon: '↑', label: 'আয়', sub: 'Income from bank, bKash, Nagad', event: '' },
+            { icon: '↓', label: 'ব্যয়', sub: 'Categorised expenses', event: '' },
+            { icon: '◈', label: 'মিতি', sub: 'Savings & analytics', event: '' },
+            { icon: '🏠', label: 'হোম', sub: 'Back to home', event: () => navigate('/')   },
           ].map((item) => (
-            <div key={item.label} className="flex items-start gap-3">
+            <div key={item.label} className="flex items-start gap-3" onClick={item.event}>
               <div className="w-8 h-8 rounded-lg bg-white/8 flex items-center justify-center text-mustard font-bold text-sm shrink-0">
                 {item.icon}
               </div>
