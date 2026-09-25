@@ -85,3 +85,6 @@ export const TypeBadge = ({ type }: { type: 'income' | 'expense' }) =>
   type === 'income'
     ? <span className="badge-income">↑ Income</span>
     : <span className="badge-expense">↓ Expense</span>;
+
+export * from './UserAvatar';
+

@@ -3,6 +3,7 @@ import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, S
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
+import { UserAvatar } from '@/components/ui';
 import { monthLabel } from '@/utils';
 import { cx } from '@/utils';
 
@@ -69,11 +70,9 @@ export default function AppLayout() {
 
         {/* User */}
         <div className="px-4 py-4 border-t border-paper-mist2">
-          <NavLink to="/profile" className="flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm">
-              {user?.avatar || user?.name?.[0]?.toUpperCase()}
-            </div>
-            <div className="min-w-0">
+          <NavLink to="/profile" className="flex items-center gap-2.5 mb-3 min-w-0 overflow-hidden">
+            <UserAvatar avatar={user?.avatar} name={user?.name} sizeClassName="w-8 h-8 text-sm" />
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold truncate">{user?.name}</p>
               <p className="text-xs text-ink/40 truncate">{user?.email}</p>
             </div>
@@ -117,8 +116,8 @@ export default function AppLayout() {
             <NavLink to="/settings" className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
               <Settings size={13} />
             </NavLink>
-            <NavLink to="/profile" className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
-              {user?.avatar || user?.name?.[0]?.toUpperCase()}
+            <NavLink to="/profile" className="flex items-center">
+              <UserAvatar avatar={user?.avatar} name={user?.name} sizeClassName="w-8 h-8 text-sm" />
             </NavLink>
           </div>
         </div>

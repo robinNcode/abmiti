@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import { PageHeader } from '@/components/ui';
 import { useAuthStore } from '@/store/authStore';
+import { UserAvatar } from '@/components/ui';
 import { Save } from 'lucide-react';
 
 const MINECRAFT_AVATARS = [
@@ -62,9 +63,12 @@ export default function ProfilePage() {
         <div className="max-w-2xl mx-auto">
           <div className="card p-8">
             <div className="flex flex-col items-center mb-8">
-              <div className="w-24 h-24 rounded-full bg-sage/10 border-4 border-sage/20 flex items-center justify-center text-5xl mb-4">
-                {selectedAvatar}
-              </div>
+              <UserAvatar
+                avatar={selectedAvatar}
+                name={user?.name}
+                sizeClassName="w-24 h-24 text-5xl"
+                className="mb-4 shadow-sm"
+              />
               <h2 className="font-display text-2xl font-bold text-ink">{user?.name}</h2>
               <p className="text-ink/50 text-sm">{user?.email}</p>
             </div>
@@ -91,7 +95,27 @@ export default function ProfilePage() {
               {/* Avatar Selector */}
               <div>
                 <label className="label">{t('Avatar') || 'Choose Your Avatar'}</label>
-                <p className="text-xs text-ink/50 mb-3">Select a Minecraft-style avatar</p>
+                <p className="text-xs text-ink/50 mb-3">Select a Minecraft-style avatar or use your Google Profile Photo</p>
+
+                {user?.avatar?.startsWith('http') && (
+                  <div className="mb-3 flex items-center gap-3 p-3 bg-paper-mist rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAvatar(user.avatar!)}
+                      className={`w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                        selectedAvatar === user.avatar
+                          ? 'border-terra ring-2 ring-terra/50 shadow-md scale-105'
+                          : 'border-transparent hover:opacity-80'
+                      }`}
+                    >
+                      <img src={user.avatar} alt="Google Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </button>
+                    <div className="text-xs">
+                      <p className="font-semibold">Google Account Photo</p>
+                      <p className="text-ink/50">Click to use your Google profile picture</p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-8 md:grid-cols-12 gap-2 p-4 bg-paper-mist rounded-xl max-h-64 overflow-y-auto">
                   {MINECRAFT_AVATARS.map((avatar) => (
