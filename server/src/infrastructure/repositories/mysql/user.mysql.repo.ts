@@ -6,7 +6,8 @@ import { IUserRepository } from '../../../shared/types/repositories';
 
 type UserRow = {
   id: string; name: string; email: string; password: string;
-  budget: number; avatar?: string; created_at: Date; updated_at: Date;
+  budget: number; avatar?: string; google_id?: string;
+  created_at: Date; updated_at: Date;
 };
 
 const toIUser = (row: UserRow): IUser => ({
@@ -16,16 +17,20 @@ const toIUser = (row: UserRow): IUser => ({
   password:  row.password,
   budget:    Number(row.budget),
   avatar:    row.avatar,
+  google_id: row.google_id,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
-  comparePassword: async (candidate: string) => bcrypt.compare(candidate, row.password),
+  comparePassword: async (candidate: string) =>
+    row.password ? bcrypt.compare(candidate, row.password) : false,
 } as unknown as IUser);
 
 export class MySQLUserRepository implements IUserRepository {
   private get pool() { return getMySQLPool(); }
 
   async findByEmail(email: string, includePassword = false): Promise<IUser | null> {
-    const cols = includePassword ? '*' : 'id, name, email, budget, avatar, created_at, updated_at';
+    const cols = includePassword
+      ? '*'
+      : 'id, name, email, budget, avatar, google_id, created_at, updated_at';
     const [rows] = await this.pool.execute<any[]>(
       `SELECT ${cols} FROM users WHERE email = ? LIMIT 1`,
       [email],
@@ -35,7 +40,7 @@ export class MySQLUserRepository implements IUserRepository {
 
   async findById(id: string): Promise<IUser | null> {
     const [rows] = await this.pool.execute<any[]>(
-      'SELECT id, name, email, budget, avatar, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, name, email, budget, avatar, google_id, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
       [id],
     );
     return rows[0] ? toIUser(rows[0]) : null;
@@ -77,5 +82,30 @@ export class MySQLUserRepository implements IUserRepository {
       params
     );
     return this.findById(id);
+  }
+
+  async findByGoogleId(googleId: string): Promise<IUser | null> {
+    const [rows] = await this.pool.execute<any[]>(
+      'SELECT id, name, email, budget, avatar, google_id, created_at, updated_at FROM users WHERE google_id = ? LIMIT 1',
+      [googleId],
+    );
+    return rows[0] ? toIUser(rows[0]) : null;
+  }
+
+  async createFromGoogle(data: { name: string; email: string; googleId: string; avatar?: string }): Promise<IUser> {
+    const id = uuid();
+    await this.pool.execute(
+      'INSERT INTO users (id, name, email, password, google_id, avatar) VALUES (?, ?, ?, NULL, ?, ?)',
+      [id, data.name, data.email, data.googleId, data.avatar ?? null],
+    );
+    return (await this.findById(id))!;
+  }
+
+  async linkGoogleId(userId: string, googleId: string): Promise<IUser | null> {
+    await this.pool.execute(
+      'UPDATE users SET google_id = ? WHERE id = ? AND google_id IS NULL',
+      [googleId, userId],
+    );
+    return this.findById(userId);
   }
 }

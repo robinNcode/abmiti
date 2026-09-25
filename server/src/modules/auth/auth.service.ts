@@ -3,12 +3,13 @@ import { env } from '../../config/env';
 import { ConflictError, UnauthorizedError } from '../../shared/utils/errors';
 import { AuthTokens, JwtPayload, IUser } from '../../shared/types';
 import { container } from '../../container';
+import bcrypt from 'bcryptjs';
 
 interface RegisterDto { name: string; email: string; password: string; }
 interface LoginDto { email: string; password: string; }
 interface UpdateProfileDto { budget?: number; name?: string; avatar?: string; }
 
-const signTokens = (user: IUser): AuthTokens => {
+export const signTokensForUser = (user: IUser): AuthTokens => {
   const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
     userId: String(user._id),
     email: user.email,
@@ -20,22 +21,23 @@ const signTokens = (user: IUser): AuthTokens => {
 };
 
 export const authService = {
+  signTokensForUser,
+
   async register(dto: RegisterDto): Promise<{ user: IUser; tokens: AuthTokens }> {
     console.log(dto);
     const exists = await container.userRepo.findByEmail(dto.email);
     if (exists) throw new ConflictError('Email already registered');
     const user = await container.userRepo.create(dto);
-    return { user, tokens: signTokens(user) };
+    return { user, tokens: signTokensForUser(user) };
   },
 
   async login(dto: LoginDto): Promise<{ user: IUser; tokens: AuthTokens }> {
     const user = await container.userRepo.findByEmail(dto.email, true);
-    console.log(user);
-    console.log(dto);
+    
     if (!user || !(await user.comparePassword(dto.password))) {
       throw new UnauthorizedError('Invalid email or password');
     }
-    return { user, tokens: signTokens(user) };
+    return { user, tokens: signTokensForUser(user) };
   },
 
   async refresh(refreshToken: string): Promise<AuthTokens> {
@@ -51,7 +53,7 @@ export const authService = {
     }
     const user = await container.userRepo.findById(payload.userId);
     if (!user) throw new UnauthorizedError('User not found');
-    return signTokens(user);
+    return signTokensForUser(user);
   },
 
   async getMe(userId: string): Promise<IUser> {

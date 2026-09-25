@@ -15,6 +15,7 @@ import BudgetPage     from '@/pages/BudgetPage';
 import CategoryReportPage from '@/pages/CategoryReportPage';
 import TransactionStatementPage from '@/pages/TransactionStatementPage';
 import ProfilePage from '@/pages/ProfilePage';
+import GoogleAuthCallback from '@/pages/GoogleAuthCallback';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.accessToken);
@@ -33,6 +34,7 @@ export default function App() {
         <Route element={<AuthLayout />}>
           <Route path="/login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          <Route path="/auth/google/callback" element={<PublicRoute><GoogleAuthCallback /></PublicRoute>} />
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>

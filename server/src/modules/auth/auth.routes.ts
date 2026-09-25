@@ -11,4 +11,8 @@ router.post('/refresh',  refreshValidator,  validate, authController.refresh);
 router.get('/me',        authenticate,               authController.me);
 router.patch('/me',      authenticate, updateProfileValidator, validate, authController.updateMe);
 
+// Google OAuth
+router.get('/google', authController.googleAuth);
+router.get('/google/callback', authController.googleCallback);
+
 export default router;

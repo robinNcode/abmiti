@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 import { Spinner } from '@/components/ui';
+import GoogleAuthButton from '@/components/auth/GoogleAuthButton';
 
 interface FormData { email: string; password: string; }
 
@@ -53,6 +54,17 @@ export default function LoginPage() {
           {login.isPending ? <Spinner /> : 'Sign In'}
         </button>
       </form>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-paper-mist2"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-paper text-ink/40">Or</span>
+        </div>
+      </div>
+
+      <GoogleAuthButton />
 
       <p className="text-center text-sm text-ink/50 mt-6">
         No account?{' '}

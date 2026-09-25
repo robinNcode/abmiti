@@ -27,4 +27,20 @@ export class MongoUserRepository implements IUserRepository {
     if (Object.keys(update).length === 0) return this.findById(id);
     return User.findByIdAndUpdate(id, update, { new: true });
   }
+
+  async findByGoogleId(googleId: string): Promise<IUser | null> {
+    return User.findOne({ google_id: googleId });
+  }
+
+  async createFromGoogle(data: { name: string; email: string; googleId: string; avatar?: string }): Promise<IUser> {
+    return User.create({ name: data.name, email: data.email, google_id: data.googleId, avatar: data.avatar });
+  }
+
+  async linkGoogleId(userId: string, googleId: string): Promise<IUser | null> {
+    return User.findOneAndUpdate(
+      { _id: userId, google_id: { $exists: false } },
+      { google_id: googleId },
+      { new: true },
+    );
+  }
 }

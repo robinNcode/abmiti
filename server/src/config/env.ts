@@ -3,8 +3,9 @@ import path from 'path';
 
 // Load .env only if it exists. CloudLinux/cPanel environment variables
 // will override values from .env.
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
 dotenv.config({
-  path: path.resolve(process.cwd(), '.env'),
+  path: path.resolve(process.cwd(), envFile),
 });
 
 type DbProvider = 'mongodb' | 'mysql';
@@ -108,4 +109,10 @@ export const env = {
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: Number(optional('RATE_LIMIT_WINDOW_MS', '900000')),
   RATE_LIMIT_MAX: Number(optional('RATE_LIMIT_MAX', '100')),
+
+  // Google OAuth 2.0
+  GOOGLE_CLIENT_ID: optional('GOOGLE_CLIENT_ID'),
+  GOOGLE_CLIENT_SECRET: optional('GOOGLE_CLIENT_SECRET'),
+  GOOGLE_CALLBACK_URL: optional('GOOGLE_CALLBACK_URL', 'http://localhost:5000/api/v1/auth/google/callback'),
+  GOOGLE_FRONTEND_CALLBACK_URL: optional('GOOGLE_FRONTEND_CALLBACK_URL', 'http://localhost:5173/abmiti/auth/google/callback'),
 } as const;
