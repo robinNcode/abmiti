@@ -7,6 +7,7 @@ export interface User {
   email: string;
   budget: number;
   avatar?: string;
+  userType: 'admin' | 'user';
 }
 
 export interface IBudget {

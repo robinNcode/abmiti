@@ -115,4 +115,7 @@ export const env = {
   GOOGLE_CLIENT_SECRET: optional('GOOGLE_CLIENT_SECRET'),
   GOOGLE_CALLBACK_URL: optional('GOOGLE_CALLBACK_URL', 'http://localhost:5000/api/v1/auth/google/callback'),
   GOOGLE_FRONTEND_CALLBACK_URL: optional('GOOGLE_FRONTEND_CALLBACK_URL', 'http://localhost:5173/abmiti/auth/google/callback'),
+  SSLCOMMERZ_STORE_ID: optional('SSLCOMMERZ_STORE_ID'),
+  SSLCOMMERZ_STORE_PASSWORD: optional('SSLCOMMERZ_STORE_PASSWORD'),
+  SSLCOMMERZ_SANDBOX: optional('SSLCOMMERZ_SANDBOX', 'true') === 'true',
 } as const;

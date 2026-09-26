@@ -16,6 +16,8 @@ import CategoryReportPage from '@/pages/CategoryReportPage';
 import TransactionStatementPage from '@/pages/TransactionStatementPage';
 import ProfilePage from '@/pages/ProfilePage';
 import GoogleAuthCallback from '@/pages/GoogleAuthCallback';
+import AdminPage from '@/pages/AdminPage';
+import SupportPage from '@/pages/SupportPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.accessToken);
@@ -23,8 +25,13 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const token = useAuthStore((s) => s.accessToken);
-  return token ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+  const { accessToken, user } = useAuthStore();
+  return accessToken ? <Navigate to={user?.userType === 'admin' ? '/admin' : '/dashboard'} replace /> : <>{children}</>;
+};
+
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = useAuthStore((s) => s.user);
+  return user?.userType === 'admin' ? <>{children}</> : <Navigate to="/dashboard" replace />;
 };
 
 export default function App() {
@@ -38,6 +45,8 @@ export default function App() {
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+          <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/entries"  element={<EntriesPage />} />
           <Route path="/investments" element={<InvestmentsPage />} />

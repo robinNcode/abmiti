@@ -36,7 +36,7 @@ export default function GoogleAuthCallback() {
           const user = await authApi.me();
           setUser(user);
           toast.success('Successfully logged in with Google');
-          navigate('/dashboard');
+          navigate(user.userType === 'admin' ? '/admin' : '/dashboard');
         } catch (err) {
           toast.error('Failed to retrieve user information');
           navigate('/login');

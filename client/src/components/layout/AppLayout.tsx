@@ -16,12 +16,14 @@ const NAV = [
   { to: '/categories', icon: Tag, label: 'Categories' },
   { to: '/category-report', icon: FileText, label: 'Report' },
   { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/support', icon: FileText, label: 'Support' },
 ];
 
-const MOBILE_NAV = NAV.slice(0, 6); // Include Categories
+const MOBILE_NAV = [...NAV.slice(0, 5), NAV[NAV.length - 1]];
 
 export default function AppLayout() {
   const { user, logout } = useAuthStore();
+  const nav = user?.userType === 'admin' ? [{ to: '/admin', icon: Settings, label: 'Admin panel' }, { to: '/support', icon: FileText, label: 'Support' }] : NAV;
   const navigate = useNavigate();
   const { month, year, prev, next } = useMonthStore();
   const { t, i18n } = useTranslation();
@@ -54,7 +56,7 @@ export default function AppLayout() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
-          {NAV.map(({ to, icon: Icon, label }) => (
+          {nav.map(({ to, icon: Icon, label }) => (
             <NavLink key={to} to={to} end={to === '/dashboard'}
               className={({ isActive }) => cx(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
@@ -126,7 +128,7 @@ export default function AppLayout() {
 
       {/* Bottom Navbar - Visible on mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-paper-mist2 flex z-20 pb-safe">
-        {MOBILE_NAV.map(({ to, icon: Icon, label }) => (
+        {(user?.userType === 'admin' ? nav : MOBILE_NAV).map(({ to, icon: Icon, label }) => (
           <NavLink key={to} to={to} end={to === '/dashboard'}
             className={({ isActive }) => cx(
               'flex-1 flex flex-col items-center justify-center py-2 px-1 text-[10px] font-medium transition-colors',

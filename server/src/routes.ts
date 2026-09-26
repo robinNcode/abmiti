@@ -5,6 +5,7 @@ import categoryRouter from './modules/category/category.routes';
 import summaryRouter from './modules/summary/summary.routes';
 import accountRouter from './modules/account/account.routes';
 import budgetRouter from './modules/budget/budget.routes';
+import adminRouter from './modules/admin/admin.routes';
 
 import { env } from './config/env';
 
@@ -18,4 +19,5 @@ export const registerRoutes = (app: Express): void => {
   app.use(`${API_V1}/summary`, summaryRouter);
   app.use(`${API_V1}/accounts`, accountRouter);
   app.use(`${API_V1}/budgets`, budgetRouter);
+  app.use(`${API_V1}`, adminRouter);
 };

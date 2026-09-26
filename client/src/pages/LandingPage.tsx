@@ -2,9 +2,19 @@ import { Link } from 'react-router-dom';
 import { Download, MessageSquare, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { AdSense } from '@/components/ui';
+import { siteApi } from '@/api/site.api';
+import { useEffect, useState } from 'react';
+import { FormEvent } from 'react';
+import toast from 'react-hot-toast';
 
 export default function LandingPage() {
   const token = useAuthStore((s) => s.accessToken);
+  const user = useAuthStore((s) => s.user);
+  const [config, setConfig] = useState<any>({});
+  const [posts, setPosts] = useState<any[]>([]);
+  const [contact, setContact] = useState({ name: '', email: '', message: '' });
+  useEffect(() => { siteApi.config().then(setConfig).catch(() => {}); siteApi.publicPosts().then(setPosts).catch(() => {}); }, []);
+  const sendContact = async (event: FormEvent) => { event.preventDefault(); try { await siteApi.contact(contact); setContact({ name: '', email: '', message: '' }); toast.success('Feedback sent. Thank you!'); } catch { toast.error('Could not send your message. Please try again.'); } };
 
   return (
     <div className="min-h-screen bg-paper-mist font-sans">
@@ -14,7 +24,7 @@ export default function LandingPage() {
           <div className="w-10 h-10 rounded-xl bg-terra text-white flex items-center justify-center font-bold text-xl shadow-md">
             আ
           </div>
-          <span className="font-display font-bold text-xl tracking-tight text-ink">Abmiti</span>
+            {config.logo ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-10 max-w-40 object-contain" /> : <span className="font-display font-bold text-xl tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
         </div>
         <div className="hidden md:flex items-center gap-8">
           <a href="#features" className="text-ink/70 hover:text-terra font-medium transition-colors">Features</a>
@@ -23,8 +33,8 @@ export default function LandingPage() {
         </div>
         <div className="flex items-center gap-3">
           {token ? (
-            <Link to="/dashboard" className="btn-primary">
-              Go to Dashboard
+            <Link to={user?.userType === 'admin' ? '/admin' : '/dashboard'} className="btn-primary">
+              {user?.userType === 'admin' ? 'Admin panel' : 'Go to Dashboard'}
             </Link>
           ) : (
             <>
@@ -42,10 +52,10 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="px-6 py-20 max-w-7xl mx-auto text-center mt-10">
         <h1 className="text-5xl md:text-7xl font-black font-display text-ink tracking-tight leading-tight max-w-4xl mx-auto">
-          Master Your Money with <span className="text-terra">Confidence</span>
+          {config.content?.heroTitle || <>Master Your Money with <span className="text-terra">Confidence</span></>}
         </h1>
         <p className="mt-6 text-lg md:text-xl text-ink/60 max-w-2xl mx-auto leading-relaxed">
-          Abmiti is your personal financial companion. Track expenses, monitor budgets, and achieve your financial goals with ease.
+          {config.subtitle || config.content?.heroSubtitle || 'Abmiti is your personal financial companion. Track expenses, monitor budgets, and achieve your financial goals with ease.'}
         </p>
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           {!token && (
@@ -95,6 +105,8 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {posts.length > 0 && <section className="py-20 max-w-7xl mx-auto px-6"><h2 className="text-3xl font-bold font-display text-ink mb-8">{config.content?.blogTitle || 'From the Abmiti blog'}</h2><div className="grid md:grid-cols-3 gap-6">{posts.map((post) => <article key={post._id ?? post.id} className="bg-white p-6 rounded-2xl"><h3 className="font-bold text-xl">{post.title}</h3>{post.excerpt && <p className="mt-3 text-ink/60">{post.excerpt}</p>}</article>)}</div></section>}
+
 
       {/* Download Section */}
       <section id="download" className="py-24 max-w-7xl mx-auto px-6 text-center">
@@ -114,18 +126,19 @@ export default function LandingPage() {
       <section id="contact" className="bg-ink text-white py-24">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <MessageSquare size={48} className="mx-auto text-terra mb-6 opacity-80" />
-          <h2 className="text-3xl font-bold font-display mb-6">We'd love your feedback</h2>
+          <h2 className="text-3xl font-bold font-display mb-6">{config.content?.contactTitle || "We'd love your feedback"}</h2>
           <p className="text-white/60 mb-10">
             Abmiti is actively being improved. If you encounter bugs, have feature requests, or just want to say hi, please reach out!
           </p>
-          <form className="space-y-4 max-w-md mx-auto text-left" onSubmit={(e) => { e.preventDefault(); alert('Feedback sent! Thank you.'); }}>
+          <form className="space-y-4 max-w-md mx-auto text-left" onSubmit={sendContact}>
             <div>
               <label className="block text-sm font-medium text-white/70 mb-1">Name</label>
-              <input type="text" required className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors" placeholder="Your name" />
+              <input type="text" required value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors" placeholder="Your name" />
             </div>
+            <div><label className="block text-sm font-medium text-white/70 mb-1">Email</label><input type="email" required value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors" placeholder="you@example.com" /></div>
             <div>
               <label className="block text-sm font-medium text-white/70 mb-1">Message</label>
-              <textarea required rows={4} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors" placeholder="How can we improve?"></textarea>
+              <textarea required rows={4} value={contact.message} onChange={(e) => setContact({ ...contact, message: e.target.value })} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors" placeholder="How can we improve?"></textarea>
             </div>
             <button type="submit" className="w-full bg-terra hover:bg-terra-dark text-white font-bold py-3 px-4 rounded-xl transition-colors">
               Send Feedback

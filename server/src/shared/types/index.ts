@@ -13,6 +13,7 @@ export interface IUser extends Document {
   budget: number;
   avatar?: string;
   google_id?: string;
+  userType: 'admin' | 'user';
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -222,6 +223,7 @@ export type ApiResponse<T = unknown> = ApiSuccess<T> | ApiError;
 export interface JwtPayload {
   userId: string;
   email: string;
+  userType: 'admin' | 'user';
   iat?: number;
   exp?: number;
 }
@@ -230,3 +232,4 @@ export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
 }
+

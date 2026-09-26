@@ -13,6 +13,7 @@ export const signTokensForUser = (user: IUser): AuthTokens => {
   const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
     userId: String(user._id),
     email: user.email,
+    userType: user.userType ?? 'user',
   };
   return {
     accessToken: jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN } as jwt.SignOptions),
@@ -27,7 +28,7 @@ export const authService = {
     console.log(dto);
     const exists = await container.userRepo.findByEmail(dto.email);
     if (exists) throw new ConflictError('Email already registered');
-    const user = await container.userRepo.create(dto);
+    const user = await container.userRepo.create({ name: dto.name, email: dto.email, password: dto.password });
     return { user, tokens: signTokensForUser(user) };
   },
 
@@ -81,3 +82,4 @@ export const authService = {
     return user;
   },
 };
+

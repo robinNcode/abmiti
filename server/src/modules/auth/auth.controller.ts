@@ -9,7 +9,7 @@ export const authController = {
     try {
       const { user, tokens } = await authService.register(req.body);
       sendCreated(res, {
-        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar },
+        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar, userType: user.userType ?? 'user' },
         ...tokens,
       }, 'Registration successful');
     } catch (err) { next(err); }
@@ -19,7 +19,7 @@ export const authController = {
     try {
       const { user, tokens } = await authService.login(req.body);
       sendSuccess(res, {
-        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar },
+        user: { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar, userType: user.userType ?? 'user' },
         ...tokens,
       }, 'Login successful');
     } catch (err) { next(err); }
@@ -28,7 +28,7 @@ export const authController = {
   async updateMe(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = await authService.updateMe(req.user!.userId, req.body);
-      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar }, 'Profile updated');
+      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar, userType: user.userType ?? 'user' }, 'Profile updated');
     } catch (err) { next(err); }
   },
 
@@ -42,7 +42,7 @@ export const authController = {
   async me(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const user = await authService.getMe(req.user!.userId);
-      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar });
+      sendSuccess(res, { _id: user._id, name: user.name, email: user.email, budget: user.budget, avatar: user.avatar, userType: user.userType ?? 'user' });
     } catch (err) { next(err); }
   },
 
@@ -87,3 +87,4 @@ export const authController = {
     }
   },
 };
+

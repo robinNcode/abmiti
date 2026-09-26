@@ -10,6 +10,7 @@ const userSchema = new Schema<IUser>(
     budget: { type: Number, default: 0, min: 0 },
     avatar: { type: String, default: '' },
     google_id: { type: String, unique: true, sparse: true },
+    userType: { type: String, enum: ['admin', 'user'], default: 'user' },
   },
   { timestamps: true },
 );
@@ -26,3 +27,4 @@ userSchema.methods.comparePassword = async function (candidate: string): Promise
 };
 
 export const User = mongoose.model<IUser>('User', userSchema);
+

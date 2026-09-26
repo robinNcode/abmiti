@@ -6,7 +6,7 @@ import { IUserRepository } from '../../../shared/types/repositories';
 
 type UserRow = {
   id: string; name: string; email: string; password: string;
-  budget: number; avatar?: string; google_id?: string;
+  budget: number; avatar?: string; google_id?: string; user_type?: 'admin' | 'user';
   created_at: Date; updated_at: Date;
 };
 
@@ -18,6 +18,7 @@ const toIUser = (row: UserRow): IUser => ({
   budget:    Number(row.budget),
   avatar:    row.avatar,
   google_id: row.google_id,
+  userType: row.user_type ?? 'user',
   createdAt: row.created_at,
   updatedAt: row.updated_at,
   comparePassword: async (candidate: string) =>
@@ -30,7 +31,7 @@ export class MySQLUserRepository implements IUserRepository {
   async findByEmail(email: string, includePassword = false): Promise<IUser | null> {
     const cols = includePassword
       ? '*'
-      : 'id, name, email, budget, avatar, google_id, created_at, updated_at';
+      : 'id, name, email, budget, avatar, google_id, user_type, created_at, updated_at';
     const [rows] = await this.pool.execute<any[]>(
       `SELECT ${cols} FROM users WHERE email = ? LIMIT 1`,
       [email],
@@ -40,7 +41,7 @@ export class MySQLUserRepository implements IUserRepository {
 
   async findById(id: string): Promise<IUser | null> {
     const [rows] = await this.pool.execute<any[]>(
-      'SELECT id, name, email, budget, avatar, google_id, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, name, email, budget, avatar, google_id, user_type, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
       [id],
     );
     return rows[0] ? toIUser(rows[0]) : null;
@@ -86,7 +87,7 @@ export class MySQLUserRepository implements IUserRepository {
 
   async findByGoogleId(googleId: string): Promise<IUser | null> {
     const [rows] = await this.pool.execute<any[]>(
-      'SELECT id, name, email, budget, avatar, google_id, created_at, updated_at FROM users WHERE google_id = ? LIMIT 1',
+      'SELECT id, name, email, budget, avatar, google_id, user_type, created_at, updated_at FROM users WHERE google_id = ? LIMIT 1',
       [googleId],
     );
     return rows[0] ? toIUser(rows[0]) : null;

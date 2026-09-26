@@ -1,0 +1,10 @@
+import { useEffect, useState } from 'react';
+import { siteApi } from '@/api/site.api';
+import toast from 'react-hot-toast';
+export default function SupportPage() {
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  useEffect(() => { siteApi.notifications().then(setNotifications).catch(() => { }); siteApi.subscriptions().then(setSubscriptions).catch(() => { }); const status = new URLSearchParams(location.search).get('payment'); if (status === 'success') toast.success('Payment received'); if (status === 'failed') toast.error('Payment was not completed'); }, []);
+  const buy = async (plan: string) => { try { const { redirectUrl } = await siteApi.startPayment(plan); location.assign(redirectUrl); } catch (e: any) { toast.error(e.response?.data?.message ?? 'Unable to start payment'); } };
+  return <div className="max-w-4xl mx-auto p-6 md:p-10 space-y-8"><h1 className="text-3xl font-bold">Support Abmiti</h1><section className="grid md:grid-cols-3 gap-4">{[{ id: 'coffee', title: 'Buy the developer a coffee', price: '৳100' }, { id: 'monthly', title: 'Monthly plan', price: '৳299 / month' }, { id: 'annual', title: 'Annual plan', price: '৳2,999 / year' }].map((p) => <article key={p.id} className="bg-white p-6 rounded-2xl"><h2 className="font-bold text-lg">{p.title}</h2><p className="my-4 text-terra font-bold">{p.price}</p><button className="btn-primary" onClick={() => buy(p.id)}>Continue to payment</button></article>)}</section><section><h2 className="text-xl font-bold mb-3">Your subscriptions</h2>{subscriptions.map((s) => <article key={s._id ?? s.id} className="bg-white p-4 rounded-xl mb-2">{s.plan} · {s.status} · expires {new Date(s.expiresAt ?? s.expires_at).toLocaleDateString()}</article>)}</section><section><h2 className="text-xl font-bold mb-3">Notifications</h2>{notifications.length ? notifications.map((n) => <article key={n._id ?? n.id} className="bg-white p-4 rounded-xl mb-2"><b>{n.title}</b><p>{n.message}</p></article>) : <p className="text-ink/60">No notifications yet.</p>}</section></div>;
+}

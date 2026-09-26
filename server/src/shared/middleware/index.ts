@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import { validationResult } from 'express-validator';
 import { env } from '../../config/env';
-import { UnauthorizedError, ValidationError } from '../utils/errors';
+import { ForbiddenError, UnauthorizedError, ValidationError } from '../utils/errors';
 import { JwtPayload } from '../types';
 
 // ── Extend Express Request ───────────────────────────────────
@@ -59,4 +59,9 @@ export const rateLimiter = rateLimit({
 // ── Not found handler ────────────────────────────────────────
 export const notFoundHandler = (req: Request, res: Response): void => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });
+};
+
+export const requireAdmin = (req: Request, _res: Response, next: NextFunction): void => {
+  if (req.user?.userType !== 'admin') throw new ForbiddenError('Administrator access required');
+  next();
 };
