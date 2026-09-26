@@ -87,4 +87,6 @@ export const TypeBadge = ({ type }: { type: 'income' | 'expense' }) =>
     : <span className="badge-expense">↓ Expense</span>;
 
 export * from './UserAvatar';
+export * from './AdSense';
+
 

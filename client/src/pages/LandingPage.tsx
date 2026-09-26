@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Download, MessageSquare, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { AdSense } from '@/components/ui';
 
 export default function LandingPage() {
   const token = useAuthStore((s) => s.accessToken);
@@ -58,6 +59,15 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Public Ad Banner Below Hero */}
+      <div className="max-w-7xl mx-auto px-6">
+        <AdSense
+          slotId={import.meta.env.VITE_ADSENSE_HERO_SLOT_ID}
+          format="auto"
+          className="my-8"
+        />
+      </div>
+
       {/* Features Summary */}
       <section id="features" className="bg-white py-24 border-y border-paper-mist2">
         <div className="max-w-7xl mx-auto px-6">
@@ -84,6 +94,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
 
       {/* Download Section */}
       <section id="download" className="py-24 max-w-7xl mx-auto px-6 text-center">
@@ -125,8 +136,16 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-ink border-t border-white/10 py-8 text-center text-white/40 text-sm">
+        <div className="max-w-7xl mx-auto px-6 mb-6">
+          <AdSense
+            slotId={import.meta.env.VITE_ADSENSE_FOOTER_SLOT_ID}
+            format="auto"
+            className="my-4"
+          />
+        </div>
         <p>&copy; {new Date().getFullYear()} Abmiti. All rights reserved.</p>
       </footer>
     </div>
   );
 }
+
