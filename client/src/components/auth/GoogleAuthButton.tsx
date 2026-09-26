@@ -1,5 +1,3 @@
-import { apiClient } from '@/api/client';
-
 export default function GoogleAuthButton() {
   const handleGoogleLogin = () => {
     // Redirect directly to the backend's Google Auth endpoint
