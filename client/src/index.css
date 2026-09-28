@@ -58,4 +58,53 @@
   .badge-bkash   { @apply inline-flex items-center gap-1 rounded-full bg-pink-50   text-bkash    text-xs font-semibold px-2.5 py-0.5; }
   .badge-nagad   { @apply inline-flex items-center gap-1 rounded-full bg-orange-50 text-nagad    text-xs font-semibold px-2.5 py-0.5; }
   .badge-cash    { @apply inline-flex items-center gap-1 rounded-full bg-paper-mist text-ink/60   text-xs font-semibold px-2.5 py-0.5; }
+
+  /* ── Admin Panel Utilities ─────────────────────────────────── */
+  .admin-card {
+    @apply bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 shadow-sm;
+  }
+  .admin-input {
+    @apply bg-[#0f1117] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-terra/50 focus:ring-1 focus:ring-terra/30 transition-all;
+  }
+  .admin-label {
+    @apply block text-[11px] font-semibold uppercase tracking-wider text-white/40 mb-1.5;
+  }
+  .admin-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-terra text-white font-semibold text-sm px-4 py-2 h-9 transition-all hover:bg-terra-light active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .admin-btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-500/20 text-red-400 font-semibold text-sm px-4 py-2 h-9 transition-all hover:bg-red-500/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .admin-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] text-white/70 font-semibold text-sm px-4 py-2 h-9 transition-all hover:bg-white/[0.05] hover:text-white active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .admin-icon-btn {
+    @apply w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .admin-table {
+    @apply w-full text-left border-collapse min-w-[600px];
+  }
+  .admin-table th {
+    @apply px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/30 border-b border-white/[0.06] whitespace-nowrap;
+  }
+  .admin-table td {
+    @apply px-4 py-3 text-sm text-white/80 border-b border-white/[0.04];
+  }
+  .admin-table tr:last-child td {
+    @apply border-b-0;
+  }
+  .admin-table tbody tr:hover {
+    @apply bg-white/[0.02];
+  }
+  .admin-badge {
+    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap;
+  }
+  .admin-badge-success { @apply bg-sage/15 text-sage-light; }
+  .admin-badge-warning { @apply bg-amber-500/15 text-amber-400; }
+  .admin-badge-danger { @apply bg-red-500/15 text-red-400; }
+  .admin-badge-info { @apply bg-blue-500/15 text-blue-400; }
+  .admin-badge-default { @apply bg-white/[0.06] text-white/50; }
+  .admin-checkbox {
+    @apply w-4 h-4 rounded border-white/[0.2] bg-[#0f1117] checked:bg-terra focus:ring-terra/30 focus:ring-offset-0 focus:ring-1 appearance-none cursor-pointer;
+  }
 }

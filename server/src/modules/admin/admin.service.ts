@@ -47,8 +47,24 @@ export const adminService = {
     if (data.id) { const { id, ...fields } = data; const pairs = Object.keys(fields).map((k) => `${k}=?`).join(','); await getMySQLPool().execute(`UPDATE blog_posts SET ${pairs}, updated_at=CURRENT_TIMESTAMP WHERE id=?`, [...Object.values(fields), id]); return data; }
     return create(BlogPost, 'blog_posts', data);
   },
+  deletePost: async (id: string) => {
+    if (env.DB_PROVIDER === 'mongodb') return BlogPost.findByIdAndDelete(id);
+    await getMySQLPool().execute('DELETE FROM blog_posts WHERE id=?', [id]);
+    return { id };
+  },
+  deleteContact: async (id: string) => {
+    if (env.DB_PROVIDER === 'mongodb') return ContactMessage.findByIdAndDelete(id);
+    await getMySQLPool().execute('DELETE FROM contact_messages WHERE id=?', [id]);
+    return { id };
+  },
   notifications: (userId: string) => env.DB_PROVIDER === 'mongodb' ? Notification.find({ $or: [{ targetUserId: userId }, { targetUserId: null }] }).sort({ createdAt: -1 }) : getMySQLPool().execute('SELECT * FROM notifications WHERE target_user_id=? OR target_user_id IS NULL ORDER BY created_at DESC', [userId]).then(([r]) => r),
+  allNotifications: () => all(Notification, 'notifications'),
   sendNotification: (data: RecordData) => create(Notification, 'notifications', data),
+  deleteNotification: async (id: string) => {
+    if (env.DB_PROVIDER === 'mongodb') return Notification.findByIdAndDelete(id);
+    await getMySQLPool().execute('DELETE FROM notifications WHERE id=?', [id]);
+    return { id };
+  },
   paymentByTransaction: (transactionId: string) => env.DB_PROVIDER === 'mongodb' ? Payment.findOne({ transactionId }) : getMySQLPool().execute<any[]>('SELECT * FROM payments WHERE transaction_id=? LIMIT 1', [transactionId]).then(([r]) => r[0] ?? null),
   savePayment: async (data: RecordData) => {
     if (env.DB_PROVIDER === 'mongodb') return Payment.findOneAndUpdate({ transactionId: data.transactionId }, { $set: data }, { upsert: true, new: true });
@@ -56,6 +72,7 @@ export const adminService = {
     if (result.affectedRows) return data;
     return create(Payment, 'payments', data);
   },
+  allPayments: () => all(Payment, 'payments'),
   activateSubscription: async (userId: string, transactionId: string, plan: string) => {
     const startsAt = new Date(); const expiresAt = new Date(startsAt);
     if (plan === 'monthly') expiresAt.setMonth(expiresAt.getMonth() + 1);
@@ -68,4 +85,51 @@ export const adminService = {
   subscriptions: async (userId: string) => env.DB_PROVIDER === 'mongodb'
     ? Subscription.find({ userId }).sort({ createdAt: -1 })
     : getMySQLPool().execute('SELECT * FROM subscriptions WHERE user_id=? ORDER BY created_at DESC', [userId]).then(([rows]) => rows),
+  allSubscriptions: () => all(Subscription, 'subscriptions'),
+
+  // ── Admin: Users ──────────────────────────────────────────────
+  users: async () => {
+    const { container } = await import('../../container');
+    if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      return User.find({}, { password: 0 }).sort({ createdAt: -1 });
+    }
+    const [rows] = await getMySQLPool().query('SELECT id, name, email, budget, avatar, user_type, created_at, updated_at FROM users ORDER BY created_at DESC');
+    return rows;
+  },
+
+  // ── Admin: Dashboard stats ────────────────────────────────────
+  dashboardStats: async () => {
+    let totalUsers = 0, totalPosts = 0, totalContacts = 0, totalPayments = 0, totalRevenue = 0, totalSubscriptions = 0, activeSubscriptions = 0;
+    if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      totalUsers = await User.countDocuments();
+      totalPosts = await BlogPost.countDocuments();
+      totalContacts = await ContactMessage.countDocuments();
+      totalPayments = await Payment.countDocuments();
+      const revenueAgg = await Payment.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: null, total: { $sum: '$amount' } } }]);
+      totalRevenue = revenueAgg[0]?.total ?? 0;
+      totalSubscriptions = await Subscription.countDocuments();
+      activeSubscriptions = await Subscription.countDocuments({ status: 'active', expiresAt: { $gte: new Date() } });
+    } else {
+      const pool = getMySQLPool();
+      const [[u]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM users');
+      totalUsers = u?.c ?? 0;
+      const [[p]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM blog_posts');
+      totalPosts = p?.c ?? 0;
+      const [[cm]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM contact_messages');
+      totalContacts = cm?.c ?? 0;
+      const [[pay]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM payments');
+      totalPayments = pay?.c ?? 0;
+      const [[rev]] = await pool.query<any[]>('SELECT COALESCE(SUM(amount),0) as c FROM payments WHERE status=?', ['paid']);
+      totalRevenue = rev?.c ?? 0;
+      const [[sub]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM subscriptions');
+      totalSubscriptions = sub?.c ?? 0;
+      const [[asub]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM subscriptions WHERE status=? AND expires_at >= NOW()', ['active']);
+      activeSubscriptions = asub?.c ?? 0;
+    }
+    return { totalUsers, totalPosts, totalContacts, totalPayments, totalRevenue, totalSubscriptions, activeSubscriptions };
+  },
 };

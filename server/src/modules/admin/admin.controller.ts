@@ -24,10 +24,18 @@ export const adminController = {
   async posts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.posts()); } catch (e) { next(e); } },
   async publicPosts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.publicPosts()); } catch (e) { next(e); } },
   async savePost(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.savePost(req.body)); } catch (e) { next(e); } },
+  async deletePost(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deletePost(req.params.id)); } catch (e) { next(e); } },
   async saveConfig(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.saveConfig(req.body)); } catch (e) { next(e); } },
   async notifications(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.notifications(req.user!.userId)); } catch (e) { next(e); } },
+  async allNotifications(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.allNotifications()); } catch (e) { next(e); } },
   async subscriptions(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.subscriptions(req.user!.userId)); } catch (e) { next(e); } },
   async sendNotification(req: Request, res: Response, next: NextFunction) { try { const { title, message, targetUserId } = req.body; if (!title?.trim() || !message?.trim()) throw new BadRequestError('Title and message are required'); sendCreated(res, await adminService.sendNotification({ title: title.trim(), message: message.trim(), targetUserId: targetUserId || null, readBy: [] })); } catch (e) { next(e); } },
+  async deleteNotification(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deleteNotification(req.params.id)); } catch (e) { next(e); } },
+  async deleteContact(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deleteContact(req.params.id)); } catch (e) { next(e); } },
+  async users(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.users()); } catch (e) { next(e); } },
+  async allPayments(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.allPayments()); } catch (e) { next(e); } },
+  async allSubscriptions(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.allSubscriptions()); } catch (e) { next(e); } },
+  async dashboardStats(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.dashboardStats()); } catch (e) { next(e); } },
   async startPayment(req: Request, res: Response, next: NextFunction) {
     try {
       const plan = String(req.body.plan); const amount = plans[plan]; if (!amount) throw new BadRequestError('Unknown plan');

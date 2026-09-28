@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings, WalletCards, FileText } from 'lucide-react';
+import { LayoutDashboard, List, BarChart2, Tag, LogOut, Languages, TrendingUp, Settings, WalletCards, FileText, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
@@ -23,7 +23,7 @@ const MOBILE_NAV = [...NAV.slice(0, 5), NAV[NAV.length - 1]];
 
 export default function AppLayout() {
   const { user, logout } = useAuthStore();
-  const nav = user?.userType === 'admin' ? [{ to: '/admin', icon: Settings, label: 'Admin panel' }, { to: '/support', icon: FileText, label: 'Support' }] : NAV;
+  const nav = user?.userType === 'admin' ? [{ to: '/admin', icon: Shield, label: 'Admin Panel' }, ...NAV] : NAV;
   const navigate = useNavigate();
   const { month, year, prev, next } = useMonthStore();
   const { t, i18n } = useTranslation();
