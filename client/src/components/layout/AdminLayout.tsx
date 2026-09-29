@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, Users, Bell, CreditCard, Settings, LogOut, MessageSquare,
-  Shield, ChevronRight,
+  Shield, ChevronRight, Home
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { UserAvatar } from '@/components/ui';
@@ -15,6 +15,7 @@ const ADMIN_NAV = [
   { to: '/admin/notifications', icon: Bell,            label: 'Notifications',  end: false },
   { to: '/admin/payments',      icon: CreditCard,      label: 'Payments',       end: false },
   { to: '/admin/config',        icon: Settings,        label: 'Site Config',    end: false },
+  { to: '/',                    icon: Home,            label: 'Home',           end: false },
 ];
 
 const MOBILE_ADMIN_NAV = ADMIN_NAV.slice(0, 5);
