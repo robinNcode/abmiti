@@ -284,3 +284,10 @@ UPDATE users SET user_type = 'admin' WHERE email = 'known-owner@example.com';
 For MongoDB, after connecting to the intended database, promote only the verified owner account with `db.users.updateOne({ email: 'known-owner@example.com' }, { $set: { userType: 'admin' } })` (confirm the collection name used by the deployed database first). There is no public admin-registration endpoint. The role is included in newly issued JWTs, so the promoted account should sign in again to receive an admin token.
 
 Set `SSLCOMMERZ_STORE_ID`, `SSLCOMMERZ_STORE_PASSWORD`, and `SSLCOMMERZ_SANDBOX` in the server environment to enable checkout. Plan prices are fixed server-side in `admin.controller.ts` (BDT 100 coffee, 299 monthly, 2999 annual). Configure the deployed API and client URLs so SSLCommerz can reach the callback and IPN endpoints. Payment completion is accepted only after server-side validation against SSLCommerz.
+
+
+## Essential Commands:
+
+```
+nvm use 24 && npm run migrate:mysql
+```

@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate
-MySQL - 8.0.46-0ubuntu0.24.04.3 : Database - abmiti_v1
+MySQL - 8.0.46-0ubuntu0.24.04.4 : Database - abmiti_v1
 *********************************************************************
 */
 
@@ -40,6 +40,25 @@ CREATE TABLE `accounts` (
 
 /*Data for the table `accounts` */
 
+/*Table structure for table `blog_posts` */
+
+DROP TABLE IF EXISTS `blog_posts`;
+
+CREATE TABLE `blog_posts` (
+  `id` varchar(36) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `excerpt` text,
+  `content` longtext NOT NULL,
+  `published` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `blog_posts` */
+
 /*Table structure for table `budget_line_categories` */
 
 DROP TABLE IF EXISTS `budget_line_categories`;
@@ -63,7 +82,7 @@ CREATE TABLE `budget_lines` (
   `id` varchar(36) NOT NULL,
   `budget_id` varchar(36) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `icon` varchar(20) DEFAULT 'icon',
+  `icon` varchar(20) DEFAULT 0xF09F93A6,
   `color` varchar(7) DEFAULT '#4A7C59',
   `allocation_method` enum('percentage','fixed') NOT NULL,
   `allocation_value` decimal(10,4) NOT NULL,
@@ -78,24 +97,18 @@ CREATE TABLE `budget_lines` (
 /*Data for the table `budget_lines` */
 
 insert  into `budget_lines`(`id`,`budget_id`,`name`,`icon`,`color`,`allocation_method`,`allocation_value`,`sort_order`,`is_active`,`note`) values 
-('09184b66-d1f2-4dd6-a0b0-c4cec963e0f6','bd282191-8b05-4f41-bb25-72fe73d2b36b','Fun / Entertainment','?','#D4973E','percentage',5.0000,3,1,'Leisure, dining out, travel'),
-('1807e9eb-968e-4b75-9a19-b9d9c601fca1','93b2760e-e69b-455a-9572-4a2891cceb74','Charity (Sadaqah)','?','#7C3AED','percentage',5.0000,5,1,'Optional; zakat, donations'),
-('1dfd770f-f555-4419-95c2-8559bead4707','e94b671e-e762-4229-8ae6-431ec266ab15','Wife Expenses','?','#DB2777','percentage',10.0000,2,1,'Spouse allowance and personal needs'),
-('400f7174-3c80-4cf5-af3f-30af71db098d','e94b671e-e762-4229-8ae6-431ec266ab15','Living Cost','?','#4A7C59','percentage',50.0000,0,1,'Family expenses: rent, food, utilities, education'),
-('416386dc-ce1d-4c60-b5a0-a2c90ba964e2','e94b671e-e762-4229-8ae6-431ec266ab15','Fun / Entertainment','?','#D4973E','percentage',5.0000,3,1,'Leisure, dining out, travel'),
-('51752d90-bee7-4490-aff7-32bafc171ab9','bd282191-8b05-4f41-bb25-72fe73d2b36b','Charity (Sadaqah)','?','#7C3AED','percentage',5.0000,5,1,'Optional; zakat, donations'),
-('5de518f0-77a1-437d-a44a-4861780365a9','93b2760e-e69b-455a-9572-4a2891cceb74','Living Cost','?','#4A7C59','percentage',50.0000,0,1,'Family expenses: rent, food, utilities, education'),
-('6108b21e-b118-4ea1-9d63-11e6e1593d8b','bd282191-8b05-4f41-bb25-72fe73d2b36b','Wife Expenses','?','#DB2777','percentage',10.0000,2,1,'Spouse allowance and personal needs'),
-('77e5de45-9b6b-454e-abf4-b51285bb6258','93b2760e-e69b-455a-9572-4a2891cceb74','Wife Expenses','?','#DB2777','percentage',10.0000,2,1,'Spouse allowance and personal needs'),
-('90c62882-66c1-47f9-9008-8f30158d188c','e94b671e-e762-4229-8ae6-431ec266ab15','Investment','?','#2563EB','percentage',25.0000,1,1,'Land, gold, business, skill development'),
-('9a95825a-13a0-473a-99d9-d33beccbaa58','93b2760e-e69b-455a-9572-4a2891cceb74','Investment','?','#2563EB','percentage',25.0000,1,1,'Land, gold, business, skill development'),
-('b5a07388-25a7-4da1-942a-4d30dc062d8f','bd282191-8b05-4f41-bb25-72fe73d2b36b','Living Cost','?','#4A7C59','percentage',50.0000,0,1,'Family expenses: rent, food, utilities, education'),
-('d10a4f0a-920e-4337-b660-53f6b4ee2207','bd282191-8b05-4f41-bb25-72fe73d2b36b','Emergency Fund','?️','#0F766E','percentage',5.0000,4,1,'Savings buffer'),
-('d390ba4e-80f7-41ae-8a24-0ff746695bb1','93b2760e-e69b-455a-9572-4a2891cceb74','Fun / Entertainment','?','#D4973E','percentage',5.0000,3,1,'Leisure, dining out, travel'),
-('dac00bac-93f9-440f-8d49-51962645889b','bd282191-8b05-4f41-bb25-72fe73d2b36b','Investment','?','#2563EB','percentage',25.0000,1,1,'Land, gold, business, skill development'),
-('e09f8e1b-4b0b-40a7-b642-77ed7d870395','e94b671e-e762-4229-8ae6-431ec266ab15','Emergency Fund','?️','#0F766E','percentage',5.0000,4,1,'Savings buffer'),
-('e1cfb876-9092-4d91-b32d-f0b3d1f9f719','93b2760e-e69b-455a-9572-4a2891cceb74','Emergency Fund','?️','#0F766E','percentage',5.0000,4,1,'Savings buffer'),
-('ee27ee0a-1632-4add-8a1b-8028e5c06d0f','e94b671e-e762-4229-8ae6-431ec266ab15','Charity (Sadaqah)','?','#7C3AED','percentage',5.0000,5,1,'Optional; zakat, donations');
+('1c8a739a-a896-472a-81fa-036abc1e23f3','6018193c-d4ec-4b21-baa0-dd23219abae2','Charity (Sadaqah)','?','#7C3AED','percentage',5.0000,5,1,'Optional; zakat, donations'),
+('1dc91baf-6464-440e-8cda-faa8f3575169','0e9da543-e084-44c6-87c3-44c160e2bcc8','Wife Expenses','?','#DB2777','percentage',10.0000,2,1,'Spouse allowance and personal needs'),
+('1dd60c2b-7a47-4555-8df1-93d2b2d3d12b','0e9da543-e084-44c6-87c3-44c160e2bcc8','Charity (Sadaqah)','?','#7C3AED','percentage',5.0000,5,1,'Optional; zakat, donations'),
+('2b088ebe-5571-4443-afee-8f11cf609281','6018193c-d4ec-4b21-baa0-dd23219abae2','Fun / Entertainment','?','#D4973E','percentage',5.0000,3,1,'Leisure, dining out, travel'),
+('44045589-d119-4ea6-a655-83a7037bb995','0e9da543-e084-44c6-87c3-44c160e2bcc8','Emergency Fund','?️','#0F766E','percentage',5.0000,4,1,'Savings buffer'),
+('559ddd58-57ed-419f-8988-09da6c08b345','6018193c-d4ec-4b21-baa0-dd23219abae2','Emergency Fund','?️','#0F766E','percentage',5.0000,4,1,'Savings buffer'),
+('5f055cd0-78e2-4019-90e4-65aa36d3c819','0e9da543-e084-44c6-87c3-44c160e2bcc8','Fun / Entertainment','?','#D4973E','percentage',5.0000,3,1,'Leisure, dining out, travel'),
+('aa2ca8d5-5f65-4546-b705-98931303b22a','0e9da543-e084-44c6-87c3-44c160e2bcc8','Investment','?','#2563EB','percentage',25.0000,1,1,'Land, gold, business, skill development'),
+('bc5b4e87-03c2-4553-881b-e10e761e04a4','0e9da543-e084-44c6-87c3-44c160e2bcc8','Living Cost','?','#4A7C59','percentage',50.0000,0,1,'Family expenses: rent, food, utilities, education'),
+('d22dac93-790a-4736-854d-2b1615942c27','6018193c-d4ec-4b21-baa0-dd23219abae2','Wife Expenses','?','#DB2777','percentage',10.0000,2,1,'Spouse allowance and personal needs'),
+('e13ef89b-478d-45d5-855b-f83e6ee9b892','6018193c-d4ec-4b21-baa0-dd23219abae2','Investment','?','#2563EB','percentage',25.0000,1,1,'Land, gold, business, skill development'),
+('e9356ffd-f56a-4148-a9ea-35603f39461d','6018193c-d4ec-4b21-baa0-dd23219abae2','Living Cost','?','#4A7C59','percentage',50.0000,0,1,'Family expenses: rent, food, utilities, education');
 
 /*Table structure for table `budget_sub_items` */
 
@@ -137,9 +150,8 @@ CREATE TABLE `budgets` (
 /*Data for the table `budgets` */
 
 insert  into `budgets`(`id`,`user_id`,`month`,`year`,`total_income`,`is_template`,`template_name`,`notes`,`created_at`,`updated_at`) values 
-('93b2760e-e69b-455a-9572-4a2891cceb74','6207fcb0-21de-4479-99e7-9af9f6b1f1f4',6,2026,50000.00,1,'6/2026 Budget',NULL,'2026-06-23 18:12:47','2026-06-23 18:12:47'),
-('bd282191-8b05-4f41-bb25-72fe73d2b36b','6207fcb0-21de-4479-99e7-9af9f6b1f1f4',7,2026,47500.00,0,'Halal 50/25/10/5/5/5 Budget',NULL,'2026-07-19 17:50:36','2026-07-19 17:51:26'),
-('e94b671e-e762-4229-8ae6-431ec266ab15','6207fcb0-21de-4479-99e7-9af9f6b1f1f4',6,2026,50000.00,0,'Halal 50/25/10/5/5/5 Budget',NULL,'2026-06-23 18:09:59','2026-06-23 18:11:48');
+('0e9da543-e084-44c6-87c3-44c160e2bcc8','6368a950-3ef1-45f1-83ca-5215558fc329',9,2026,0.00,0,'Halal 50/25/10/5/5/5 Budget',NULL,'2026-09-29 12:37:03','2026-09-29 12:37:03'),
+('6018193c-d4ec-4b21-baa0-dd23219abae2','3cb76480-a8a1-4e4e-8a88-144406c29bf9',9,2026,0.00,0,'Halal 50/25/10/5/5/5 Budget',NULL,'2026-09-29 12:34:39','2026-09-29 12:34:39');
 
 /*Table structure for table `categories` */
 
@@ -162,14 +174,20 @@ CREATE TABLE `categories` (
 
 /*Data for the table `categories` */
 
-insert  into `categories`(`id`,`user_id`,`name`,`icon`,`color`,`type`,`is_default`,`created_at`) values 
-('0eccbae9-7a24-44d9-8a14-493c077b8b5d','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Home Rent','?','#e74c3c','expense',0,'2026-06-22 10:43:46'),
-('2dbeaf33-83da-4732-b8d7-25625aee9cfc','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Varisty Expense','?','#c2552a','expense',0,'2026-06-22 10:52:32'),
-('35bf24f2-8c46-4f0f-9a9c-84f8d51bd19f','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Monthly Salary','?','#1abc9c','income',0,'2026-06-22 10:44:34'),
-('6683c3a9-ccf8-436c-8896-93cea70a881c','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Monthly Goceries','?️','#c2552a','expense',0,'2026-06-22 10:53:01'),
-('9f65f6c4-2e08-4fd4-8fc7-689fa695980e','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Hospital Treatment','?','#c2552a','expense',0,'2026-06-22 10:52:46'),
-('a5c67e5b-e0ba-47dc-a036-130074da478c','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Sajib\'s Repayment','?','#c2552a','expense',0,'2026-06-22 11:02:27'),
-('f127ef7b-81f3-498c-aff7-9bc2e5ab799d','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Utility Bill','?','#8e44ad','expense',0,'2026-07-19 18:11:38');
+/*Table structure for table `contact_messages` */
+
+DROP TABLE IF EXISTS `contact_messages`;
+
+CREATE TABLE `contact_messages` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(120) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `contact_messages` */
 
 /*Table structure for table `entries` */
 
@@ -203,16 +221,101 @@ CREATE TABLE `entries` (
 
 /*Data for the table `entries` */
 
-insert  into `entries`(`id`,`user_id`,`type`,`amount`,`note`,`category_id`,`source`,`account_id`,`sector`,`date`,`parsed_from_sms`,`raw_sms`,`created_at`,`updated_at`) values 
-('1c833928-9af2-4493-983c-ac68264ec308','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','income',46834.25,'Monthly Salary','35bf24f2-8c46-4f0f-9a9c-84f8d51bd19f','bank',NULL,'','2026-06-11',0,NULL,'2026-06-22 10:51:26','2026-06-22 10:51:26'),
-('3cd87169-9a2f-4874-b985-98c323d66510','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','expense',12000.00,'Monthly House Rent','0eccbae9-7a24-44d9-8a14-493c077b8b5d','cash',NULL,'','2026-07-19',0,NULL,'2026-07-19 17:51:57','2026-07-19 17:51:57'),
-('4b39b0ca-70ff-4e87-b1f2-01d46534fdf7','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','expense',11000.00,'Monthly House Rent','0eccbae9-7a24-44d9-8a14-493c077b8b5d','cash',NULL,'','2026-06-16',0,NULL,'2026-06-22 10:51:52','2026-06-22 10:51:52'),
-('6885c691-3295-4e74-b25c-ffdce60b35f3','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','expense',1000.00,'Electricity Bill July','f127ef7b-81f3-498c-aff7-9bc2e5ab799d','cash',NULL,'','2026-07-10',0,NULL,'2026-07-19 18:12:21','2026-07-19 18:12:21'),
-('747b7959-1ba7-41dc-b7d7-f5e1e8af1d47','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','expense',15000.00,'Wise Varsity Expense','2dbeaf33-83da-4732-b8d7-25625aee9cfc','cash',NULL,'','2026-06-21',0,NULL,'2026-06-22 10:54:39','2026-06-22 10:54:39'),
-('cc750c21-78e0-4cab-9646-306e9238a9d0','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','income',47500.00,'Monthly Salary','35bf24f2-8c46-4f0f-9a9c-84f8d51bd19f','bank',NULL,'','2026-07-09',0,NULL,'2026-07-19 18:00:38','2026-07-19 18:00:38'),
-('d518a70d-3bc2-4e5d-a21e-520ac220913c','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','expense',2000.00,'Gas Cylinder Bill','f127ef7b-81f3-498c-aff7-9bc2e5ab799d','bkash',NULL,'','2026-07-19',0,NULL,'2026-07-19 18:13:20','2026-07-19 18:13:20'),
-('ddcc2bf0-8bbd-4dd2-a8ed-b04cebf00ea9','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','expense',500.00,'Wifi Bill','f127ef7b-81f3-498c-aff7-9bc2e5ab799d','bkash',NULL,'','2026-07-12',0,NULL,'2026-07-19 18:12:50','2026-07-19 18:12:50'),
-('ee81be70-1b5c-41d3-bd68-6ef6f55f3156','6207fcb0-21de-4479-99e7-9af9f6b1f1f4','expense',6000.00,'95k due','a5c67e5b-e0ba-47dc-a036-130074da478c','bank',NULL,'','2026-06-13',0,NULL,'2026-06-22 11:03:30','2026-06-22 11:03:30');
+/*Table structure for table `notifications` */
+
+DROP TABLE IF EXISTS `notifications`;
+
+CREATE TABLE `notifications` (
+  `id` varchar(36) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `target_user_id` varchar(36) DEFAULT NULL,
+  `read_by` json NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_notification_target` (`target_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `notifications` */
+
+/*Table structure for table `payments` */
+
+DROP TABLE IF EXISTS `payments`;
+
+CREATE TABLE `payments` (
+  `id` varchar(36) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `transaction_id` varchar(80) NOT NULL,
+  `amount` decimal(12,2) NOT NULL,
+  `plan` varchar(30) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `gateway_data` json DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `transaction_id` (`transaction_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `payments` */
+
+/*Table structure for table `schema_migrations` */
+
+DROP TABLE IF EXISTS `schema_migrations`;
+
+CREATE TABLE `schema_migrations` (
+  `version` varchar(255) NOT NULL,
+  `applied_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `schema_migrations` */
+
+insert  into `schema_migrations`(`version`,`applied_at`) values 
+('000_create_schema_migrations.sql','2026-09-29 12:32:26'),
+('001_create_users.sql','2026-09-29 12:32:26'),
+('002_create_categories.sql','2026-09-29 12:32:26'),
+('003_create_accounts.sql','2026-09-29 12:32:27'),
+('004_create_entries.sql','2026-09-29 12:32:27'),
+('005_migrate_budgets.sql','2026-09-29 12:32:27'),
+('006_create_budget_lines.sql','2026-09-29 12:32:27'),
+('007_create_budget_line_categories.sql','2026-09-29 12:32:27'),
+('008_create_budget_sub_items.sql','2026-09-29 12:32:27'),
+('009_add_google_oauth.sql','2026-09-29 12:32:27'),
+('010_admin_content_payments.sql','2026-09-29 12:32:27');
+
+/*Table structure for table `site_config` */
+
+DROP TABLE IF EXISTS `site_config`;
+
+CREATE TABLE `site_config` (
+  `config_key` varchar(80) NOT NULL,
+  `config_value` json NOT NULL,
+  PRIMARY KEY (`config_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `site_config` */
+
+/*Table structure for table `subscriptions` */
+
+DROP TABLE IF EXISTS `subscriptions`;
+
+CREATE TABLE `subscriptions` (
+  `id` varchar(36) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `transaction_id` varchar(80) NOT NULL,
+  `plan` varchar(30) NOT NULL,
+  `starts_at` datetime NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `transaction_id` (`transaction_id`),
+  KEY `idx_subscriptions_user_id` (`user_id`),
+  KEY `idx_subscriptions_status` (`status`),
+  KEY `idx_subscriptions_expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `subscriptions` */
 
 /*Table structure for table `users` */
 
@@ -222,19 +325,23 @@ CREATE TABLE `users` (
   `id` varchar(36) NOT NULL,
   `name` varchar(80) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `avatar` varchar(255) DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `budget` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `avatar` varchar(500) DEFAULT NULL,
+  `google_id` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `user_type` enum('admin','user') NOT NULL DEFAULT 'user',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_users_email` (`email`)
+  UNIQUE KEY `uq_users_email` (`email`),
+  UNIQUE KEY `uq_users_google_id` (`google_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `users` */
 
-insert  into `users`(`id`,`name`,`email`,`avatar`,`password`,`budget`,`created_at`,`updated_at`) values 
-('6207fcb0-21de-4479-99e7-9af9f6b1f1f4','Test1','test@abmiti.com','?','$2a$12$Rvv71kcb6lZx/UUKNjaeKOUx3FNvE8ybstL9DNO5NlcJIl0hdHw8S',30000.00,'2026-06-22 10:31:37','2026-07-19 18:26:06');
+insert  into `users`(`id`,`name`,`email`,`password`,`budget`,`avatar`,`google_id`,`created_at`,`updated_at`,`user_type`) values 
+('3cb76480-a8a1-4e4e-8a88-144406c29bf9','Admin','admin@abmiti.com','$2a$12$JuSdxpFkWvdszVLhoEZ42uSJUEUjz8XsOXDaFR8quGmlbrsrMomBq',0.00,'?',NULL,'2026-09-29 12:34:39','2026-09-29 12:35:28','admin'),
+('6368a950-3ef1-45f1-83ca-5215558fc329','MsM Robin','robin@abmiti.com','$2a$12$3kWqqhXBFkPlVfI2hHC/NuZLNFulClX4htZX8kJzYrHZpOQtSwOfW',0.00,NULL,NULL,'2026-09-29 12:37:02','2026-09-29 12:37:02','user');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

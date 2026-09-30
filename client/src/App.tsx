@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import AppLayout from '@/components/layout/AppLayout';
 import AuthLayout from '@/components/layout/AuthLayout';
+import AdminLayout from '@/components/layout/AdminLayout';
 import LoginPage    from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import DashboardPage from '@/pages/DashboardPage';
@@ -16,7 +17,13 @@ import CategoryReportPage from '@/pages/CategoryReportPage';
 import TransactionStatementPage from '@/pages/TransactionStatementPage';
 import ProfilePage from '@/pages/ProfilePage';
 import GoogleAuthCallback from '@/pages/GoogleAuthCallback';
-import AdminPage from '@/pages/AdminPage';
+import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
+import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import AdminBlogPage from '@/pages/admin/AdminBlogPage';
+import AdminContactsPage from '@/pages/admin/AdminContactsPage';
+import AdminNotificationsPage from '@/pages/admin/AdminNotificationsPage';
+import AdminPaymentsPage from '@/pages/admin/AdminPaymentsPage';
+import AdminConfigPage from '@/pages/admin/AdminConfigPage';
 import SupportPage from '@/pages/SupportPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -44,8 +51,17 @@ export default function App() {
           <Route path="/auth/google/callback" element={<PublicRoute><GoogleAuthCallback /></PublicRoute>} />
         </Route>
         <Route path="/" element={<LandingPage />} />
+        <Route element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+          <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
+          <Route path="/admin/blog" element={<AdminRoute><AdminBlogPage /></AdminRoute>} />
+          <Route path="/admin/contacts" element={<AdminRoute><AdminContactsPage /></AdminRoute>} />
+          <Route path="/admin/notifications" element={<AdminRoute><AdminNotificationsPage /></AdminRoute>} />
+          <Route path="/admin/payments" element={<AdminRoute><AdminPaymentsPage /></AdminRoute>} />
+          <Route path="/admin/config" element={<AdminRoute><AdminConfigPage /></AdminRoute>} />
+        </Route>
+
         <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-          <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/entries"  element={<EntriesPage />} />
