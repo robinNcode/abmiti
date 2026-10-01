@@ -25,6 +25,7 @@ import AdminNotificationsPage from '@/pages/admin/AdminNotificationsPage';
 import AdminPaymentsPage from '@/pages/admin/AdminPaymentsPage';
 import AdminConfigPage from '@/pages/admin/AdminConfigPage';
 import SupportPage from '@/pages/SupportPage';
+import BlogPostPage from '@/pages/BlogPostPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((s) => s.accessToken);
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/auth/google/callback" element={<PublicRoute><GoogleAuthCallback /></PublicRoute>} />
         </Route>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
           <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
           <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />

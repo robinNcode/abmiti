@@ -7,6 +7,7 @@ const router = Router();
 router.get('/public-config', adminController.publicConfig);
 router.post('/contact', adminController.contact);
 router.get('/public-posts', adminController.publicPosts);
+router.get('/public-posts/:slug', adminController.publicPostBySlug);
 
 // ── Admin-only routes ─────────────────────────────────────────
 router.get('/admin/stats', authenticate, requireAdmin, adminController.dashboardStats);
