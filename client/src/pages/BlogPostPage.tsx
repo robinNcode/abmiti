@@ -29,12 +29,14 @@ export default function BlogPostPage() {
 
   useEffect(() => {
     if (!slug) return;
+    let isActive = true;
     setLoading(true);
     setError(false);
     siteApi.publicPostBySlug(slug)
-      .then(setPost)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+      .then(p => { if (isActive) setPost(p); })
+      .catch(() => { if (isActive) setError(true); })
+      .finally(() => { if (isActive) setLoading(false); });
+    return () => { isActive = false; };
   }, [slug]);
 
   const created = post?.createdAt ?? post?.created_at;

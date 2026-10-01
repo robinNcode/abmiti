@@ -97,18 +97,6 @@ export default function MarkdownEditor({ value, onChange, placeholder, minHeight
   }, [value, onChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const textarea = textareaRef.current;
-      if (!textarea) return;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const newValue = value.substring(0, start) + '  ' + value.substring(end);
-      onChange(newValue);
-      requestAnimationFrame(() => {
-        textarea.setSelectionRange(start + 2, start + 2);
-      });
-    }
     // Ctrl+B / Cmd+B for bold
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
       e.preventDefault();
