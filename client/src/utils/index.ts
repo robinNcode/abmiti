@@ -59,3 +59,11 @@ export const typeColor: Record<EntryType, string> = {
 // ── clsx tiny util ───────────────────────────────────────────
 export const cx = (...classes: (string | undefined | null | false)[]): string =>
   classes.filter(Boolean).join(' ');
+
+export const getImageUrl = (path?: string) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+  const host = baseUrl.replace('/api/v1', '');
+  return `${host}${path}`;
+};

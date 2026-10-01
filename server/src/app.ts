@@ -39,6 +39,8 @@ if (env.DB_PROVIDER === 'mongodb') {
 app.use(compression());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
+import path from 'path';
+app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
 if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));

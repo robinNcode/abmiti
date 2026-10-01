@@ -1,9 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import multer from 'multer';
+import sharp from 'sharp';
 import { adminService } from './admin.service';
 import { env } from '../../config/env';
 import { BadRequestError, UnauthorizedError } from '../../shared/utils/errors';
 import { sendCreated, sendSuccess } from '../../shared/utils/response';
+
+const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
 
 const plans: Record<string, number> = { coffee: 100, monthly: 299, annual: 2999 };
 const publicOrigin = () => `${env.CLIENT_URLS[0]}/abmiti`;
@@ -25,6 +38,30 @@ export const adminController = {
   async publicPosts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.publicPosts()); } catch (e) { next(e); } },
   async publicPostBySlug(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.postBySlug(req.params.slug)); } catch (e) { next(e); } },
   async savePost(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.savePost(req.body)); } catch (e) { next(e); } },
+  uploadPostImage: [
+    upload.single('image'),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        if (!req.file) throw new BadRequestError('No image provided');
+        const fileId = randomUUID();
+        const ext = '.webp';
+
+        const fileName = `${fileId}${ext}`;
+        const filePath = path.join(uploadDir, fileName);
+
+        const thumbName = `${fileId}-thumb${ext}`;
+        const thumbPath = path.join(uploadDir, thumbName);
+
+        await sharp(req.file.buffer).webp({ quality: 80 }).toFile(filePath);
+        await sharp(req.file.buffer).resize(400, 300, { fit: 'cover' }).webp({ quality: 75 }).toFile(thumbPath);
+
+        const publicUrl = `public/uploads/${fileName}`;
+        const thumbUrl = `public/uploads/${thumbName}`;
+
+        sendSuccess(res, { url: publicUrl, thumbnailUrl: thumbUrl });
+      } catch (e) { next(e); }
+    }
+  ],
   async deletePost(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deletePost(req.params.id)); } catch (e) { next(e); } },
   async saveConfig(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.saveConfig(req.body)); } catch (e) { next(e); } },
   async notifications(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.notifications(req.user!.userId)); } catch (e) { next(e); } },

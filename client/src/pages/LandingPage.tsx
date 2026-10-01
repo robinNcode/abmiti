@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Download, MessageSquare, ArrowRight } from 'lucide-react';
+import { Download, MessageSquare, ArrowRight, BookOpen, Star, Smartphone, Mail } from 'lucide-react';
+import { getImageUrl } from '@/utils';
 import { useAuthStore } from '@/store/authStore';
 import { AdSense } from '@/components/ui';
 import { siteApi } from '@/api/site.api';
@@ -26,10 +27,11 @@ export default function LandingPage() {
           </div>
             {config.logo ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-10 max-w-40 object-contain" /> : <span className="font-display font-bold text-xl tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
         </div>
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-ink/70 hover:text-terra font-medium transition-colors">Features</a>
-          <a href="#download" className="text-ink/70 hover:text-terra font-medium transition-colors">Download</a>
-          <a href="#contact" className="text-ink/70 hover:text-terra font-medium transition-colors">Contact</a>
+        <div className="hidden md:flex items-center gap-6">
+          <a href="#features" className="flex items-center gap-2 text-ink/70 hover:text-terra font-medium transition-colors"><Star size={16} /> Features</a>
+          <a href="#blog" className="flex items-center gap-2 text-ink/70 hover:text-terra font-medium transition-colors"><BookOpen size={16} /> Blog</a>
+          <a href="#download" className="flex items-center gap-2 text-ink/70 hover:text-terra font-medium transition-colors"><Smartphone size={16} /> Download</a>
+          <a href="#contact" className="flex items-center gap-2 text-ink/70 hover:text-terra font-medium transition-colors"><Mail size={16} /> Contact</a>
         </div>
         <div className="flex items-center gap-3">
           {token ? (
@@ -105,7 +107,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {posts.length > 0 && <section className="py-20 max-w-7xl mx-auto px-6"><h2 className="text-3xl font-bold font-display text-ink mb-8">{config.content?.blogTitle || 'From the Abmiti blog'}</h2><div className="grid md:grid-cols-3 gap-6">{posts.map((post) => <Link key={post._id ?? post.id} to={`/blog/${post.slug}`} className="group bg-white p-6 rounded-2xl border border-paper-mist2 hover:shadow-lift hover:-translate-y-1 transition-all duration-300"><h3 className="font-bold text-xl text-ink group-hover:text-terra transition-colors">{post.title}</h3>{post.excerpt && <p className="mt-3 text-ink/60 line-clamp-3">{post.excerpt}</p>}<span className="mt-4 inline-flex items-center gap-1 text-terra text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">Read more <ArrowRight size={14} /></span></Link>)}</div></section>}
+      {posts.length > 0 && <section id="blog" className="py-20 max-w-7xl mx-auto px-6"><h2 className="text-3xl font-bold font-display text-ink mb-8">{config.content?.blogTitle || 'From the Abmiti blog'}</h2><div className="grid md:grid-cols-3 gap-6">{posts.map((post) => <Link key={post._id ?? post.id} to={`/blog/${post.slug}`} className="group bg-white rounded-2xl border border-paper-mist2 hover:shadow-lift hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">{post.thumbnailUrl && <img src={getImageUrl(post.thumbnailUrl)} alt={post.title} className="w-full h-48 object-cover border-b border-paper-mist2" />}<div className="p-6 flex-1 flex flex-col"><h3 className="font-bold text-xl text-ink group-hover:text-terra transition-colors">{post.title}</h3>{post.excerpt && <p className="mt-3 text-ink/60 line-clamp-3 flex-1">{post.excerpt}</p>}<span className="mt-4 inline-flex items-center gap-1 text-terra text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">Read more <ArrowRight size={14} /></span></div></Link>)}</div></section>}
 
 
       {/* Download Section */}
