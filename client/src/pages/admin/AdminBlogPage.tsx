@@ -1,8 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { siteApi } from '@/api/site.api';
 import toast from 'react-hot-toast';
-import { Search, Plus, FileText, Edit3, Trash2, Eye, EyeOff, X, Save, AlertCircle } from 'lucide-react';
+import { Search, Plus, FileText, Edit3, Trash2, Eye, EyeOff, X, Save, AlertCircle, ExternalLink } from 'lucide-react';
 import { cx } from '@/utils';
+import MarkdownEditor from '@/components/ui/MarkdownEditor';
 
 interface Post {
   _id?: string; id?: string;
@@ -144,6 +145,7 @@ export default function AdminBlogPage() {
                     <td>
                       <div className="flex items-center gap-1">
                         <button onClick={() => setEditing({ ...p, id: pid } as any)} className="admin-icon-btn" title="Edit"><Edit3 size={13} /></button>
+                        {p.published && <a href={`/abmiti/blog/${p.slug}`} target="_blank" rel="noopener noreferrer" className="admin-icon-btn text-blue-400/60 hover:text-blue-400" title="View post"><ExternalLink size={13} /></a>}
                         <button onClick={() => setDeleteId(pid)} className="admin-icon-btn text-red-400/60 hover:text-red-400" title="Delete"><Trash2 size={13} /></button>
                       </div>
                     </td>
@@ -159,7 +161,7 @@ export default function AdminBlogPage() {
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !saving && setEditing(null)} />
-          <div className="relative bg-[#1a1d27] border border-white/[0.08] rounded-2xl w-full max-w-2xl shadow-2xl animate-fade-up max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-[#1a1d27] border border-white/[0.08] rounded-2xl w-full max-w-4xl shadow-2xl animate-fade-up max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] sticky top-0 bg-[#1a1d27] z-10">
               <h2 className="font-display font-bold text-lg text-white/80">{editing._id || editing.id ? 'Edit Post' : 'Create Post'}</h2>
               <button onClick={() => !saving && setEditing(null)} className="admin-icon-btn"><X size={16} /></button>
@@ -180,7 +182,7 @@ export default function AdminBlogPage() {
               </div>
               <div>
                 <label className="admin-label">Content <span className="text-terra-light">*</span></label>
-                <textarea className="admin-input w-full min-h-[200px] font-mono text-xs" value={editing.content} onChange={(e) => setEditing({ ...editing, content: e.target.value })} placeholder="Post content…" />
+                <MarkdownEditor value={editing.content} onChange={(content) => setEditing({ ...editing, content })} placeholder="Write your blog post content using Markdown…" minHeight="300px" />
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                 <input type="checkbox" id="published" checked={editing.published} onChange={(e) => setEditing({ ...editing, published: e.target.checked })} className="admin-checkbox" />

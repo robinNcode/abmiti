@@ -5,6 +5,7 @@ export const siteApi = {
   config: () => apiClient.get<{ data: any }>('/public-config').then((r) => r.data.data),
   contact: (data: { name: string; email: string; message: string }) => apiClient.post('/contact', data),
   publicPosts: () => apiClient.get<{ data: any[] }>('/public-posts').then((r) => r.data.data),
+  publicPostBySlug: (slug: string) => apiClient.get<{ data: any }>(`/public-posts/${slug}`).then((r) => r.data.data),
 
   // ── Auth-required (user or admin) ───────────────────────────
   notifications: () => apiClient.get<{ data: any[] }>('/notifications').then((r) => r.data.data),

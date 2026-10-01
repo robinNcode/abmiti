@@ -40,6 +40,18 @@ export const adminService = {
   publicPosts: async () => env.DB_PROVIDER === 'mongodb'
     ? BlogPost.find({ published: true }).sort({ createdAt: -1 })
     : getMySQLPool().execute('SELECT * FROM blog_posts WHERE published=1 ORDER BY created_at DESC').then(([rows]) => rows),
+  postBySlug: async (slug: string) => {
+    if (!slug) throw new BadRequestError('Slug is required');
+    let post: any = null;
+    if (env.DB_PROVIDER === 'mongodb') {
+      post = await BlogPost.findOne({ slug, published: true });
+    } else {
+      const [rows] = await getMySQLPool().execute<any[]>('SELECT * FROM blog_posts WHERE slug=? AND published=1 LIMIT 1', [slug]);
+      post = rows[0] ?? null;
+    }
+    if (!post) throw new BadRequestError('Post not found');
+    return post;
+  },
   savePost: async (data: RecordData) => {
     data = { id: data.id, title: data.title, slug: data.slug, excerpt: data.excerpt ?? '', content: data.content, published: Boolean(data.published) };
     if (!data.title || !data.slug || !data.content) throw new BadRequestError('Title, slug and content are required');

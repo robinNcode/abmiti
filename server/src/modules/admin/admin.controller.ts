@@ -23,6 +23,7 @@ export const adminController = {
   async contacts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.contacts()); } catch (e) { next(e); } },
   async posts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.posts()); } catch (e) { next(e); } },
   async publicPosts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.publicPosts()); } catch (e) { next(e); } },
+  async publicPostBySlug(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.postBySlug(req.params.slug)); } catch (e) { next(e); } },
   async savePost(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.savePost(req.body)); } catch (e) { next(e); } },
   async deletePost(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deletePost(req.params.id)); } catch (e) { next(e); } },
   async saveConfig(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.saveConfig(req.body)); } catch (e) { next(e); } },

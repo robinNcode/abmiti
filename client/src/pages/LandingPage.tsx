@@ -105,7 +105,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {posts.length > 0 && <section className="py-20 max-w-7xl mx-auto px-6"><h2 className="text-3xl font-bold font-display text-ink mb-8">{config.content?.blogTitle || 'From the Abmiti blog'}</h2><div className="grid md:grid-cols-3 gap-6">{posts.map((post) => <article key={post._id ?? post.id} className="bg-white p-6 rounded-2xl"><h3 className="font-bold text-xl">{post.title}</h3>{post.excerpt && <p className="mt-3 text-ink/60">{post.excerpt}</p>}</article>)}</div></section>}
+      {posts.length > 0 && <section className="py-20 max-w-7xl mx-auto px-6"><h2 className="text-3xl font-bold font-display text-ink mb-8">{config.content?.blogTitle || 'From the Abmiti blog'}</h2><div className="grid md:grid-cols-3 gap-6">{posts.map((post) => <Link key={post._id ?? post.id} to={`/blog/${post.slug}`} className="group bg-white p-6 rounded-2xl border border-paper-mist2 hover:shadow-lift hover:-translate-y-1 transition-all duration-300"><h3 className="font-bold text-xl text-ink group-hover:text-terra transition-colors">{post.title}</h3>{post.excerpt && <p className="mt-3 text-ink/60 line-clamp-3">{post.excerpt}</p>}<span className="mt-4 inline-flex items-center gap-1 text-terra text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">Read more <ArrowRight size={14} /></span></Link>)}</div></section>}
 
 
       {/* Download Section */}
