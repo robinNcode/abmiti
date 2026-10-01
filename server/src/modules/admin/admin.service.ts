@@ -5,11 +5,12 @@ import { ContactMessage, BlogPost, SiteConfig, Notification, Payment, Subscripti
 import { BadRequestError } from '../../shared/utils/errors';
 
 type RecordData = Record<string, any>;
+const dbNames: Record<string, string> = { targetUserId: 'target_user_id', readBy: 'read_by', userId: 'user_id', transactionId: 'transaction_id', gatewayData: 'gateway_data', valId: 'gateway_data', thumbnailUrl: 'thumbnail_url' };
 const create = async (collection: any, table: string, data: RecordData) => {
   if (env.DB_PROVIDER === 'mongodb') return collection.create(data);
-  const row = { id: randomUUID(), ...data };
-  const names: Record<string, string> = { targetUserId: 'target_user_id', readBy: 'read_by', userId: 'user_id', transactionId: 'transaction_id', gatewayData: 'gateway_data', valId: 'gateway_data' };
-  const keys = Object.keys(row).map((k) => names[k] ?? k);
+  const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+  const row = { id: randomUUID(), ...cleanData };
+  const keys = Object.keys(row).map((k) => dbNames[k] ?? k);
   const values = Object.keys(row).map((k) => ['readBy', 'gatewayData'].includes(k) ? JSON.stringify(row[k]) : row[k]);
   await getMySQLPool().execute(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(() => '?').join(',')})`, values);
   return { ...row, created_at: new Date() };
@@ -39,7 +40,7 @@ export const adminService = {
   posts: () => all(BlogPost, 'blog_posts'),
   publicPosts: async () => env.DB_PROVIDER === 'mongodb'
     ? BlogPost.find({ published: true }).sort({ createdAt: -1 })
-    : getMySQLPool().execute('SELECT * FROM blog_posts WHERE published=1 ORDER BY created_at DESC').then(([rows]) => rows),
+    : getMySQLPool().execute('SELECT * FROM blog_posts WHERE published=1 ORDER BY created_at DESC').then(([rows]) => rows.map((r: any) => ({...r, thumbnailUrl: r.thumbnail_url}))),
   postBySlug: async (slug: string) => {
     if (!slug) throw new BadRequestError('Slug is required');
     let post: any = null;
@@ -47,16 +48,16 @@ export const adminService = {
       post = await BlogPost.findOne({ slug, published: true });
     } else {
       const [rows] = await getMySQLPool().execute<any[]>('SELECT * FROM blog_posts WHERE slug=? AND published=1 LIMIT 1', [slug]);
-      post = rows[0] ?? null;
+      post = rows[0] ? {...rows[0], thumbnailUrl: rows[0].thumbnail_url} : null;
     }
     if (!post) throw new BadRequestError('Post not found');
     return post;
   },
   savePost: async (data: RecordData) => {
-    data = { id: data.id, title: data.title, slug: data.slug, excerpt: data.excerpt ?? '', content: data.content, published: Boolean(data.published) };
+    data = { title: data.title, slug: data.slug, excerpt: data.excerpt ?? '', content: data.content, published: Boolean(data.published), thumbnailUrl: data.thumbnailUrl ?? null, ...(data.id && { id: data.id }) };
     if (!data.title || !data.slug || !data.content) throw new BadRequestError('Title, slug and content are required');
     if (env.DB_PROVIDER === 'mongodb') return data.id ? BlogPost.findByIdAndUpdate(data.id, data, { new: true }) : BlogPost.create(data);
-    if (data.id) { const { id, ...fields } = data; const pairs = Object.keys(fields).map((k) => `${k}=?`).join(','); await getMySQLPool().execute(`UPDATE blog_posts SET ${pairs}, updated_at=CURRENT_TIMESTAMP WHERE id=?`, [...Object.values(fields), id]); return data; }
+    if (data.id) { const { id, ...fields } = data; const pairs = Object.keys(fields).map((k) => `${dbNames[k] ?? k}=?`).join(','); await getMySQLPool().execute(`UPDATE blog_posts SET ${pairs}, updated_at=CURRENT_TIMESTAMP WHERE id=?`, [...Object.values(fields), id]); return data; }
     return create(BlogPost, 'blog_posts', data);
   },
   deletePost: async (id: string) => {

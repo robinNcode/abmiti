@@ -2,16 +2,17 @@ import { useEffect, useState, useMemo } from 'react';
 import { siteApi } from '@/api/site.api';
 import toast from 'react-hot-toast';
 import { Search, Plus, FileText, Edit3, Trash2, Eye, EyeOff, X, Save, AlertCircle, ExternalLink } from 'lucide-react';
-import { cx } from '@/utils';
+import { cx, getImageUrl } from '@/utils';
 import MarkdownEditor from '@/components/ui/MarkdownEditor';
 
 interface Post {
   _id?: string; id?: string;
   title: string; slug: string; excerpt: string; content: string; published: boolean;
+  thumbnailUrl?: string;
   createdAt?: string; created_at?: string; updatedAt?: string; updated_at?: string;
 }
 
-const emptyPost: Post = { title: '', slug: '', excerpt: '', content: '', published: false };
+const emptyPost: Post = { title: '', slug: '', excerpt: '', content: '', published: false, thumbnailUrl: '' };
 
 export default function AdminBlogPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -175,6 +176,24 @@ export default function AdminBlogPage() {
                 <label className="admin-label">Slug <span className="text-terra-light">*</span></label>
                 <input className="admin-input w-full" value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} placeholder="url-friendly-slug" />
                 <p className="text-[10px] text-white/20 mt-1">URL-friendly identifier. Use lowercase with hyphens.</p>
+              </div>
+              <div>
+                <label className="admin-label">Cover Image / Thumbnail</label>
+                <div className="flex items-center gap-4">
+                  {editing.thumbnailUrl && <img src={getImageUrl(editing.thumbnailUrl)} alt="Thumbnail" className="w-16 h-12 object-cover rounded-md border border-white/10" />}
+                  <input type="file" accept="image/*" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      toast.loading('Uploading...', { id: 'upload' });
+                      const { thumbnailUrl } = await siteApi.uploadPostImage(file);
+                      setEditing({ ...editing, thumbnailUrl });
+                      toast.success('Thumbnail uploaded', { id: 'upload' });
+                    } catch {
+                      toast.error('Upload failed', { id: 'upload' });
+                    }
+                  }} className="text-xs text-white/50 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-white/[0.06] file:text-white/80 hover:file:bg-white/[0.1] transition-colors cursor-pointer" />
+                </div>
               </div>
               <div>
                 <label className="admin-label">Excerpt</label>

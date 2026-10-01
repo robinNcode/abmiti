@@ -16,6 +16,11 @@ export const siteApi = {
   contacts: () => apiClient.get<{ data: any[] }>('/contacts').then((r) => r.data.data),
   deleteContact: (id: string) => apiClient.delete(`/contacts/${id}`).then((r) => r.data.data),
   posts: () => apiClient.get<{ data: any[] }>('/posts').then((r) => r.data.data),
+  uploadPostImage: (file: File) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    return apiClient.post<{ data: { url: string; thumbnailUrl: string } }>('/posts/upload-image', fd, { headers: { 'Content-Type': 'multipart/form-data' } }).then(r => r.data.data);
+  },
   savePost: (data: any) => apiClient.put('/posts', data).then((r) => r.data.data),
   deletePost: (id: string) => apiClient.delete(`/posts/${id}`).then((r) => r.data.data),
   saveConfig: (data: any) => apiClient.put('/config', data).then((r) => r.data.data),

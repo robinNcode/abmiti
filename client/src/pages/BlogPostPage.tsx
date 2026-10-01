@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { siteApi } from '@/api/site.api';
+import { getImageUrl } from '@/utils';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -8,6 +9,7 @@ import remarkGfm from 'remark-gfm';
 interface Post {
   _id?: string; id?: string;
   title: string; slug: string; excerpt: string; content: string; published: boolean;
+  thumbnailUrl?: string;
   createdAt?: string; created_at?: string; updatedAt?: string; updated_at?: string;
 }
 
@@ -111,6 +113,7 @@ export default function BlogPostPage() {
 
       {/* Content */}
       <article className="max-w-3xl mx-auto px-6 pb-24">
+        {post.thumbnailUrl && <img src={getImageUrl(post.thumbnailUrl)} alt={post.title} className="w-full h-auto max-h-[400px] object-cover rounded-3xl mb-12 shadow-card" />}
         <div className="bg-white rounded-3xl border border-paper-mist2 shadow-card p-8 md:p-12">
           <div className="prose prose-lg prose-ink max-w-none
             prose-headings:font-display prose-headings:text-ink prose-headings:tracking-tight
