@@ -18,6 +18,7 @@ router.get('/admin/notifications', authenticate, requireAdmin, adminController.a
 
 router.get('/contacts', authenticate, requireAdmin, adminController.contacts);
 router.delete('/contacts/:id', authenticate, requireAdmin, adminController.deleteContact);
+router.put('/contacts/:id/resolve', authenticate, requireAdmin, adminController.resolveContact);
 router.get('/posts', authenticate, requireAdmin, adminController.posts);
 router.post('/posts/upload-image', authenticate, requireAdmin, adminController.uploadPostImage);
 router.put('/posts', authenticate, requireAdmin, adminController.savePost);

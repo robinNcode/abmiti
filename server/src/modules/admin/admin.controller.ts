@@ -33,7 +33,7 @@ const verifiedTransaction = async (valId: string, expectedAmount: number, transa
 export const adminController = {
   async publicConfig(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.publicConfig()); } catch (e) { next(e); } },
   async contact(req: Request, res: Response, next: NextFunction) { try { const { name, email, message } = req.body; if (!name?.trim() || !email?.trim() || !message?.trim()) throw new BadRequestError('Name, email and message are required'); sendCreated(res, await adminService.contact({ name: name.trim(), email: email.trim(), message: message.trim() }), 'Message received'); } catch (e) { next(e); } },
-  async contacts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.contacts()); } catch (e) { next(e); } },
+  async contacts(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.contacts(Number(req.query.page || 1), Number(req.query.limit || 50))); } catch (e) { next(e); } },
   async posts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.posts()); } catch (e) { next(e); } },
   async publicPosts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.publicPosts()); } catch (e) { next(e); } },
   async publicPostBySlug(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.postBySlug(req.params.slug)); } catch (e) { next(e); } },
@@ -70,6 +70,7 @@ export const adminController = {
   async sendNotification(req: Request, res: Response, next: NextFunction) { try { const { title, message, targetUserId } = req.body; if (!title?.trim() || !message?.trim()) throw new BadRequestError('Title and message are required'); sendCreated(res, await adminService.sendNotification({ title: title.trim(), message: message.trim(), targetUserId: targetUserId || null, readBy: [] })); } catch (e) { next(e); } },
   async deleteNotification(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deleteNotification(req.params.id)); } catch (e) { next(e); } },
   async deleteContact(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deleteContact(req.params.id)); } catch (e) { next(e); } },
+  async resolveContact(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.resolveContact(req.params.id, Boolean(req.body.is_resolved))); } catch (e) { next(e); } },
   async users(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.users()); } catch (e) { next(e); } },
   async allPayments(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.allPayments()); } catch (e) { next(e); } },
   async allSubscriptions(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.allSubscriptions()); } catch (e) { next(e); } },
