@@ -10,5 +10,8 @@ router.post('/login', auth_validators_1.loginValidator, middleware_1.validate, a
 router.post('/refresh', auth_validators_1.refreshValidator, middleware_1.validate, auth_controller_1.authController.refresh);
 router.get('/me', middleware_1.authenticate, auth_controller_1.authController.me);
 router.patch('/me', middleware_1.authenticate, auth_validators_1.updateProfileValidator, middleware_1.validate, auth_controller_1.authController.updateMe);
+// Google OAuth
+router.get('/google', auth_controller_1.authController.googleAuth);
+router.get('/google/callback', auth_controller_1.authController.googleCallback);
 exports.default = router;
 //# sourceMappingURL=auth.routes.js.map

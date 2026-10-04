@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { siteApi } from '@/api/site.api';
 import toast from 'react-hot-toast';
 import { Settings, Save, LayoutTemplate, Type, Image as ImageIcon } from 'lucide-react';
-import { cx } from '@/utils';
 
 export default function AdminConfigPage() {
   const [config, setConfig] = useState<any>({ title: '', logo: '', subtitle: '', content: {} });

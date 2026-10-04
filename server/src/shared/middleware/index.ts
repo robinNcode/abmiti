@@ -50,7 +50,7 @@ export const validate = (req: Request, _res: Response, next: NextFunction): void
 // ── Rate limiter ─────────────────────────────────────────────
 export const rateLimiter = rateLimit({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
-  max: env.RATE_LIMIT_MAX,
+  max: env.NODE_ENV === 'development' ? 5000 : env.RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later.' },

@@ -10,6 +10,7 @@ const category_routes_1 = __importDefault(require("./modules/category/category.r
 const summary_routes_1 = __importDefault(require("./modules/summary/summary.routes"));
 const account_routes_1 = __importDefault(require("./modules/account/account.routes"));
 const budget_routes_1 = __importDefault(require("./modules/budget/budget.routes"));
+const admin_routes_1 = __importDefault(require("./modules/admin/admin.routes"));
 const env_1 = require("./config/env");
 const API_V1 = env_1.env.API_PREFIX;
 const registerRoutes = (app) => {
@@ -20,6 +21,7 @@ const registerRoutes = (app) => {
     app.use(`${API_V1}/summary`, summary_routes_1.default);
     app.use(`${API_V1}/accounts`, account_routes_1.default);
     app.use(`${API_V1}/budgets`, budget_routes_1.default);
+    app.use(`${API_V1}`, admin_routes_1.default);
 };
 exports.registerRoutes = registerRoutes;
 //# sourceMappingURL=routes.js.map

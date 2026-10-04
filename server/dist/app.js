@@ -3,14 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const path_1 = __importDefault(require("path"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
-dotenv_1.default.config({
-    path: path_1.default.resolve(process.cwd(), process.env.NODE_ENV === 'production' ? '.env.production' : '.env'),
-});
 const compression_1 = __importDefault(require("compression"));
 const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
 const morgan_1 = __importDefault(require("morgan"));
@@ -44,6 +39,8 @@ if (env_1.env.DB_PROVIDER === 'mongodb') {
 app.use((0, compression_1.default)());
 app.use(express_1.default.json({ limit: '10kb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
+const path_1 = __importDefault(require("path"));
+app.use('/public', express_1.default.static(path_1.default.join(process.cwd(), 'public')));
 if (env_1.env.NODE_ENV === 'development') {
     app.use((0, morgan_1.default)('dev'));
 }

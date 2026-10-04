@@ -9,6 +9,10 @@ export const siteApi = {
 
   // ── Auth-required (user or admin) ───────────────────────────
   notifications: () => apiClient.get<{ data: any[] }>('/notifications').then((r) => r.data.data),
+  markNotificationAsRead: (id: string) => apiClient.patch(`/notifications/${id}/read`).then((r) => r.data.data),
+  markAllNotificationsAsRead: () => apiClient.patch('/notifications/read-all').then((r) => r.data.data),
+  clearNotification: (id: string) => apiClient.delete(`/notifications/${id}/clear`).then((r) => r.data.data),
+  clearAllNotifications: () => apiClient.delete('/notifications/clear-all').then((r) => r.data.data),
   subscriptions: () => apiClient.get<{ data: any[] }>('/subscriptions').then((r) => r.data.data),
   startPayment: (plan: string) => apiClient.post<{ data: { redirectUrl: string } }>('/payments/start', { plan }).then((r) => r.data.data),
 
@@ -34,4 +38,11 @@ export const siteApi = {
   adminPayments: () => apiClient.get<{ data: any[] }>('/admin/payments').then((r) => r.data.data),
   adminSubscriptions: () => apiClient.get<{ data: any[] }>('/admin/subscriptions').then((r) => r.data.data),
   adminNotifications: () => apiClient.get<{ data: any[] }>('/admin/notifications').then((r) => r.data.data),
+  notificationReport: (startDate?: string, endDate?: string) => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    const qs = params.toString();
+    return apiClient.get<{ data: any }>(`/admin/notifications/report${qs ? `?${qs}` : ''}`).then((r) => r.data.data);
+  },
 };

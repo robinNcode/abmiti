@@ -40,7 +40,7 @@ const categorySchema = new mongoose_1.Schema({
     name: { type: String, required: true, trim: true, maxlength: 50 },
     icon: { type: String, default: '📦' },
     color: { type: String, default: '#c2552a' },
-    type: { type: String, enum: ['income', 'expense'], required: true },
+    type: { type: String, enum: ['income', 'expense', 'savings', 'investment', 'payable', 'receivable'], required: true },
     isDefault: { type: Boolean, default: false },
 }, { timestamps: true });
 categorySchema.index({ user: 1, type: 1 });

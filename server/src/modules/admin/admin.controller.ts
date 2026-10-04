@@ -6,7 +6,7 @@ import multer from 'multer';
 import sharp from 'sharp';
 import { adminService } from './admin.service';
 import { env } from '../../config/env';
-import { BadRequestError, UnauthorizedError } from '../../shared/utils/errors';
+import { BadRequestError, ForbiddenError, UnauthorizedError } from '../../shared/utils/errors';
 import { sendCreated, sendSuccess } from '../../shared/utils/response';
 
 const uploadDir = path.join(process.cwd(), 'public', 'uploads');
@@ -64,11 +64,81 @@ export const adminController = {
   ],
   async deletePost(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deletePost(req.params.id)); } catch (e) { next(e); } },
   async saveConfig(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.saveConfig(req.body)); } catch (e) { next(e); } },
-  async notifications(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.notifications(req.user!.userId)); } catch (e) { next(e); } },
+  async notifications(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (req.user?.userType === 'admin') {
+        return sendSuccess(res, []);
+      }
+      sendSuccess(res, await adminService.notifications(req.user!.userId));
+    } catch (e) { next(e); }
+  },
   async allNotifications(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.allNotifications()); } catch (e) { next(e); } },
+  async notificationReport(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { startDate, endDate } = req.query;
+      sendSuccess(res, await adminService.notificationReport(
+        startDate as string | undefined,
+        endDate as string | undefined
+      ));
+    } catch (e) { next(e); }
+  },
   async subscriptions(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.subscriptions(req.user!.userId)); } catch (e) { next(e); } },
-  async sendNotification(req: Request, res: Response, next: NextFunction) { try { const { title, message, targetUserId } = req.body; if (!title?.trim() || !message?.trim()) throw new BadRequestError('Title and message are required'); sendCreated(res, await adminService.sendNotification({ title: title.trim(), message: message.trim(), targetUserId: targetUserId || null, readBy: [] })); } catch (e) { next(e); } },
+  async sendNotification(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { title, message, targetUserId, targetUserIds } = req.body;
+      if (!title?.trim() || !message?.trim()) throw new BadRequestError('Title and message are required');
+      sendCreated(res, await adminService.sendNotification({
+        title: title.trim(),
+        message: message.trim(),
+        targetUserId: targetUserId?.trim() || null,
+        targetUserIds: Array.isArray(targetUserIds) ? targetUserIds : undefined,
+        readBy: [],
+        clearedBy: [],
+      }));
+    } catch (e) { next(e); }
+  },
   async deleteNotification(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deleteNotification(req.params.id)); } catch (e) { next(e); } },
+  async readNotification(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (req.user?.userType === 'admin') {
+        throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+      }
+      sendSuccess(res, await adminService.readNotification(req.params.id, req.user!.userId));
+    } catch (e) { next(e); }
+  },
+  async readAllNotifications(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (req.user?.userType === 'admin') {
+        throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+      }
+      sendSuccess(res, await adminService.readAllNotifications(req.user!.userId));
+    } catch (e) { next(e); }
+  },
+  async clearNotification(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (req.user?.userType === 'admin') {
+        throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+      }
+      sendSuccess(res, await adminService.clearNotification(req.params.id, req.user!.userId));
+    } catch (e) { next(e); }
+  },
+  async clearAllNotifications(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (req.user?.userType === 'admin') {
+        throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+      }
+      sendSuccess(res, await adminService.clearAllNotifications(req.user!.userId));
+    } catch (e) { next(e); }
+  },
+  async deleteOrClearNotification(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (req.user?.userType === 'admin') {
+        sendSuccess(res, await adminService.deleteNotification(req.params.id));
+      } else {
+        sendSuccess(res, await adminService.clearNotification(req.params.id, req.user!.userId));
+      }
+    } catch (e) { next(e); }
+  },
   async deleteContact(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.deleteContact(req.params.id)); } catch (e) { next(e); } },
   async resolveContact(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.resolveContact(req.params.id, Boolean(req.body.is_resolved))); } catch (e) { next(e); } },
   async users(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.users()); } catch (e) { next(e); } },
