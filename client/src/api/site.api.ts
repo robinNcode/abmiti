@@ -13,7 +13,8 @@ export const siteApi = {
   startPayment: (plan: string) => apiClient.post<{ data: { redirectUrl: string } }>('/payments/start', { plan }).then((r) => r.data.data),
 
   // ── Admin-only ──────────────────────────────────────────────
-  contacts: () => apiClient.get<{ data: any[] }>('/contacts').then((r) => r.data.data),
+  contacts: (page = 1, limit = 50) => apiClient.get<{ data: { data: any[]; total: number; page: number; limit: number } }>(`/contacts?page=${page}&limit=${limit}`).then((r) => r.data.data),
+  resolveContact: (id: string, is_resolved: boolean) => apiClient.put(`/contacts/${id}/resolve`, { is_resolved }).then((r) => r.data.data),
   deleteContact: (id: string) => apiClient.delete(`/contacts/${id}`).then((r) => r.data.data),
   posts: () => apiClient.get<{ data: any[] }>('/posts').then((r) => r.data.data),
   uploadPostImage: (file: File) => {

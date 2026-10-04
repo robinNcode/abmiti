@@ -36,7 +36,16 @@ export const adminService = {
     return adminService.publicConfig();
   },
   contact: (data: RecordData) => create(ContactMessage, 'contact_messages', data),
-  contacts: () => all(ContactMessage, 'contact_messages'),
+  contacts: async (page = 1, limit = 50) => {
+    if (env.DB_PROVIDER === 'mongodb') {
+      const data = await ContactMessage.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+      const total = await ContactMessage.countDocuments();
+      return { data, total, page, limit };
+    }
+    const [rows] = await getMySQLPool().query(`SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT ? OFFSET ?`, [String(limit), String((page - 1) * limit)]);
+    const [[{ c: total }]] = await getMySQLPool().query<any[]>(`SELECT COUNT(*) as c FROM contact_messages`);
+    return { data: rows, total: Number(total), page, limit };
+  },
   posts: () => all(BlogPost, 'blog_posts'),
   publicPosts: async () => env.DB_PROVIDER === 'mongodb'
     ? BlogPost.find({ published: true }).sort({ createdAt: -1 })
@@ -69,6 +78,11 @@ export const adminService = {
     if (env.DB_PROVIDER === 'mongodb') return ContactMessage.findByIdAndDelete(id);
     await getMySQLPool().execute('DELETE FROM contact_messages WHERE id=?', [id]);
     return { id };
+  },
+  resolveContact: async (id: string, is_resolved: boolean) => {
+    if (env.DB_PROVIDER === 'mongodb') return ContactMessage.findByIdAndUpdate(id, { isResolved: is_resolved }, { new: true });
+    await getMySQLPool().execute('UPDATE contact_messages SET is_resolved=? WHERE id=?', [is_resolved ? 1 : 0, id]);
+    return { id, is_resolved };
   },
   notifications: (userId: string) => env.DB_PROVIDER === 'mongodb' ? Notification.find({ $or: [{ targetUserId: userId }, { targetUserId: null }] }).sort({ createdAt: -1 }) : getMySQLPool().execute('SELECT * FROM notifications WHERE target_user_id=? OR target_user_id IS NULL ORDER BY created_at DESC', [userId]).then(([r]) => r),
   allNotifications: () => all(Notification, 'notifications'),
