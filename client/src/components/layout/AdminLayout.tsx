@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { UserAvatar } from '@/components/ui';
+import { NotificationBell } from '@/components/notification/NotificationBell';
 import { cx } from '@/utils';
 
 const ADMIN_NAV = [
@@ -84,6 +85,16 @@ export default function AdminLayout() {
 
       {/* ── Main content ───────────────────────────────────────── */}
       <main className="flex-1 min-w-0 overflow-y-auto md:pb-0 pb-16 flex flex-col">
+        {/* Desktop Top Bar */}
+        <header className="hidden md:flex items-center justify-between px-8 py-3 bg-[#13151c]/80 backdrop-blur-sm border-b border-white/[0.06] sticky top-0 z-20">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-white/40 tracking-wider uppercase">abmiti admin</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+          </div>
+        </header>
+
         {/* Mobile Top Bar */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#13151c] border-b border-white/[0.06] sticky top-0 z-20">
           <div className="flex items-center gap-2">
@@ -93,6 +104,7 @@ export default function AdminLayout() {
             <span className="font-display font-bold text-sm text-white">Admin</span>
           </div>
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <button onClick={handleLogout}
               className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-white/40 hover:text-white transition-colors">
               <LogOut size={14} />

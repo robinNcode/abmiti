@@ -9,6 +9,10 @@ export const siteApi = {
 
   // ── Auth-required (user or admin) ───────────────────────────
   notifications: () => apiClient.get<{ data: any[] }>('/notifications').then((r) => r.data.data),
+  markNotificationAsRead: (id: string) => apiClient.patch(`/notifications/${id}/read`).then((r) => r.data.data),
+  markAllNotificationsAsRead: () => apiClient.patch('/notifications/read-all').then((r) => r.data.data),
+  clearNotification: (id: string) => apiClient.delete(`/notifications/${id}/clear`).then((r) => r.data.data),
+  clearAllNotifications: () => apiClient.delete('/notifications/clear-all').then((r) => r.data.data),
   subscriptions: () => apiClient.get<{ data: any[] }>('/subscriptions').then((r) => r.data.data),
   startPayment: (plan: string) => apiClient.post<{ data: { redirectUrl: string } }>('/payments/start', { plan }).then((r) => r.data.data),
 

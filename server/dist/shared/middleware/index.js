@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.notFoundHandler = exports.rateLimiter = exports.validate = exports.authenticate = void 0;
+exports.requireAdmin = exports.notFoundHandler = exports.rateLimiter = exports.validate = exports.authenticate = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const express_validator_1 = require("express-validator");
@@ -48,7 +48,7 @@ exports.validate = validate;
 // ── Rate limiter ─────────────────────────────────────────────
 exports.rateLimiter = (0, express_rate_limit_1.default)({
     windowMs: env_1.env.RATE_LIMIT_WINDOW_MS,
-    max: env_1.env.RATE_LIMIT_MAX,
+    max: env_1.env.NODE_ENV === 'development' ? 5000 : env_1.env.RATE_LIMIT_MAX,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: 'Too many requests, please try again later.' },
@@ -58,4 +58,10 @@ const notFoundHandler = (req, res) => {
     res.status(404).json({ success: false, message: `Route ${req.method} ${req.path} not found` });
 };
 exports.notFoundHandler = notFoundHandler;
+const requireAdmin = (req, _res, next) => {
+    if (req.user?.userType !== 'admin')
+        throw new errors_1.ForbiddenError('Administrator access required');
+    next();
+};
+exports.requireAdmin = requireAdmin;
 //# sourceMappingURL=index.js.map

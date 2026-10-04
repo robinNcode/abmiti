@@ -5,13 +5,13 @@ import { ContactMessage, BlogPost, SiteConfig, Notification, Payment, Subscripti
 import { BadRequestError } from '../../shared/utils/errors';
 
 type RecordData = Record<string, any>;
-const dbNames: Record<string, string> = { targetUserId: 'target_user_id', readBy: 'read_by', userId: 'user_id', transactionId: 'transaction_id', gatewayData: 'gateway_data', valId: 'gateway_data', thumbnailUrl: 'thumbnail_url' };
+const dbNames: Record<string, string> = { targetUserId: 'target_user_id', readBy: 'read_by', clearedBy: 'cleared_by', userId: 'user_id', transactionId: 'transaction_id', gatewayData: 'gateway_data', valId: 'gateway_data', thumbnailUrl: 'thumbnail_url' };
 const create = async (collection: any, table: string, data: RecordData) => {
   if (env.DB_PROVIDER === 'mongodb') return collection.create(data);
   const cleanData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
-  const row = { id: randomUUID(), ...cleanData };
+  const row: Record<string, any> = { id: randomUUID(), ...cleanData };
   const keys = Object.keys(row).map((k) => dbNames[k] ?? k);
-  const values = Object.keys(row).map((k) => ['readBy', 'gatewayData'].includes(k) ? JSON.stringify(row[k]) : row[k]);
+  const values = Object.keys(row).map((k) => ['readBy', 'clearedBy', 'gatewayData'].includes(k) ? JSON.stringify(row[k]) : row[k]);
   await getMySQLPool().execute(`INSERT INTO ${table} (${keys.join(',')}) VALUES (${keys.map(() => '?').join(',')})`, values);
   return { ...row, created_at: new Date() };
 };
@@ -49,7 +49,7 @@ export const adminService = {
   posts: () => all(BlogPost, 'blog_posts'),
   publicPosts: async () => env.DB_PROVIDER === 'mongodb'
     ? BlogPost.find({ published: true }).sort({ createdAt: -1 })
-    : getMySQLPool().execute('SELECT * FROM blog_posts WHERE published=1 ORDER BY created_at DESC').then(([rows]) => rows.map((r: any) => ({...r, thumbnailUrl: r.thumbnail_url}))),
+    : getMySQLPool().execute<any[]>('SELECT * FROM blog_posts WHERE published=1 ORDER BY created_at DESC').then(([rows]) => rows.map((r: any) => ({...r, thumbnailUrl: r.thumbnail_url}))),
   postBySlug: async (slug: string) => {
     if (!slug) throw new BadRequestError('Slug is required');
     let post: any = null;
@@ -84,9 +84,156 @@ export const adminService = {
     await getMySQLPool().execute('UPDATE contact_messages SET is_resolved=? WHERE id=?', [is_resolved ? 1 : 0, id]);
     return { id, is_resolved };
   },
-  notifications: (userId: string) => env.DB_PROVIDER === 'mongodb' ? Notification.find({ $or: [{ targetUserId: userId }, { targetUserId: null }] }).sort({ createdAt: -1 }) : getMySQLPool().execute('SELECT * FROM notifications WHERE target_user_id=? OR target_user_id IS NULL ORDER BY created_at DESC', [userId]).then(([r]) => r),
-  allNotifications: () => all(Notification, 'notifications'),
-  sendNotification: (data: RecordData) => create(Notification, 'notifications', data),
+  notifications: async (userId: string) => {
+    if (env.DB_PROVIDER === 'mongodb') {
+      const docs = await Notification.find({
+        $and: [
+          { $or: [{ targetUserId: userId }, { targetUserId: null }] },
+          { clearedBy: { $ne: userId } },
+        ],
+      }).sort({ createdAt: -1 });
+      return docs.map((d: any) => ({
+        id: d._id?.toString() ?? d.id,
+        _id: d._id?.toString(),
+        title: d.title,
+        message: d.message,
+        targetUserId: d.targetUserId,
+        readBy: Array.isArray(d.readBy) ? d.readBy : [],
+        clearedBy: Array.isArray(d.clearedBy) ? d.clearedBy : [],
+        createdAt: d.createdAt,
+      }));
+    }
+    const [rows] = await getMySQLPool().execute<any[]>(
+      `SELECT * FROM notifications 
+       WHERE (target_user_id = ? OR target_user_id IS NULL) 
+         AND (cleared_by IS NULL OR NOT JSON_CONTAINS(cleared_by, JSON_QUOTE(?))) 
+       ORDER BY created_at DESC`,
+      [userId, userId]
+    );
+    return rows.map((r) => ({
+      ...r,
+      targetUserId: r.target_user_id,
+      readBy: typeof r.read_by === 'string' ? JSON.parse(r.read_by || '[]') : (r.read_by || []),
+      clearedBy: typeof r.cleared_by === 'string' ? JSON.parse(r.cleared_by || '[]') : (r.cleared_by || []),
+      createdAt: r.created_at,
+    }));
+  },
+  allNotifications: async () => {
+    if (env.DB_PROVIDER === 'mongodb') {
+      const docs = await Notification.find().sort({ createdAt: -1 });
+      return docs.map((d: any) => ({
+        id: d._id?.toString() ?? d.id,
+        _id: d._id?.toString(),
+        title: d.title,
+        message: d.message,
+        targetUserId: d.targetUserId,
+        readBy: Array.isArray(d.readBy) ? d.readBy : [],
+        clearedBy: Array.isArray(d.clearedBy) ? d.clearedBy : [],
+        createdAt: d.createdAt,
+      }));
+    }
+    const [rows] = await getMySQLPool().query<any[]>('SELECT * FROM notifications ORDER BY created_at DESC');
+    return rows.map((r) => ({
+      ...r,
+      targetUserId: r.target_user_id,
+      readBy: typeof r.read_by === 'string' ? JSON.parse(r.read_by || '[]') : (r.read_by || []),
+      clearedBy: typeof r.cleared_by === 'string' ? JSON.parse(r.cleared_by || '[]') : (r.cleared_by || []),
+      createdAt: r.created_at,
+    }));
+  },
+  sendNotification: (data: RecordData) => create(Notification, 'notifications', {
+    ...data,
+    readBy: data.readBy || [],
+    clearedBy: data.clearedBy || [],
+  }),
+  readNotification: async (id: string, userId: string) => {
+    if (env.DB_PROVIDER === 'mongodb') {
+      return Notification.findByIdAndUpdate(
+        id,
+        { $addToSet: { readBy: userId } },
+        { new: true }
+      );
+    }
+    const [rows] = await getMySQLPool().execute<any[]>('SELECT * FROM notifications WHERE id = ? LIMIT 1', [id]);
+    if (!rows.length) throw new BadRequestError('Notification not found');
+    const current = rows[0];
+    let readBy: string[] = typeof current.read_by === 'string' ? JSON.parse(current.read_by || '[]') : (current.read_by || []);
+    if (!Array.isArray(readBy)) readBy = [];
+    if (!readBy.includes(userId)) {
+      readBy.push(userId);
+      await getMySQLPool().execute('UPDATE notifications SET read_by = ? WHERE id = ?', [JSON.stringify(readBy), id]);
+    }
+    return {
+      ...current,
+      targetUserId: current.target_user_id,
+      readBy,
+      clearedBy: typeof current.cleared_by === 'string' ? JSON.parse(current.cleared_by || '[]') : (current.cleared_by || []),
+      createdAt: current.created_at,
+    };
+  },
+  readAllNotifications: async (userId: string) => {
+    if (env.DB_PROVIDER === 'mongodb') {
+      await Notification.updateMany(
+        { $or: [{ targetUserId: userId }, { targetUserId: null }] },
+        { $addToSet: { readBy: userId } }
+      );
+      return { success: true };
+    }
+    const [rows] = await getMySQLPool().execute<any[]>(
+      'SELECT id, read_by FROM notifications WHERE target_user_id = ? OR target_user_id IS NULL',
+      [userId]
+    );
+    for (const row of rows) {
+      let readBy: string[] = typeof row.read_by === 'string' ? JSON.parse(row.read_by || '[]') : (row.read_by || []);
+      if (!Array.isArray(readBy)) readBy = [];
+      if (!readBy.includes(userId)) {
+        readBy.push(userId);
+        await getMySQLPool().execute('UPDATE notifications SET read_by = ? WHERE id = ?', [JSON.stringify(readBy), row.id]);
+      }
+    }
+    return { success: true };
+  },
+  clearNotification: async (id: string, userId: string) => {
+    if (env.DB_PROVIDER === 'mongodb') {
+      return Notification.findByIdAndUpdate(
+        id,
+        { $addToSet: { clearedBy: userId } },
+        { new: true }
+      );
+    }
+    const [rows] = await getMySQLPool().execute<any[]>('SELECT * FROM notifications WHERE id = ? LIMIT 1', [id]);
+    if (!rows.length) throw new BadRequestError('Notification not found');
+    const current = rows[0];
+    let clearedBy: string[] = typeof current.cleared_by === 'string' ? JSON.parse(current.cleared_by || '[]') : (current.cleared_by || []);
+    if (!Array.isArray(clearedBy)) clearedBy = [];
+    if (!clearedBy.includes(userId)) {
+      clearedBy.push(userId);
+      await getMySQLPool().execute('UPDATE notifications SET cleared_by = ? WHERE id = ?', [JSON.stringify(clearedBy), id]);
+    }
+    return { id, cleared: true };
+  },
+  clearAllNotifications: async (userId: string) => {
+    if (env.DB_PROVIDER === 'mongodb') {
+      await Notification.updateMany(
+        { $or: [{ targetUserId: userId }, { targetUserId: null }] },
+        { $addToSet: { clearedBy: userId } }
+      );
+      return { success: true };
+    }
+    const [rows] = await getMySQLPool().execute<any[]>(
+      'SELECT id, cleared_by FROM notifications WHERE target_user_id = ? OR target_user_id IS NULL',
+      [userId]
+    );
+    for (const row of rows) {
+      let clearedBy: string[] = typeof row.cleared_by === 'string' ? JSON.parse(row.cleared_by || '[]') : (row.cleared_by || []);
+      if (!Array.isArray(clearedBy)) clearedBy = [];
+      if (!clearedBy.includes(userId)) {
+        clearedBy.push(userId);
+        await getMySQLPool().execute('UPDATE notifications SET cleared_by = ? WHERE id = ?', [JSON.stringify(clearedBy), row.id]);
+      }
+    }
+    return { success: true };
+  },
   deleteNotification: async (id: string) => {
     if (env.DB_PROVIDER === 'mongodb') return Notification.findByIdAndDelete(id);
     await getMySQLPool().execute('DELETE FROM notifications WHERE id=?', [id]);

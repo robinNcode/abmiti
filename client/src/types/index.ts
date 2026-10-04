@@ -3,6 +3,7 @@ export type PaymentSource = 'bank' | 'bkash' | 'nagad' | 'cash' | 'card' | 'othe
 
 export interface User {
   _id: string;
+  id?: string;
   name: string;
   email: string;
   budget: number;

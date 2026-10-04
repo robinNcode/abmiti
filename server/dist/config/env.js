@@ -8,8 +8,9 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 // Load .env only if it exists. CloudLinux/cPanel environment variables
 // will override values from .env.
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
 dotenv_1.default.config({
-    path: path_1.default.resolve(process.cwd(), '.env'),
+    path: path_1.default.resolve(process.cwd(), envFile),
 });
 /**
  * Returns a required environment variable.
@@ -82,5 +83,13 @@ exports.env = {
     // Rate Limiting
     RATE_LIMIT_WINDOW_MS: Number(optional('RATE_LIMIT_WINDOW_MS', '900000')),
     RATE_LIMIT_MAX: Number(optional('RATE_LIMIT_MAX', '100')),
+    // Google OAuth 2.0
+    GOOGLE_CLIENT_ID: optional('GOOGLE_CLIENT_ID'),
+    GOOGLE_CLIENT_SECRET: optional('GOOGLE_CLIENT_SECRET'),
+    GOOGLE_CALLBACK_URL: optional('GOOGLE_CALLBACK_URL', 'http://localhost:5000/api/v1/auth/google/callback'),
+    GOOGLE_FRONTEND_CALLBACK_URL: optional('GOOGLE_FRONTEND_CALLBACK_URL', 'http://localhost:5173/abmiti/auth/google/callback'),
+    SSLCOMMERZ_STORE_ID: optional('SSLCOMMERZ_STORE_ID'),
+    SSLCOMMERZ_STORE_PASSWORD: optional('SSLCOMMERZ_STORE_PASSWORD'),
+    SSLCOMMERZ_SANDBOX: optional('SSLCOMMERZ_SANDBOX', 'true') === 'true',
 };
 //# sourceMappingURL=env.js.map

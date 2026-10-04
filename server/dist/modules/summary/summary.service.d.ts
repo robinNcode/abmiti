@@ -70,6 +70,46 @@ export declare const summaryService: {
         expense: number;
         overBudget: number;
     }[]>;
+    categoryReport(userId: string, filters: {
+        startDate: Date;
+        endDate: Date;
+        categoryIds?: string[];
+        minAmount?: number;
+        maxAmount?: number;
+        type?: "income" | "expense" | "investment" | "savings" | "payable" | "receivable";
+    }): Promise<{
+        category: {
+            _id: string;
+            name: string;
+            icon: string;
+            color: string;
+        };
+        total: number;
+        count: number;
+        avgAmount: number;
+        minAmount: number;
+        maxAmount: number;
+    }[]>;
+    transactionStatement(userId: string, filters: {
+        startDate: Date;
+        endDate: Date;
+        categoryIds?: string[];
+        type?: "income" | "expense" | "investment" | "savings" | "payable" | "receivable";
+    }): Promise<{
+        _id: string;
+        date: Date;
+        type: import("../../shared/types").EntryType;
+        amount: number;
+        note: string;
+        category: {
+            _id: string;
+            name: string;
+            icon: string;
+            color: string;
+        };
+        source: string;
+        runningBalance: number;
+    }[]>;
 };
 export {};
 //# sourceMappingURL=summary.service.d.ts.map

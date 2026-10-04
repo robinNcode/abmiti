@@ -16,5 +16,7 @@ exports.refreshValidator = [
 ];
 exports.updateProfileValidator = [
     (0, express_validator_1.body)('budget').optional().isFloat({ min: 0 }).withMessage('Budget must be a positive number'),
+    (0, express_validator_1.body)('name').optional().trim().isLength({ min: 1, max: 80 }).withMessage('Name must be 1-80 characters'),
+    (0, express_validator_1.body)('avatar').optional().isString().withMessage('Avatar must be a string'),
 ];
 //# sourceMappingURL=auth.validators.js.map

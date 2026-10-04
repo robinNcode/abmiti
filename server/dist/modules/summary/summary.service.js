@@ -135,5 +135,43 @@ exports.summaryService = {
         }
         return warnings;
     },
+    async categoryReport(userId, filters) {
+        const rows = await container_1.container.summaryRepo.getCategoryReport(userId, filters);
+        return rows.map((r) => ({
+            category: r.category
+                ? {
+                    _id: String(r.category._id),
+                    name: r.category.name,
+                    icon: r.category.icon,
+                    color: r.category.color,
+                }
+                : { _id: String(r._id), name: 'Deleted Category', icon: '🗑️', color: '#9ca3af' },
+            total: r.total,
+            count: r.count,
+            avgAmount: r.count > 0 ? parseFloat((r.total / r.count).toFixed(2)) : 0,
+            minAmount: r.minAmount ?? 0,
+            maxAmount: r.maxAmount ?? 0,
+        }));
+    },
+    async transactionStatement(userId, filters) {
+        const rows = await container_1.container.summaryRepo.getTransactionStatement(userId, filters);
+        return rows.map((r) => ({
+            _id: String(r._id),
+            date: r.date,
+            type: r.type,
+            amount: r.amount,
+            note: r.note,
+            category: r.category
+                ? {
+                    _id: String(r.category._id),
+                    name: r.category.name,
+                    icon: r.category.icon,
+                    color: r.category.color,
+                }
+                : { _id: '', name: 'Deleted Category', icon: '🗑️', color: '#9ca3af' },
+            source: r.source,
+            runningBalance: r.runningBalance,
+        }));
+    },
 };
 //# sourceMappingURL=summary.service.js.map

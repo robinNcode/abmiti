@@ -18,6 +18,13 @@ export declare const env: {
     readonly CLIENT_URLS: string[];
     readonly RATE_LIMIT_WINDOW_MS: number;
     readonly RATE_LIMIT_MAX: number;
+    readonly GOOGLE_CLIENT_ID: string;
+    readonly GOOGLE_CLIENT_SECRET: string;
+    readonly GOOGLE_CALLBACK_URL: string;
+    readonly GOOGLE_FRONTEND_CALLBACK_URL: string;
+    readonly SSLCOMMERZ_STORE_ID: string;
+    readonly SSLCOMMERZ_STORE_PASSWORD: string;
+    readonly SSLCOMMERZ_SANDBOX: boolean;
 };
 export {};
 //# sourceMappingURL=env.d.ts.map

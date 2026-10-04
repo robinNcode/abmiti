@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
 import { UserAvatar } from '@/components/ui';
+import { NotificationBell } from '@/components/notification/NotificationBell';
 import { monthLabel } from '@/utils';
 import { cx } from '@/utils';
 
@@ -99,6 +100,26 @@ export default function AppLayout() {
 
       {/* Main */}
       <main className="flex-1 min-w-0 overflow-y-auto md:pb-0 pb-16 flex flex-col">
+        {/* Desktop Top Bar */}
+        <header className="hidden md:flex items-center justify-between px-8 py-3 bg-white/70 backdrop-blur-sm border-b border-paper-mist2 sticky top-0 z-20">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-ink/50 uppercase tracking-wider">abmiti</span>
+            <span className="text-xs text-ink/30">•</span>
+            <span className="text-xs text-ink/50 font-medium">Smart Finance</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <div className="h-4 w-px bg-paper-mist2" />
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 text-xs text-ink/60 hover:text-terra font-medium transition-colors px-2 py-1 rounded-lg hover:bg-paper-mist"
+            >
+              <Languages size={13} />
+              <span>{i18n.language === 'en' ? 'বাংলা' : 'English'}</span>
+            </button>
+          </div>
+        </header>
+
         {/* Mobile Top Bar */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/90 backdrop-blur-sm border-b border-paper-mist2 sticky top-0 z-20">
           <div className="flex items-center gap-3">
@@ -106,8 +127,9 @@ export default function AppLayout() {
             <span className="text-sm font-semibold text-ink min-w-[80px] text-center">{monthLabel(month, year)}</span>
             <button onClick={next} className="w-8 h-8 rounded-full bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors">›</button>
           </div>
-          { /** On hover dropdown with profile and settings */}
+          { /** On hover dropdown with profile, notifications and settings */}
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <button onClick={toggleLanguage}
               className="w-8 h-8 rounded-full bg-terra/10 flex items-center justify-center text-terra font-bold text-sm hover:bg-terra/20 transition-colors">
               {i18n.language === 'en' ? 'BN' : 'EN'}

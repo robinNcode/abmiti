@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { siteApi } from '@/api/site.api';
 import toast from 'react-hot-toast';
-import { Bell, Send, Trash2, Users, User, Plus, X, AlertCircle, Calendar } from 'lucide-react';
+import { Bell, Send, Trash2, Users, User, Plus, X, AlertCircle, Calendar, CheckCheck } from 'lucide-react';
 import { cx } from '@/utils';
 
 export default function AdminNotificationsPage() {
@@ -70,6 +70,7 @@ export default function AdminNotificationsPage() {
             const nid = n._id ?? n.id ?? '';
             const date = n.createdAt ?? n.created_at;
             const target = n.targetUserId ?? n.target_user_id;
+            const readBy = Array.isArray(n.readBy) ? n.readBy : (Array.isArray(n.read_by) ? n.read_by : []);
             return (
               <div key={nid || i} className="admin-card group hover:border-white/[0.1] transition-all">
                 <div className="flex items-start gap-4">
@@ -81,6 +82,10 @@ export default function AdminNotificationsPage() {
                       <h3 className="text-sm font-semibold text-white/70">{n.title}</h3>
                       <span className={cx('admin-badge', target ? 'admin-badge-info' : 'admin-badge-default')}>
                         {target ? <><User size={9} /> Specific user</> : <><Users size={9} /> All users</>}
+                      </span>
+                      <span className="admin-badge admin-badge-default text-[10px] flex items-center gap-1">
+                        <CheckCheck size={11} className={readBy.length > 0 ? "text-emerald-400" : "text-white/20"} />
+                        <span>Read by {readBy.length}</span>
                       </span>
                       {date && (
                         <div className="flex items-center gap-1.5 sm:ml-auto">

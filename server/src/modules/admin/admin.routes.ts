@@ -25,10 +25,15 @@ router.put('/posts', authenticate, requireAdmin, adminController.savePost);
 router.delete('/posts/:id', authenticate, requireAdmin, adminController.deletePost);
 router.put('/config', authenticate, requireAdmin, adminController.saveConfig);
 router.post('/notifications', authenticate, requireAdmin, adminController.sendNotification);
-router.delete('/notifications/:id', authenticate, requireAdmin, adminController.deleteNotification);
+router.delete('/admin/notifications/:id', authenticate, requireAdmin, adminController.deleteNotification);
 
 // ── Authenticated (user or admin) ─────────────────────────────
 router.get('/notifications', authenticate, adminController.notifications);
+router.patch('/notifications/read-all', authenticate, adminController.readAllNotifications);
+router.patch('/notifications/:id/read', authenticate, adminController.readNotification);
+router.delete('/notifications/clear-all', authenticate, adminController.clearAllNotifications);
+router.delete('/notifications/:id/clear', authenticate, adminController.clearNotification);
+router.delete('/notifications/:id', authenticate, adminController.deleteOrClearNotification);
 router.get('/subscriptions', authenticate, adminController.subscriptions);
 router.post('/payments/start', authenticate, adminController.startPayment);
 

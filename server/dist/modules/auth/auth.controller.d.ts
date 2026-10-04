@@ -5,5 +5,7 @@ export declare const authController: {
     updateMe(req: Request, res: Response, next: NextFunction): Promise<void>;
     refresh(req: Request, res: Response, next: NextFunction): Promise<void>;
     me(req: Request, res: Response, next: NextFunction): Promise<void>;
+    googleAuth(req: Request, res: Response, next: NextFunction): Promise<void>;
+    googleCallback(req: Request, res: Response, next: NextFunction): Promise<void>;
 };
 //# sourceMappingURL=auth.controller.d.ts.map

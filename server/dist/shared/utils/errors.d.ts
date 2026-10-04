@@ -19,4 +19,7 @@ export declare class ValidationError extends AppError {
 export declare class ConflictError extends AppError {
     constructor(message: string);
 }
+export declare class BadRequestError extends AppError {
+    constructor(message: string);
+}
 //# sourceMappingURL=errors.d.ts.map
