@@ -42,7 +42,7 @@ export const adminService = {
       const total = await ContactMessage.countDocuments();
       return { data, total, page, limit };
     }
-    const [rows] = await getMySQLPool().query(`SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT ? OFFSET ?`, [String(limit), String((page - 1) * limit)]);
+    const [rows] = await getMySQLPool().query(`SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT ? OFFSET ?`, [limit, (page - 1) * limit]);
     const [[{ c: total }]] = await getMySQLPool().query<any[]>(`SELECT COUNT(*) as c FROM contact_messages`);
     return { data: rows, total: Number(total), page, limit };
   },
