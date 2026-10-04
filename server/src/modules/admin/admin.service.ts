@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { env } from '../../config/env';
 import { getMySQLPool } from '../../infrastructure/database/mysql/connection';
 import { ContactMessage, BlogPost, SiteConfig, Notification, Payment, Subscription } from './admin.model';
-import { BadRequestError } from '../../shared/utils/errors';
+import { BadRequestError, ForbiddenError } from '../../shared/utils/errors';
 
 type RecordData = Record<string, any>;
 const dbNames: Record<string, string> = { targetUserId: 'target_user_id', readBy: 'read_by', clearedBy: 'cleared_by', userId: 'user_id', transactionId: 'transaction_id', gatewayData: 'gateway_data', valId: 'gateway_data', thumbnailUrl: 'thumbnail_url' };
@@ -84,8 +84,48 @@ export const adminService = {
     await getMySQLPool().execute('UPDATE contact_messages SET is_resolved=? WHERE id=?', [is_resolved ? 1 : 0, id]);
     return { id, is_resolved };
   },
+  isUserAdmin: async (userId: string): Promise<boolean> => {
+    if (!userId) return false;
+    if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      const user = await User.findById(userId);
+      return user?.userType === 'admin';
+    }
+    const [rows] = await getMySQLPool().execute<any[]>(
+      'SELECT user_type FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    );
+    return rows.length > 0 && rows[0].user_type === 'admin';
+  },
+  filterNonAdminUserIds: async (userIds: string[]): Promise<string[]> => {
+    if (!userIds || userIds.length === 0) return [];
+    if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      const nonAdmins = await User.find(
+        { _id: { $in: userIds }, userType: 'user' },
+        { _id: 1 }
+      );
+      return nonAdmins.map((u: any) => u._id.toString());
+    }
+    const pool = getMySQLPool();
+    const placeholders = userIds.map(() => '?').join(',');
+    const [rows] = await pool.query<any[]>(
+      `SELECT id FROM users WHERE id IN (${placeholders}) AND user_type = 'user'`,
+      userIds
+    );
+    return rows.map((r) => r.id);
+  },
   notifications: async (userId: string) => {
     if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      const user = await User.findById(userId);
+      // Strictly exclude admins from receiving user notifications
+      if (!user || user.userType === 'admin') {
+        return [];
+      }
       const docs = await Notification.find({
         $and: [
           { $or: [{ targetUserId: userId }, { targetUserId: null }] },
@@ -103,12 +143,14 @@ export const adminService = {
         createdAt: d.createdAt,
       }));
     }
+    // MySQL: JOIN with users table and ensure user_type = 'user' at the query level
     const [rows] = await getMySQLPool().execute<any[]>(
-      `SELECT * FROM notifications 
-       WHERE (target_user_id = ? OR target_user_id IS NULL) 
-         AND (cleared_by IS NULL OR NOT JSON_CONTAINS(cleared_by, JSON_QUOTE(?))) 
-       ORDER BY created_at DESC`,
-      [userId, userId]
+      `SELECT n.* FROM notifications n
+       JOIN users u ON u.id = ? AND u.user_type = 'user'
+       WHERE (n.target_user_id = ? OR n.target_user_id IS NULL) 
+         AND (n.cleared_by IS NULL OR NOT JSON_CONTAINS(n.cleared_by, JSON_QUOTE(?))) 
+       ORDER BY n.created_at DESC`,
+      [userId, userId, userId]
     );
     return rows.map((r) => ({
       ...r,
@@ -119,34 +161,75 @@ export const adminService = {
     }));
   },
   allNotifications: async () => {
+    // Collect admin IDs to sanitize readBy/clearedBy counts in admin view
+    let adminIds = new Set<string>();
     if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      const admins = await User.find({ userType: 'admin' }, { _id: 1 });
+      adminIds = new Set(admins.map((a: any) => a._id.toString()));
+
       const docs = await Notification.find().sort({ createdAt: -1 });
-      return docs.map((d: any) => ({
-        id: d._id?.toString() ?? d.id,
-        _id: d._id?.toString(),
-        title: d.title,
-        message: d.message,
-        targetUserId: d.targetUserId,
-        readBy: Array.isArray(d.readBy) ? d.readBy : [],
-        clearedBy: Array.isArray(d.clearedBy) ? d.clearedBy : [],
-        createdAt: d.createdAt,
-      }));
+      return docs.map((d: any) => {
+        const rawReadBy = Array.isArray(d.readBy) ? d.readBy : [];
+        const rawClearedBy = Array.isArray(d.clearedBy) ? d.clearedBy : [];
+        return {
+          id: d._id?.toString() ?? d.id,
+          _id: d._id?.toString(),
+          title: d.title,
+          message: d.message,
+          targetUserId: d.targetUserId,
+          readBy: rawReadBy.filter((id: string) => !adminIds.has(id)),
+          clearedBy: rawClearedBy.filter((id: string) => !adminIds.has(id)),
+          createdAt: d.createdAt,
+        };
+      });
     }
+
+    const [admins] = await getMySQLPool().query<any[]>("SELECT id FROM users WHERE user_type = 'admin'");
+    adminIds = new Set(admins.map((a) => a.id));
+
     const [rows] = await getMySQLPool().query<any[]>('SELECT * FROM notifications ORDER BY created_at DESC');
-    return rows.map((r) => ({
-      ...r,
-      targetUserId: r.target_user_id,
-      readBy: typeof r.read_by === 'string' ? JSON.parse(r.read_by || '[]') : (r.read_by || []),
-      clearedBy: typeof r.cleared_by === 'string' ? JSON.parse(r.cleared_by || '[]') : (r.cleared_by || []),
-      createdAt: r.created_at,
-    }));
+    return rows.map((r) => {
+      const rawReadBy = typeof r.read_by === 'string' ? JSON.parse(r.read_by || '[]') : (r.read_by || []);
+      const rawClearedBy = typeof r.cleared_by === 'string' ? JSON.parse(r.cleared_by || '[]') : (r.cleared_by || []);
+      return {
+        ...r,
+        targetUserId: r.target_user_id,
+        readBy: (Array.isArray(rawReadBy) ? rawReadBy : []).filter((id: string) => !adminIds.has(id)),
+        clearedBy: (Array.isArray(rawClearedBy) ? rawClearedBy : []).filter((id: string) => !adminIds.has(id)),
+        createdAt: r.created_at,
+      };
+    });
   },
-  sendNotification: (data: RecordData) => create(Notification, 'notifications', {
-    ...data,
-    readBy: data.readBy || [],
-    clearedBy: data.clearedBy || [],
-  }),
+  sendNotification: async (data: RecordData) => {
+    // Validate target user if specified - ensure target is NOT an admin
+    if (data.targetUserId) {
+      const isTargetAdmin = await adminService.isUserAdmin(data.targetUserId);
+      if (isTargetAdmin) {
+        throw new BadRequestError('Admin accounts cannot be targeted for user notifications');
+      }
+    }
+    // If bulk targetUserIds are passed, filter out any admin IDs
+    if (Array.isArray(data.targetUserIds)) {
+      data.targetUserIds = await adminService.filterNonAdminUserIds(data.targetUserIds);
+    }
+
+    return create(Notification, 'notifications', {
+      title: data.title,
+      message: data.message,
+      targetUserId: data.targetUserId || null,
+      readBy: [],
+      clearedBy: [],
+    });
+  },
   readNotification: async (id: string, userId: string) => {
+    // Admin accounts cannot be recorded as recipients of user notifications
+    const isAdmin = await adminService.isUserAdmin(userId);
+    if (isAdmin) {
+      throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+    }
+
     if (env.DB_PROVIDER === 'mongodb') {
       return Notification.findByIdAndUpdate(
         id,
@@ -172,6 +255,11 @@ export const adminService = {
     };
   },
   readAllNotifications: async (userId: string) => {
+    const isAdmin = await adminService.isUserAdmin(userId);
+    if (isAdmin) {
+      throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+    }
+
     if (env.DB_PROVIDER === 'mongodb') {
       await Notification.updateMany(
         { $or: [{ targetUserId: userId }, { targetUserId: null }] },
@@ -194,6 +282,11 @@ export const adminService = {
     return { success: true };
   },
   clearNotification: async (id: string, userId: string) => {
+    const isAdmin = await adminService.isUserAdmin(userId);
+    if (isAdmin) {
+      throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+    }
+
     if (env.DB_PROVIDER === 'mongodb') {
       return Notification.findByIdAndUpdate(
         id,
@@ -213,6 +306,11 @@ export const adminService = {
     return { id, cleared: true };
   },
   clearAllNotifications: async (userId: string) => {
+    const isAdmin = await adminService.isUserAdmin(userId);
+    if (isAdmin) {
+      throw new ForbiddenError('Admin accounts cannot interact with user notifications');
+    }
+
     if (env.DB_PROVIDER === 'mongodb') {
       await Notification.updateMany(
         { $or: [{ targetUserId: userId }, { targetUserId: null }] },
@@ -238,6 +336,176 @@ export const adminService = {
     if (env.DB_PROVIDER === 'mongodb') return Notification.findByIdAndDelete(id);
     await getMySQLPool().execute('DELETE FROM notifications WHERE id=?', [id]);
     return { id };
+  },
+
+  // ── Admin: Date-wise Notification Report ───────────────────────
+  notificationReport: async (startDate?: string, endDate?: string) => {
+    let regularUsersCount = 0;
+    let adminIds = new Set<string>();
+
+    if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      regularUsersCount = await User.countDocuments({ userType: 'user' });
+      const admins = await User.find({ userType: 'admin' }, { _id: 1 });
+      adminIds = new Set(admins.map((a: any) => a._id.toString()));
+    } else {
+      const pool = getMySQLPool();
+      const [[u]] = await pool.query<any[]>("SELECT COUNT(*) as c FROM users WHERE user_type = 'user'");
+      regularUsersCount = Number(u?.c ?? 0);
+      const [admins] = await pool.query<any[]>("SELECT id FROM users WHERE user_type = 'admin'");
+      adminIds = new Set(admins.map((a) => a.id));
+    }
+
+    let notificationsList: any[] = [];
+    if (env.DB_PROVIDER === 'mongodb') {
+      const filter: any = {};
+      if (startDate || endDate) {
+        filter.createdAt = {};
+        if (startDate) filter.createdAt.$gte = new Date(startDate);
+        if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          filter.createdAt.$lte = end;
+        }
+      }
+      const docs = await Notification.find(filter).sort({ createdAt: -1 });
+      notificationsList = docs.map((d: any) => ({
+        id: d._id?.toString() ?? d.id,
+        _id: d._id?.toString(),
+        title: d.title,
+        message: d.message,
+        targetUserId: d.targetUserId,
+        readBy: Array.isArray(d.readBy) ? d.readBy : [],
+        clearedBy: Array.isArray(d.clearedBy) ? d.clearedBy : [],
+        createdAt: d.createdAt,
+      }));
+    } else {
+      const pool = getMySQLPool();
+      let query = 'SELECT * FROM notifications';
+      const params: any[] = [];
+      const conditions: string[] = [];
+      if (startDate) {
+        conditions.push('created_at >= ?');
+        params.push(new Date(startDate));
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        conditions.push('created_at <= ?');
+        params.push(end);
+      }
+      if (conditions.length) {
+        query += ' WHERE ' + conditions.join(' AND ');
+      }
+      query += ' ORDER BY created_at DESC';
+      const [rows] = await pool.execute<any[]>(query, params);
+      notificationsList = rows.map((r) => ({
+        id: r.id,
+        _id: r.id,
+        title: r.title,
+        message: r.message,
+        targetUserId: r.target_user_id,
+        readBy: typeof r.read_by === 'string' ? JSON.parse(r.read_by || '[]') : (r.read_by || []),
+        clearedBy: typeof r.cleared_by === 'string' ? JSON.parse(r.cleared_by || '[]') : (r.cleared_by || []),
+        createdAt: r.created_at,
+      }));
+    }
+
+    // Process notifications, ensuring admin users are excluded from eligible recipients and read counts
+    const processedNotifications = notificationsList.map((n) => {
+      const validReadBy = (n.readBy || []).filter((id: string) => !adminIds.has(id));
+      const validClearedBy = (n.clearedBy || []).filter((id: string) => !adminIds.has(id));
+
+      const isBroadcast = !n.targetUserId;
+      // Eligible recipients excludes all admins
+      let eligibleRecipients = isBroadcast ? regularUsersCount : 0;
+      if (!isBroadcast && n.targetUserId) {
+        eligibleRecipients = adminIds.has(n.targetUserId) ? 0 : 1;
+      }
+
+      const readCount = validReadBy.length;
+      const readRate = eligibleRecipients > 0 ? Number(((readCount / eligibleRecipients) * 100).toFixed(1)) : 0;
+      const clearedCount = validClearedBy.length;
+      const dateStr = n.createdAt ? new Date(n.createdAt).toISOString().slice(0, 10) : 'unknown';
+
+      return {
+        id: n.id,
+        _id: n.id,
+        title: n.title,
+        message: n.message,
+        targetUserId: n.targetUserId,
+        targetType: isBroadcast ? 'all_users' : 'specific_user',
+        eligibleRecipients,
+        readCount,
+        readRate,
+        clearedCount,
+        readBy: validReadBy,
+        clearedBy: validClearedBy,
+        date: dateStr,
+        createdAt: n.createdAt,
+      };
+    });
+
+    // Group date-wise
+    const dateMap = new Map<string, {
+      date: string;
+      count: number;
+      totalEligibleRecipients: number;
+      totalReads: number;
+      totalDismissed: number;
+      notifications: any[];
+    }>();
+
+    for (const notif of processedNotifications) {
+      const d = notif.date;
+      if (!dateMap.has(d)) {
+        dateMap.set(d, {
+          date: d,
+          count: 0,
+          totalEligibleRecipients: 0,
+          totalReads: 0,
+          totalDismissed: 0,
+          notifications: [],
+        });
+      }
+      const entry = dateMap.get(d)!;
+      entry.count += 1;
+      entry.totalEligibleRecipients += notif.eligibleRecipients;
+      entry.totalReads += notif.readCount;
+      entry.totalDismissed += notif.clearedCount;
+      entry.notifications.push(notif);
+    }
+
+    const dateWise = Array.from(dateMap.values())
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .map((item) => ({
+        ...item,
+        readRate: item.totalEligibleRecipients > 0
+          ? Number(((item.totalReads / item.totalEligibleRecipients) * 100).toFixed(1))
+          : 0,
+      }));
+
+    const totalSent = processedNotifications.length;
+    const totalEligibleRecipients = processedNotifications.reduce((acc, n) => acc + n.eligibleRecipients, 0);
+    const totalReads = processedNotifications.reduce((acc, n) => acc + n.readCount, 0);
+    const overallReadRate = totalEligibleRecipients > 0
+      ? Number(((totalReads / totalEligibleRecipients) * 100).toFixed(1))
+      : 0;
+    const totalDismissed = processedNotifications.reduce((acc, n) => acc + n.clearedCount, 0);
+
+    return {
+      summary: {
+        totalSent,
+        totalEligibleRecipients,
+        totalReads,
+        overallReadRate,
+        totalDismissed,
+        activeRegularUsers: regularUsersCount,
+      },
+      dateWise,
+      notifications: processedNotifications,
+    };
   },
   paymentByTransaction: (transactionId: string) => env.DB_PROVIDER === 'mongodb' ? Payment.findOne({ transactionId }) : getMySQLPool().execute<any[]>('SELECT * FROM payments WHERE transaction_id=? LIMIT 1', [transactionId]).then(([r]) => r[0] ?? null),
   savePayment: async (data: RecordData) => {

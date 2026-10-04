@@ -15,6 +15,7 @@ router.get('/admin/users', authenticate, requireAdmin, adminController.users);
 router.get('/admin/payments', authenticate, requireAdmin, adminController.allPayments);
 router.get('/admin/subscriptions', authenticate, requireAdmin, adminController.allSubscriptions);
 router.get('/admin/notifications', authenticate, requireAdmin, adminController.allNotifications);
+router.get('/admin/notifications/report', authenticate, requireAdmin, adminController.notificationReport);
 
 router.get('/contacts', authenticate, requireAdmin, adminController.contacts);
 router.delete('/contacts/:id', authenticate, requireAdmin, adminController.deleteContact);

@@ -38,4 +38,11 @@ export const siteApi = {
   adminPayments: () => apiClient.get<{ data: any[] }>('/admin/payments').then((r) => r.data.data),
   adminSubscriptions: () => apiClient.get<{ data: any[] }>('/admin/subscriptions').then((r) => r.data.data),
   adminNotifications: () => apiClient.get<{ data: any[] }>('/admin/notifications').then((r) => r.data.data),
+  notificationReport: (startDate?: string, endDate?: string) => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', startDate);
+    if (endDate) params.set('endDate', endDate);
+    const qs = params.toString();
+    return apiClient.get<{ data: any }>(`/admin/notifications/report${qs ? `?${qs}` : ''}`).then((r) => r.data.data);
+  },
 };
