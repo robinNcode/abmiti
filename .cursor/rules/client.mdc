@@ -1,0 +1,14 @@
+---
+description: React SPA, routing, Query, and i18n conventions
+globs: client/**/*.{ts,tsx,css}
+alwaysApply: false
+---
+
+# Client
+
+- Routes in `src/App.tsx` with `basename="/abmiti"`. Vite `base` is `/abmiti/`.
+- HTTP only through `src/api` and `apiClient` (JWT refresh interceptor).
+- Server state: TanStack Query hooks. Auth/month/budget chrome: Zustand stores.
+- Import via `@/` (see `vite.config.ts`).
+- After mutating entries/budgets, invalidate the same query keys other pages use (`hooks/index.ts`).
+- Verify changed flows in the browser, including shared layout and other routes that read the same store/query.

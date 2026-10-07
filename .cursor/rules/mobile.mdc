@@ -1,0 +1,12 @@
+---
+description: Flutter WebView shell conventions
+globs: mobile/**/*.{dart,kt,swift,xml,gradle,kts,yaml}
+alwaysApply: false
+---
+
+# Mobile
+
+- This app wraps the web SPA. Implement finance UX in `client/`, not in Dart.
+- Keep branded splash, offline screen, back/double-back, and `AbmitiNative` haptics.
+- User-agent should remain identifiable as `AbmitiApp` if server or web checks it.
+- Do not commit `key.properties` or keystores. Update `mobile/README.md` when the JS bridge changes.

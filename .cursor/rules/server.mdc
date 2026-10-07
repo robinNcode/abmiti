@@ -1,0 +1,14 @@
+---
+description: Express API, repositories, and env conventions
+globs: server/**/*.{ts,js,sql}
+alwaysApply: false
+---
+
+# Server
+
+- Feature code lives in `src/modules/<domain>/`. Register routers in `src/routes.ts`.
+- Controllers call services and `sendSuccess` / `sendCreated`. No raw SQL/Mongoose in controllers.
+- Auth: `authenticate`; admin: `requireAdmin`. Validate with `express-validator` + `validate`.
+- New env vars: `src/config/env.ts` and `.env.example` (placeholders only).
+- Schema: add `src/infrastructure/database/mysql/migrations/NNN_*.sql` and keep `schema.sql` in sync when it is the full dump.
+- JSON envelope `{ success, data, message }`. Keep `express.json` limit unless uploads require a dedicated route.
