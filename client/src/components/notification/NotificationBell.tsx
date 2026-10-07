@@ -5,7 +5,13 @@ import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 import { cx } from '@/utils';
 
-export function NotificationBell({ className }: { className?: string }) {
+export function NotificationBell({
+  className,
+  tone = 'light',
+}: {
+  className?: string;
+  tone?: 'light' | 'dark';
+}) {
   const { user } = useAuthStore();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -164,11 +170,17 @@ export function NotificationBell({ className }: { className?: string }) {
           if (!isOpen) fetchNotifications();
         }}
         aria-label="Notifications"
-        className="relative w-8 h-8 rounded-full bg-terra/10 hover:bg-terra/20 text-terra flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-terra/30"
+        className={cx(
+          'relative w-9 h-9 rounded-xl text-terra flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/30',
+          tone === 'dark' ? 'bg-terra/20 hover:bg-terra/30' : 'bg-terra/10 hover:bg-terra/20',
+        )}
       >
-        <Bell size={15} className={unreadCount > 0 ? 'animate-bounce-subtle' : ''} />
+        <Bell size={16} className={unreadCount > 0 ? 'animate-bounce-subtle' : ''} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-terra text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white shadow-sm animate-pulse">
+          <span className={cx(
+            'absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-terra text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm animate-pulse ring-2',
+            tone === 'dark' ? 'ring-[#13151c]' : 'ring-white',
+          )}>
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
