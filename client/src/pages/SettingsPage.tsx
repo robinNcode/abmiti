@@ -1,13 +1,17 @@
 import { useState } from 'react';
-import { Trash2, Edit2, Plus } from 'lucide-react';
+import { Trash2, Edit2, Plus, Wallet } from 'lucide-react';
 import { PageHeader, Modal, Spinner, EmptyState } from '@/components/ui';
 import { useBudgets, useDeleteBudget } from '@/hooks';
 import BudgetForm from '@/components/entry/BudgetForm';
-import { formatBDT, SHORT_MONTHS } from '@/utils';
+import BillingPanel from '@/components/settings/BillingPanel';
+import { cx, formatBDT, SHORT_MONTHS } from '@/utils';
 import { IBudget, IBudgetInput } from '@/types';
 import { t } from 'i18next';
 
+type SettingsTab = 'budgets' | 'billing';
+
 export default function SettingsPage() {
+  const [tab, setTab] = useState<SettingsTab>('budgets');
   const [modalOpen, setModalOpen] = useState(false);
   const [editData, setEditData] = useState<IBudgetInput | undefined>();
   
@@ -30,14 +34,38 @@ export default function SettingsPage() {
         title={t('settings')}
         subtitle="Manage your monthly budgets and preferences"
         action={
-          <button onClick={handleAdd} className="btn-primary text-sm">
-            <Plus size={14} /> Add Budget
-          </button>
+          tab === 'budgets' ? (
+            <button onClick={handleAdd} className="btn-primary text-sm">
+              <Plus size={14} /> Add Budget
+            </button>
+          ) : undefined
         }
       />
 
       <div className="px-4 md:px-8 pb-10">
-        <div className="card p-6 max-w-2xl">
+        {/* Tab Switcher */}
+        <div className="flex gap-2 mb-6">
+          {([
+            { key: 'budgets', label: 'Budgets', icon: null },
+            { key: 'billing', label: 'Billing & Subscriptions', icon: <Wallet size={14} /> },
+          ] as const).map(({ key, label, icon }) => (
+            <button key={key} onClick={() => setTab(key)}
+              className={cx(
+                'px-5 py-2 rounded-xl text-sm font-medium border transition-all inline-flex items-center gap-2',
+                tab === key
+                  ? 'bg-terra text-white border-terra'
+                  : 'border-paper-mist2 text-ink/60 hover:bg-paper-mist',
+              )}>
+              {icon}
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'billing' ? (
+          <BillingPanel />
+        ) : (
+        <div className="card p-6 w-full">
           <h2 className="font-display text-xl font-bold mb-4">Monthly Budgets</h2>
           <p className="text-sm text-ink/50 mb-6">
             Set and manage your budget for each month to track your spending.
@@ -68,6 +96,7 @@ export default function SettingsPage() {
             <EmptyState icon="💰" title="No Budgets" subtitle="Add a monthly budget to track your spending." />
           )}
         </div>
+        )}
       </div>
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editData ? 'Edit Budget' : 'Add Budget'}>
