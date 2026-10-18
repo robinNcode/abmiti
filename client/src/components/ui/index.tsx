@@ -1,4 +1,5 @@
 import { Filter, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { cx } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
@@ -98,7 +99,7 @@ export const Modal = ({ open, onClose, title, children }: {
 }) => {
   const { t } = useTranslation();
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ink/30 backdrop-blur-sm" onClick={onClose} />
       <div className="relative card w-full max-w-md shadow-lift animate-fade-up">
@@ -110,7 +111,8 @@ export const Modal = ({ open, onClose, title, children }: {
         </div>
         <div className="p-6">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

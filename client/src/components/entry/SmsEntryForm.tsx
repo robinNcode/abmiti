@@ -33,6 +33,7 @@ export default function SmsEntryForm({ onSuccess, type }: Props) {
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!newCatName.trim()) return;
     try {
       const newCat = await createCategory.mutateAsync({
