@@ -4,7 +4,7 @@ import { Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { useParseSms, useCreateEntry, useCategories, useCreateCategory } from '@/hooks';
 import { SmsParseResult, PaymentSource, EntryType } from '@/types';
 import { Spinner, Modal } from '@/components/ui';
-import { sourceLabel, cx } from '@/utils';
+import { sourceLabel, cx, categoryTypeForEntry } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
 interface Props { 
@@ -24,7 +24,8 @@ export default function SmsEntryForm({ onSuccess, type }: Props) {
   const parseSms  = useParseSms();
   const createEntry = useCreateEntry();
   const createCategory = useCreateCategory();
-  const { data: categories = [] } = useCategories(type);
+  const categoryType = categoryTypeForEntry(type ?? 'income');
+  const { data: categories = [] } = useCategories(categoryType);
 
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: { sms: '', amount: '', note: '', categoryId: '', date: '', source: 'bank' as PaymentSource },
@@ -38,7 +39,7 @@ export default function SmsEntryForm({ onSuccess, type }: Props) {
         name: newCatName.trim(),
         icon: newCatIcon,
         color: newCatColor,
-        type: (type || 'income') === 'investment' ? 'expense' : (type || 'income') as 'income' | 'expense',
+        type: categoryType,
       });
       setValue('categoryId', newCat._id);
       setShowAddCat(false);

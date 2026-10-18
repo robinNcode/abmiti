@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useCreateEntry, useCategories, useAccounts, useCreateCategory } from '@/hooks';
 import { PaymentSource, EntryType } from '@/types';
 import { Spinner, Modal } from '@/components/ui';
-import { sourceLabel, cx } from '@/utils';
+import { sourceLabel, cx, categoryTypeForEntry } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
 interface Props { 
@@ -28,8 +28,8 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
 
   const createEntry = useCreateEntry();
   const createCategory = useCreateCategory();
-  const categoryType = type === 'investment' ? 'expense' : type;
-  const { data: categories = [] } = useCategories(categoryType as EntryType);
+  const categoryType = categoryTypeForEntry(type);
+  const { data: categories = [] } = useCategories(categoryType);
   const { data: accounts = [] } = useAccounts();
   const selectedCat = watch('categoryId');
 
@@ -41,7 +41,7 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
         name: newCatName.trim(),
         icon: newCatIcon,
         color: newCatColor,
-        type: categoryType as 'income' | 'expense',
+        type: categoryType,
       });
       setValue('categoryId', newCat._id);
       setShowAddCat(false);

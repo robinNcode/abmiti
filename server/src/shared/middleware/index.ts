@@ -5,6 +5,7 @@ import { validationResult } from 'express-validator';
 import { env } from '../../config/env';
 import { ForbiddenError, UnauthorizedError, ValidationError } from '../utils/errors';
 import { JwtPayload } from '../types';
+import { container } from '../../container';
 
 // ── Extend Express Request ───────────────────────────────────
 declare global {
@@ -21,16 +22,33 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction): 
   if (!header?.startsWith('Bearer ')) throw new UnauthorizedError('No token provided');
 
   const token = header.split(' ')[1];
+  let payload: JwtPayload;
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET);
     if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
       throw new UnauthorizedError('Invalid or expired token');
     }
-    req.user = decoded as JwtPayload;
-    next();
+    payload = decoded as JwtPayload;
+    if (typeof payload.userId !== 'string' || !payload.userId) {
+      throw new UnauthorizedError('Invalid or expired token');
+    }
   } catch {
     throw new UnauthorizedError('Invalid or expired token');
   }
+
+  void container.userRepo.findById(payload.userId).then((user) => {
+    if (!user) {
+      next(new UnauthorizedError('User not found'));
+      return;
+    }
+    req.user = {
+      ...payload,
+      userId: String(user._id),
+      email: user.email,
+      userType: user.userType ?? 'user',
+    };
+    next();
+  }).catch(next);
 };
 
 // ── Validation middleware ────────────────────────────────────

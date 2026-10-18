@@ -71,6 +71,9 @@ export const typeColor: Record<EntryType, string> = {
   receivable: 'text-blue-600',
 };
 
+export const categoryTypeForEntry = (type: EntryType): 'income' | 'expense' =>
+  type === 'income' ? 'income' : 'expense';
+
 // ── clsx tiny util ───────────────────────────────────────────
 export const cx = (...classes: (string | undefined | null | false)[]): string =>
   classes.filter(Boolean).join(' ');
