@@ -2,6 +2,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { siteApi } from '@/api/site.api';
 import { Search, Users, Mail, Calendar, ShieldCheck, User } from 'lucide-react';
 import { UserAvatar } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
+import { formatNumber, localizedApiError } from '@/utils';
+import toast from 'react-hot-toast';
 
 interface UserItem {
   id?: string;
@@ -15,6 +18,7 @@ interface UserItem {
 }
 
 export default function AdminUsersPage() {
+  const { t, i18n } = useTranslation();
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -23,9 +27,9 @@ export default function AdminUsersPage() {
     siteApi
       .adminUsers()
       .then(setUsers)
-      .catch(() => {})
+      .catch((error) => toast.error(localizedApiError(error, t, 'Failed to load users')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   const filtered = useMemo(() => {
     if (!search) return users;
@@ -47,8 +51,8 @@ export default function AdminUsersPage() {
     <div className="p-4 md:p-8 max-w-[1400px] mx-auto w-full animate-fade-in">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-white tracking-tight">Users</h1>
-        <p className="text-sm text-white/35 mt-0.5">{users.length} registered users</p>
+        <h1 className="font-display text-2xl font-bold text-white tracking-tight">{t('Users')}</h1>
+        <p className="text-sm text-white/35 mt-0.5">{t('{{total}} registered users', { total: formatNumber(users.length) })}</p>
       </div>
 
       {/* Toolbar */}
@@ -57,7 +61,7 @@ export default function AdminUsersPage() {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
           <input
             type="text"
-            placeholder="Search users by name, email, or role..."
+            placeholder={t('Search users by name, email, or role...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="admin-input pl-9 w-full"
@@ -69,8 +73,8 @@ export default function AdminUsersPage() {
       {filtered.length === 0 ? (
         <div className="admin-card py-16 text-center">
           <Users size={32} className="text-white/10 mx-auto mb-3" />
-          <p className="text-sm font-medium text-white/40">No users found</p>
-          {search && <p className="text-xs text-white/20 mt-1">Try clearing your search query</p>}
+          <p className="text-sm font-medium text-white/40">{t('No users found')}</p>
+          {search && <p className="text-xs text-white/20 mt-1">{t('Try clearing your search query')}</p>}
         </div>
       ) : (
         <div className="admin-card !p-0 overflow-hidden">
@@ -78,10 +82,10 @@ export default function AdminUsersPage() {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-white/[0.06] text-white/35 font-medium uppercase tracking-wider bg-white/[0.02]">
-                  <th className="py-3 px-4">User</th>
-                  <th className="py-3 px-4">Email</th>
-                  <th className="py-3 px-4">Role</th>
-                  <th className="py-3 px-4 text-right">Joined</th>
+                  <th className="py-3 px-4">{t('User')}</th>
+                  <th className="py-3 px-4">{t('Email')}</th>
+                  <th className="py-3 px-4">{t('Role')}</th>
+                  <th className="py-3 px-4 text-right">{t('Joined')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
@@ -95,7 +99,7 @@ export default function AdminUsersPage() {
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <UserAvatar avatar={u.avatar} name={u.name} sizeClassName="w-8 h-8 text-xs" />
-                          <span className="font-semibold text-white/90">{u.name || 'Unnamed User'}</span>
+                          <span className="font-semibold text-white/90">{u.name || t('Unnamed User')}</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-white/50">
@@ -113,13 +117,13 @@ export default function AdminUsersPage() {
                           }`}
                         >
                           {isAdmin ? <ShieldCheck size={10} /> : <User size={10} />}
-                          {role}
+                          {isAdmin ? t('Admin') : t('User')}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right text-white/35">
                         <div className="flex items-center justify-end gap-1.5">
                           <Calendar size={12} className="text-white/20 shrink-0" />
-                          <span>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</span>
+                          <span>{u.createdAt ? new Date(u.createdAt).toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-BD') : t('N/A')}</span>
                         </div>
                       </td>
                     </tr>

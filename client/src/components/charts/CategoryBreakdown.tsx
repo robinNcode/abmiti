@@ -1,8 +1,10 @@
 import { useCategoryBreakdown } from '@/hooks';
 import { formatBDT } from '@/utils';
 import { Spinner } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 
 export default function CategoryBreakdown() {
+  const { t } = useTranslation();
   const { data = [], isLoading } = useCategoryBreakdown();
 
   if (isLoading) return (
@@ -10,7 +12,7 @@ export default function CategoryBreakdown() {
   );
 
   if (!data.length) return (
-    <p className="text-xs text-ink/30 italic text-center py-6">No expenses this month</p>
+    <p className="text-xs text-ink/30 italic text-center py-6">{t('No expenses this month')}</p>
   );
 
   return (

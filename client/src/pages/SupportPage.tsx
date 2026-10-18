@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { siteApi } from '@/api/site.api';
 import { PageHeader, EmptyState, Spinner } from '@/components/ui';
-import { cx } from '@/utils';
+import { cx, localizedApiError } from '@/utils';
 
 type PlanId = 'coffee' | 'monthly' | 'annual';
 
@@ -66,7 +66,7 @@ function statusBadge(status: string) {
 }
 
 export default function SupportPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<PlanId | null>(null);
@@ -74,7 +74,7 @@ export default function SupportPage() {
   useEffect(() => {
     siteApi.subscriptions()
       .then((data) => setSubscriptions(Array.isArray(data) ? data : []))
-      .catch(() => {})
+      .catch((error) => toast.error(localizedApiError(error, t, 'Failed to load subscriptions')))
       .finally(() => setLoading(false));
 
     const status = new URLSearchParams(window.location.search).get('payment');
@@ -88,8 +88,7 @@ export default function SupportPage() {
       const { redirectUrl } = await siteApi.startPayment(plan);
       window.location.assign(redirectUrl);
     } catch (e: unknown) {
-      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? t('paymentStartError'));
+      toast.error(localizedApiError(e, t, 'paymentStartError'));
       setPaying(null);
     }
   };
@@ -208,15 +207,15 @@ export default function SupportPage() {
                       <Calendar size={18} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-ink capitalize">{s.plan}</p>
+                      <p className="font-semibold text-ink capitalize">{t(s.plan === 'annual' ? 'Yearly' : s.plan === 'monthly' ? 'Monthly' : s.plan)}</p>
                       {expires && (
                         <p className="text-xs text-ink/45 mt-0.5">
-                          {t('expiresOn')} {new Date(expires).toLocaleDateString()}
+                          {t('expiresOn')} {new Date(expires).toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-BD')}
                         </p>
                       )}
                     </div>
                     <span className={cx('self-start sm:self-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide', statusBadge(s.status))}>
-                      {s.status}
+                      {t(s.status === 'active' ? 'Active' : s.status === 'expired' ? 'Expired' : s.status === 'cancelled' ? 'Cancelled' : s.status)}
                     </span>
                   </article>
                 );

@@ -4,6 +4,7 @@ import { siteApi } from '@/api/site.api';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
 import { cx } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 export function NotificationBell({
   className,
@@ -13,6 +14,7 @@ export function NotificationBell({
   tone?: 'light' | 'dark';
 }) {
   const { user } = useAuthStore();
+  const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -86,7 +88,7 @@ export function NotificationBell({
         })
       );
     } catch {
-      toast.error('Could not mark notification as read');
+      toast.error(t('Could not mark notification as read'));
     }
   };
 
@@ -106,9 +108,9 @@ export function NotificationBell({
           return { ...n, readBy: currentRead, read_by: currentRead };
         })
       );
-      toast.success('All marked as read');
+      toast.success(t('All marked as read'));
     } catch {
-      toast.error('Failed to mark all as read');
+      toast.error(t('Failed to mark all as read'));
     } finally {
       setLoading(false);
     }
@@ -119,22 +121,22 @@ export function NotificationBell({
     try {
       await siteApi.clearNotification(id);
       setNotifications((prev) => prev.filter((n) => (n.id ?? n._id) !== id));
-      toast.success('Notification cleared');
+      toast.success(t('Notification cleared'));
     } catch {
-      toast.error('Could not clear notification');
+      toast.error(t('Could not clear notification'));
     }
   };
 
   const handleClearAll = async () => {
     if (notifications.length === 0) return;
-    if (!window.confirm('Clear all notifications?')) return;
+    if (!window.confirm(t('Clear all notifications?'))) return;
     setLoading(true);
     try {
       await siteApi.clearAllNotifications();
       setNotifications([]);
-      toast.success('All notifications cleared');
+      toast.success(t('All notifications cleared'));
     } catch {
-      toast.error('Could not clear notifications');
+      toast.error(t('Could not clear notifications'));
     } finally {
       setLoading(false);
     }
@@ -154,11 +156,11 @@ export function NotificationBell({
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    if (diffMins < 1) return t('Just now');
+    if (diffMins < 60) return t('{{count}}m ago', { count: diffMins });
+    if (diffHours < 24) return t('{{count}}h ago', { count: diffHours });
+    if (diffDays < 7) return t('{{count}}d ago', { count: diffDays });
+    return date.toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-GB', { day: '2-digit', month: 'short' });
   };
 
   return (
@@ -169,7 +171,7 @@ export function NotificationBell({
           setIsOpen(!isOpen);
           if (!isOpen) fetchNotifications();
         }}
-        aria-label="Notifications"
+        aria-label={t('Notifications')}
         className={cx(
           'relative w-9 h-9 rounded-xl text-terra flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-terra/30',
           tone === 'dark' ? 'bg-terra/20 hover:bg-terra/30' : 'bg-terra/10 hover:bg-terra/20',
@@ -193,10 +195,10 @@ export function NotificationBell({
           <div className="p-4 border-b border-paper-mist2 bg-paper/50">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-base text-ink">Notifications</span>
+                <span className="font-display font-bold text-base text-ink">{t('Notifications')}</span>
                 {unreadCount > 0 && (
                   <span className="px-2 py-0.5 text-[11px] font-semibold bg-terra/10 text-terra rounded-full">
-                    {unreadCount} unread
+                    {t('{{count}} unread', { count: unreadCount })}
                   </span>
                 )}
               </div>
@@ -205,18 +207,18 @@ export function NotificationBell({
                   <button
                     onClick={handleMarkAllAsRead}
                     disabled={loading}
-                    title="Mark all as read"
+                    title={t('Mark all as read')}
                     className="p-1.5 text-xs text-ink/60 hover:text-terra hover:bg-paper-mist rounded-lg transition-colors flex items-center gap-1"
                   >
                     <CheckCheck size={14} />
-                    <span className="hidden sm:inline text-[11px]">Mark all read</span>
+                    <span className="hidden sm:inline text-[11px]">{t('Mark all read')}</span>
                   </button>
                 )}
                 {notifications.length > 0 && (
                   <button
                     onClick={handleClearAll}
                     disabled={loading}
-                    title="Clear all"
+                    title={t('Clear all')}
                     className="p-1.5 text-xs text-ink/40 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     <Trash2 size={14} />
@@ -242,7 +244,7 @@ export function NotificationBell({
                     : 'text-ink/60 hover:text-ink hover:bg-paper-mist'
                 )}
               >
-                All ({notifications.length})
+                {t('All ({{count}})', { count: notifications.length })}
               </button>
               <button
                 onClick={() => setFilter('unread')}
@@ -253,7 +255,7 @@ export function NotificationBell({
                     : 'text-ink/60 hover:text-ink hover:bg-paper-mist'
                 )}
               >
-                Unread ({unreadCount})
+                {t('Unread ({{count}})', { count: unreadCount })}
               </button>
             </div>
           </div>
@@ -266,10 +268,10 @@ export function NotificationBell({
                   <Bell size={20} />
                 </div>
                 <p className="text-sm font-semibold text-ink/70">
-                  {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
+                  {filter === 'unread' ? t('No unread notifications') : t('No notifications yet')}
                 </p>
                 <p className="text-xs text-ink/40 mt-1">
-                  {filter === 'unread' ? "You're all caught up!" : 'When you receive updates, they will appear here.'}
+                  {filter === 'unread' ? t("You're all caught up!") : t('When you receive updates, they will appear here.')}
                 </p>
               </div>
             ) : (
@@ -335,7 +337,7 @@ export function NotificationBell({
                               className="text-[11px] font-medium text-terra hover:underline flex items-center gap-1"
                             >
                               <Check size={12} />
-                              Mark read
+                              {t('Mark as read')}
                             </button>
                           )}
                           <button
@@ -343,7 +345,7 @@ export function NotificationBell({
                             className="text-[11px] font-medium text-ink/40 hover:text-red-500 flex items-center gap-1"
                           >
                             <Trash2 size={12} />
-                            Clear
+                            {t('Clear')}
                           </button>
                         </div>
                       </div>
@@ -358,7 +360,9 @@ export function NotificationBell({
           {notifications.length > 0 && (
             <div className="p-2.5 bg-paper-mist/40 border-t border-paper-mist2 text-center">
               <span className="text-[11px] text-ink/40">
-                {unreadCount > 0 ? `${unreadCount} unread message${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
+                {unreadCount > 0
+                  ? t(unreadCount === 1 ? '{{count}} unread message' : '{{count}} unread messages', { count: unreadCount })
+                  : t('All caught up')}
               </span>
             </div>
           )}

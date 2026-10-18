@@ -27,7 +27,7 @@ interface TransactionStatementItem {
 }
 
 export default function TransactionStatementPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showFilters, setShowFilters] = useState(true);
   const [filters, setFilters] = useState<TransactionStatementFilters>({
     startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
@@ -80,10 +80,10 @@ export default function TransactionStatementPage() {
   const exportToCSV = () => {
     if (!statementData?.length) return;
 
-    const headers = ['Date', 'Type', 'Category', 'Note', 'Source', 'Amount', 'Balance'];
+    const headers = [t('Date'), t('Type'), t('Category'), t('Note'), t('Source'), t('Amount'), t('Balance')];
     const rows = statementData.map(item => [
       formatDate(item.date),
-      item.type,
+      t(item.type),
       item.category.name,
       item.note,
       item.source,
@@ -111,11 +111,11 @@ export default function TransactionStatementPage() {
   return (
     <div className="min-h-full">
       <PageHeader
-        title={t('TransactionStatement') || 'Transaction Statement'}
-        subtitle={t('statementSubtitle') || 'Bank statement-style report with running balance'}
+        title={t('Transaction Statement')}
+        subtitle={t('statementSubtitle')}
         action={
           <button onClick={() => setShowFilters(!showFilters)} className="btn-primary text-sm">
-            <Filter size={14} /> {showFilters ? 'Hide' : 'Show'} {t('Filters') || 'Filters'}
+            <Filter size={14} /> {showFilters ? t('Hide') : t('Show')} {t('Filters')}
           </button>
         }
       />
@@ -125,8 +125,8 @@ export default function TransactionStatementPage() {
         {showFilters && (
           <div className="card p-6 animate-fade-in">
             <div className="flex items-center justify-between mb-4">
-              <p className="font-display font-bold text-base">{t('Filters') || 'Filters'}</p>
-              <button onClick={() => setShowFilters(false)} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors">
+              <p className="font-display font-bold text-base">{t('Filters')}</p>
+              <button onClick={() => setShowFilters(false)} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors" aria-label={t('Close')}>
                 <X size={16} />
               </button>
             </div>
@@ -134,26 +134,26 @@ export default function TransactionStatementPage() {
             <form onSubmit={onApplyFilters} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="label">{t('StartDate') || 'Start Date'}</label>
+                  <label className="label">{t('Start Date')}</label>
                   <input {...register('startDate')} type="date" className="input" required />
                 </div>
                 <div>
-                  <label className="label">{t('EndDate') || 'End Date'}</label>
+                  <label className="label">{t('End Date')}</label>
                   <input {...register('endDate')} type="date" className="input" required />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="label">{t('EntryType') || 'Entry Type'}</label>
+                  <label className="label">{t('Entry Type')}</label>
                   <select {...register('type')} className="input">
-                    <option value="">All Types</option>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                    <option value="investment">Investment</option>
-                    <option value="savings">Savings</option>
-                    <option value="payable">Payable</option>
-                    <option value="receivable">Receivable</option>
+                    <option value="">{t('All Types')}</option>
+                    <option value="income">{t('Income')}</option>
+                    <option value="expense">{t('Expense')}</option>
+                    <option value="investment">{t('Investment')}</option>
+                    <option value="savings">{t('Savings')}</option>
+                    <option value="payable">{t('Payable')}</option>
+                    <option value="receivable">{t('Receivable')}</option>
                   </select>
                 </div>
                 <div>
@@ -165,7 +165,7 @@ export default function TransactionStatementPage() {
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-ink/40 mt-1">Hold Ctrl/Cmd to select multiple</p>
+                  <p className="text-xs text-ink/40 mt-1">{t('Hold Ctrl/Cmd to select multiple')}</p>
                 </div>
               </div>
 
@@ -185,15 +185,15 @@ export default function TransactionStatementPage() {
         {statementData && statementData.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="card p-5 border border-sage/20">
-              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45 mb-2">Current Balance</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45 mb-2">{t('Current Balance')}</p>
               <p className={cx(
                 "font-display text-2xl font-bold",
                 finalBalance >= 0 ? "text-sage" : "text-red-600"
               )}>{formatBDT(finalBalance)}</p>
             </div>
             <div className="card p-5 border border-terra/20">
-              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45 mb-2">Total Transactions</p>
-              <p className="font-display text-2xl font-bold text-terra">{totalTransactions}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45 mb-2">{t('Total Transactions')}</p>
+              <p className="font-display text-2xl font-bold text-terra">{new Intl.NumberFormat(i18n.language === 'bn' ? 'bn-BD' : 'en-BD').format(totalTransactions)}</p>
             </div>
           </div>
         )}
@@ -205,9 +205,9 @@ export default function TransactionStatementPage() {
           ) : statementData && statementData.length > 0 ? (
             <>
               <div className="flex items-center justify-between mb-4">
-                <p className="font-semibold text-sm">{t('Transactions') || 'Transactions'}</p>
+                <p className="font-semibold text-sm">{t('Transactions')}</p>
                 <button onClick={exportToCSV} className="btn-ghost text-xs px-3 py-2">
-                  <Download size={13} /> {t('ExportCSV') || 'Export CSV'}
+                  <Download size={13} /> {t('Export CSV')}
                 </button>
               </div>
 
@@ -215,13 +215,13 @@ export default function TransactionStatementPage() {
                 <table className="w-full text-sm">
                   <thead className="border-b border-paper-mist2">
                     <tr className="text-left">
-                      <th className="pb-3 font-semibold text-ink/70">{t('Date') || 'Date'}</th>
-                      <th className="pb-3 font-semibold text-ink/70 hidden md:table-cell">{t('Type') || 'Type'}</th>
-                      <th className="pb-3 font-semibold text-ink/70">{t('Category') || 'Category'}</th>
-                      <th className="pb-3 font-semibold text-ink/70 hidden lg:table-cell">{t('Note') || 'Note'}</th>
-                      <th className="pb-3 font-semibold text-ink/70 hidden lg:table-cell">{t('Method') || 'Method'}</th>
-                      <th className="pb-3 font-semibold text-ink/70 text-right">{t('Amount') || 'Amount'}</th>
-                      <th className="pb-3 font-semibold text-ink/70 text-right">{t('Balance') || 'Balance'}</th>
+                      <th className="pb-3 font-semibold text-ink/70">                      {t('Date')}</th>
+                      <th className="pb-3 font-semibold text-ink/70 hidden md:table-cell">{t('Type')}</th>
+                      <th className="pb-3 font-semibold text-ink/70">{t('Category')}</th>
+                      <th className="pb-3 font-semibold text-ink/70 hidden lg:table-cell">{t('Note')}</th>
+                      <th className="pb-3 font-semibold text-ink/70 hidden lg:table-cell">{t('Method')}</th>
+                      <th className="pb-3 font-semibold text-ink/70 text-right">{t('Amount')}</th>
+                      <th className="pb-3 font-semibold text-ink/70 text-right">{t('Balance')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -236,7 +236,7 @@ export default function TransactionStatementPage() {
                               "inline-block px-2 py-1 rounded text-xs font-medium capitalize",
                               isCredit ? "bg-sage/10 text-sage" : "bg-red-50 text-red-600"
                             )}>
-                              {item.type}
+                              {t(item.type)}
                             </span>
                           </td>
                           <td className="py-3">
@@ -287,7 +287,7 @@ export default function TransactionStatementPage() {
               </div>
             </>
           ) : (
-            <EmptyState icon="💳" title="No Transactions Found" subtitle="Adjust your filters to see transaction statement data" />
+            <EmptyState icon="💳" title={t('No Transactions Found')} subtitle={t('Adjust your filters to see transaction statement data')} />
           )}
         </div>
       </div>

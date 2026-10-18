@@ -97,7 +97,7 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={prev}
-              aria-label="Previous month"
+              aria-label={t('Previous month')}
               className="w-8 h-8 rounded-xl border border-paper-mist2 hover:bg-paper-mist hover:border-terra/30 flex items-center justify-center text-sm text-ink/60 transition-colors"
             >
               ‹
@@ -108,7 +108,7 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={next}
-              aria-label="Next month"
+              aria-label={t('Next month')}
               className="w-8 h-8 rounded-xl border border-paper-mist2 hover:bg-paper-mist hover:border-terra/30 flex items-center justify-center text-sm text-ink/60 transition-colors"
             >
               ›
@@ -144,7 +144,7 @@ export default function AppLayout() {
                 <button
                   type="button"
                   onClick={prev}
-                  aria-label="Previous month"
+                  aria-label={t('Previous month')}
                   className="w-8 h-8 rounded-xl bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors"
                 >
                   ‹
@@ -155,7 +155,7 @@ export default function AppLayout() {
                 <button
                   type="button"
                   onClick={next}
-                  aria-label="Next month"
+                  aria-label={t('Next month')}
                   className="w-8 h-8 rounded-xl bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors"
                 >
                   ›

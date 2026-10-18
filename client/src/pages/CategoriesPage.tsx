@@ -5,15 +5,15 @@ import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks';
 import { PageHeader, Modal, Spinner, EmptyState } from '@/components/ui';
 import { EntryType } from '@/types';
 import { cx } from '@/utils';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
-const trnsalate = t;
 const ICONS = ['🏠','🍔','🚌','💡','🎓','🏥','🛍️','🎬','✈️','💳','📦','💼','💻','🏪','🎁','💰','💵','🌍','🎯','📱'];
 const COLORS = ['#c2552a','#4a7c59','#d4973e','#2a6dc2','#9b59b6','#e74c3c','#e67e22','#1abc9c','#16a085','#2980b9','#8e44ad','#c0392b'];
 
 interface FormData { name: string; }
 
 export default function CategoriesPage() {
+  const { t } = useTranslation();
   const [modal, setModal]       = useState(false);
   const [tab, setTab]           = useState<EntryType>('expense');
   const [selIcon, setSelIcon]   = useState('📦');
@@ -36,26 +36,26 @@ export default function CategoriesPage() {
   return (
     <div className="min-h-full">
       <PageHeader
-        title={trnsalate('categoriesTitle')}
-        subtitle={trnsalate('categoriesSubtitle')}
+        title={t('categoriesTitle')}
+        subtitle={t('categoriesSubtitle')}
         action={
           <button onClick={() => { reset(); setModal(true); }} className="btn-primary text-sm">
-            <Plus size={14} /> {trnsalate('addCategory')}
+            <Plus size={14} /> {t('addCategory')}
           </button>
         }
       />
 
       <div className="px-4 md:px-8 pb-10 space-y-4">
         <div className="flex gap-2">
-          {(['expense', 'income'] as EntryType[]).map((t) => (
-            <button key={t} onClick={() => setTab(t)}
+          {(['expense', 'income'] as EntryType[]).map((type) => (
+            <button key={type} onClick={() => setTab(type)}
               className={cx(
                 'px-5 py-2 rounded-xl text-sm font-medium border transition-all capitalize',
-                tab === t && t === 'expense' ? 'bg-terra text-white border-terra' :
-                tab === t && t === 'income'  ? 'bg-sage text-white border-sage' :
+                tab === type && type === 'expense' ? 'bg-terra text-white border-terra' :
+                tab === type && type === 'income'  ? 'bg-sage text-white border-sage' :
                 'border-paper-mist2 text-ink/60 hover:bg-paper-mist',
               )}>
-              {t === 'income' ? '↑' : '↓'} {trnsalate(t)}
+              {type === 'income' ? '↑' : '↓'} {t(type)}
             </button>
           ))}
         </div>
@@ -75,11 +75,11 @@ export default function CategoriesPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{cat.name}</p>
                   <p className="text-[10px] text-ink/35 font-medium uppercase tracking-wide mt-0.5">
-                    {cat.isDefault ? 'Default' : 'Custom'}
+                    {cat.isDefault ? t('default') : t('custom')}
                   </p>
                 </div>
                 {!cat.isDefault && (
-                  <button onClick={() => remove.mutate(cat._id)} disabled={remove.isPending}
+                  <button onClick={() => remove.mutate(cat._id)} disabled={remove.isPending} aria-label={t('Delete category')}
                     className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all text-ink/30 shrink-0">
                     <Trash2 size={13} />
                   </button>
@@ -88,23 +88,23 @@ export default function CategoriesPage() {
             ))}
           </div>
         ) : (
-          <EmptyState icon="🏷️" title={trnsalate('noCategories')} subtitle={trnsalate('createCategory')} />
+          <EmptyState icon="🏷️" title={t('noCategories')} subtitle={t('createCategory')} />
         )}
       </div>
 
-      <Modal open={modal} onClose={() => setModal(false)} title={trnsalate('newCategory')}>
+      <Modal open={modal} onClose={() => setModal(false)} title={t('newCategory')}>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="label">{trnsalate('name')} *</label>
-            <input {...register('name', { required: 'Name is required' })}
-              placeholder={`e.g. ${trnsalate('groceries')}`} className="input" autoFocus />
+            <label className="label">{t('name')} *</label>
+            <input {...register('name', { required: t('Name is required') })}
+              placeholder={`${t('e.g.')} ${t('groceries')}`} className="input" autoFocus />
             {errors.name && <p className="text-xs text-terra mt-1">{errors.name.message}</p>}
           </div>
           <div>
-            <label className="label">{trnsalate('icon')}</label>
+            <label className="label">{t('icon')}</label>
             <div className="flex flex-wrap gap-2">
               {ICONS.map((ic) => (
-                <button key={ic} type="button" onClick={() => setSelIcon(ic)}
+              <button key={ic} type="button" onClick={() => setSelIcon(ic)} aria-label={t('Select icon {{icon}}', { icon: ic })}
                   className={cx('w-9 h-9 rounded-xl text-lg transition-all', selIcon === ic ? 'bg-ink text-white scale-105 shadow-sm' : 'bg-paper-mist hover:bg-paper-mist2')}>
                   {ic}
                 </button>
@@ -112,10 +112,10 @@ export default function CategoriesPage() {
             </div>
           </div>
           <div>
-            <label className="label">{trnsalate('color')}</label>
+            <label className="label">{t('color')}</label>
             <div className="flex flex-wrap gap-2">
               {COLORS.map((c) => (
-                <button key={c} type="button" onClick={() => setSelColor(c)}
+                <button key={c} type="button" onClick={() => setSelColor(c)} aria-label={t('Select color {{color}}', { color: c })}
                   className={cx('w-7 h-7 rounded-full transition-all', selColor === c ? 'scale-125 ring-2 ring-offset-2 ring-ink/20' : 'hover:scale-110')}
                   style={{ backgroundColor: c }} />
               ))}
@@ -127,12 +127,12 @@ export default function CategoriesPage() {
               {selIcon}
             </div>
             <div>
-              <p className="text-sm font-semibold">{nameVal || trnsalate('categoryName')}</p>
-              <p className="text-xs text-ink/40 capitalize">{trnsalate(`${tab}Category`)}</p>
+              <p className="text-sm font-semibold">{nameVal || t('categoryName')}</p>
+              <p className="text-xs text-ink/40 capitalize">{t(tab === 'income' ? 'IncomeCategory' : 'ExpenseCategory')}</p>
             </div>
           </div>
           <button type="submit" disabled={create.isPending} className="btn-primary w-full">
-            {create.isPending ? <Spinner /> : <><Plus size={14} /> {trnsalate('createCategory')}</>}
+            {create.isPending ? <Spinner /> : <><Plus size={14} /> {t('createCategory')}</>}
           </button>
         </form>
       </Modal>

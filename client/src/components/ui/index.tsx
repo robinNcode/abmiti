@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { cx } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 // ── Spinner ──────────────────────────────────────────────────
 export const Spinner = ({ className }: { className?: string }) => (
@@ -25,6 +26,7 @@ interface SummaryCardProps {
   sub?: string; accent: 'income' | 'expense' | 'savings'; icon: string;
 }
 export const SummaryCard = ({ label, labelBn, value, sub, accent, icon }: SummaryCardProps) => {
+  const { i18n } = useTranslation();
   const colors = {
     income:  { bg: 'bg-sage/8',   text: 'text-sage',  border: 'border-sage/20'  },
     expense: { bg: 'bg-terra/8',  text: 'text-terra', border: 'border-terra/20' },
@@ -35,8 +37,7 @@ export const SummaryCard = ({ label, labelBn, value, sub, accent, icon }: Summar
     <div className={cx('card p-5 border', colors.border)}>
       <div className="flex items-start justify-between mb-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">{label}</p>
-          <p className="font-bengali text-xs text-ink/30">{labelBn}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">{i18n.language === 'bn' ? labelBn : label}</p>
         </div>
         <div className={cx('w-9 h-9 rounded-xl flex items-center justify-center text-lg', colors.bg)}>
           {icon}
@@ -63,6 +64,7 @@ export const EmptyState = ({ icon, title, subtitle }: {
 export const Modal = ({ open, onClose, title, children }: {
   open: boolean; onClose: () => void; title: string; children: React.ReactNode;
 }) => {
+  const { t } = useTranslation();
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -70,7 +72,7 @@ export const Modal = ({ open, onClose, title, children }: {
       <div className="relative card w-full max-w-md shadow-lift animate-fade-up">
         <div className="flex items-center justify-between px-6 py-4 border-b border-paper-mist2">
           <h2 className="font-display font-bold text-lg">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors" aria-label={t('Close')}>
             <X size={16} />
           </button>
         </div>
@@ -81,12 +83,12 @@ export const Modal = ({ open, onClose, title, children }: {
 };
 
 // ── Entry badge ──────────────────────────────────────────────
-export const TypeBadge = ({ type }: { type: 'income' | 'expense' }) =>
-  type === 'income'
-    ? <span className="badge-income">↑ Income</span>
-    : <span className="badge-expense">↓ Expense</span>;
+export const TypeBadge = ({ type }: { type: 'income' | 'expense' }) => {
+  const { t } = useTranslation();
+  return type === 'income'
+    ? <span className="badge-income">↑ {t('income')}</span>
+    : <span className="badge-expense">↓ {t('expense')}</span>;
+};
 
 export * from './UserAvatar';
 export * from './AdSense';
-
-

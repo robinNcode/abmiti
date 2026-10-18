@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import { authApi } from '@/api/auth.api';
@@ -9,6 +10,7 @@ export default function GoogleAuthCallback() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setTokens, setUser } = useAuthStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleAuth = async () => {
@@ -17,7 +19,7 @@ export default function GoogleAuthCallback() {
       const error = params.get('error');
       
       if (error) {
-        toast.error(error);
+        toast.error(t(error, { defaultValue: t('Authentication failed') }));
         navigate('/login');
         return;
       }
@@ -35,25 +37,25 @@ export default function GoogleAuthCallback() {
           // Fetch user info since we just have the tokens
           const user = await authApi.me();
           setUser(user);
-          toast.success('Successfully logged in with Google');
+          toast.success(t('Successfully logged in with Google'));
           navigate(user.userType === 'admin' ? '/admin' : '/dashboard');
         } catch (err) {
-          toast.error('Failed to retrieve user information');
+          toast.error(t('Failed to retrieve user information'));
           navigate('/login');
         }
       } else {
-        toast.error('Authentication failed: Missing tokens');
+        toast.error(t('Authentication failed: Missing tokens'));
         navigate('/login');
       }
     };
 
     handleAuth();
-  }, [location, navigate, setTokens, setUser]);
+  }, [location, navigate, setTokens, setUser, t]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-up">
       <Spinner className="w-8 h-8 mb-4 text-terra" />
-      <p className="text-ink/60 font-medium">Completing authentication...</p>
+      <p className="text-ink/60 font-medium">{t('Completing authentication...')}</p>
     </div>
   );
 }

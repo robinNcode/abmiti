@@ -7,10 +7,12 @@ import ExpenseForm from '@/components/entry/ExpenseForm';
 import EntryRow from '@/components/entry/EntryRow';
 import CategoryBreakdown from '@/components/charts/CategoryBreakdown';
 import { formatBDT, formatBDTSigned, monthLabel } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 type Tab = 'income' | 'expense';
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const [modal, setModal] = useState<Tab | null>(null);
   const { month, year } = useMonthStore();
 
@@ -27,11 +29,11 @@ export default function DashboardPage() {
     <div className="min-h-full">
       <PageHeader
         title={monthLabel(month, year)}
-        subtitle="Your financial overview"
+        subtitle={t('Your financial overview')}
         action={
           <div className="flex gap-2">
-            <button onClick={() => setModal('income')} className="btn-sage text-sm">↑ Income</button>
-            <button onClick={() => setModal('expense')} className="btn-primary text-sm">↓ Expense</button>
+            <button onClick={() => setModal('income')} className="btn-sage text-sm">↑ {t('income')}</button>
+            <button onClick={() => setModal('expense')} className="btn-primary text-sm">↓ {t('expense')}</button>
           </div>
         }
       />
@@ -41,16 +43,16 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 gap-4">
           {summary && summary.budget > 0 && (
             <div className="card p-6 border-2 border-sage bg-sage/5 col-span-2 md:col-span-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">Remaining Budget</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">{t('Remaining Budget')}</p>
               <p className="font-display text-4xl font-black text-sage mt-3 tracking-tight">{formatBDT(summary.remainingBudget)}</p>
-              <p className="text-xs text-ink/40 mt-2">{summary.budgetUsed}% of budget used</p>
+              <p className="text-xs text-ink/40 mt-2">{summary.budgetUsed}% {t('of budget used')}</p>
             </div>
           )}
           {summary && summary.income > 0 && (
             <div className="card p-6 border-2 border-blue-500 bg-blue-50/50 col-span-2 md:col-span-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">Savings</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">{t('Savings')}</p>
               <p className="font-display text-4xl font-black text-blue-600 mt-3 tracking-tight">{formatBDTSigned(summary.savings)}</p>
-              <p className="text-xs text-ink/40 mt-2">{summary.savingsRate}% savings rate</p>
+              <p className="text-xs text-ink/40 mt-2">{summary.savingsRate}% {t('savings rate')}</p>
             </div>
           )}
         </div>
@@ -63,24 +65,24 @@ export default function DashboardPage() {
           ) : (
             <>
               <SummaryCard
-                label="Income" labelBn="আয়" icon="↑" accent="income"
+                label={t('income')} labelBn="আয়" icon="↑" accent="income"
                 value={formatBDT(summary?.income ?? 0)}
-                sub={`${summary?.incomeCount ?? 0} entries`}
+                sub={`${summary?.incomeCount ?? 0} ${t('entries')}`}
               />
               <SummaryCard
-                label="Expense" labelBn="ব্যয়" icon="↓" accent="expense"
+                label={t('expense')} labelBn="ব্যয়" icon="↓" accent="expense"
                 value={formatBDT(summary?.expense ?? 0)}
-                sub={`${summary?.expenseCount ?? 0} entries`}
+                sub={`${summary?.expenseCount ?? 0} ${t('entries')}`}
               />
               <SummaryCard
-                label="Investment" labelBn="বিনিয়োগ" icon="💼" accent="savings"
+                label={t('investment')} labelBn="বিনিয়োগ" icon="💼" accent="savings"
                 value={formatBDT(summary?.investment ?? 0)}
-                sub={`${summary?.investmentCount ?? 0} entries`}
+                sub={`${summary?.investmentCount ?? 0} ${t('entries')}`}
               />
               <SummaryCard
-                label="Savings" labelBn="মিতি" icon="◈" accent="savings"
+                label={t('savings')} labelBn="মিতি" icon="◈" accent="savings"
                 value={formatBDTSigned(summary?.savings ?? 0)}
-                sub={`${summary?.savingsRate ?? 0}% savings rate`}
+                sub={`${summary?.savingsRate ?? 0}% ${t('savings rate')}`}
               />
             </>
           )}
@@ -90,13 +92,13 @@ export default function DashboardPage() {
         {summary && (summary.income > 0 || summary.budget > 0) && (
           <div className="card p-5">
             <div className="flex justify-between items-center mb-3">
-              <p className="text-sm font-semibold">Monthly Breakdown</p>
+              <p className="text-sm font-semibold">{t('Monthly Breakdown')}</p>
             </div>
             <div className="space-y-2.5">
               {[
-                { label: 'Budget',     value: summary.budget,          max: Math.max(summary.income, summary.budget), color: 'bg-sage/70' },
-                { label: 'Expense',   value: summary.expense,         max: Math.max(summary.income, summary.budget), color: 'bg-terra' },
-                { label: 'Investment', value: summary.investment,      max: Math.max(summary.income, summary.budget), color: 'bg-yellow-500' },
+                { label: t('budget'), value: summary.budget, max: Math.max(summary.income, summary.budget), color: 'bg-sage/70' },
+                { label: t('expense'), value: summary.expense, max: Math.max(summary.income, summary.budget), color: 'bg-terra' },
+                { label: t('investment'), value: summary.investment, max: Math.max(summary.income, summary.budget), color: 'bg-yellow-500' },
               ].map(({ label, value, max, color }) => (
                 <div key={label}>
                   <div className="flex justify-between text-xs mb-1">
@@ -119,8 +121,8 @@ export default function DashboardPage() {
           {/* Recent entries */}
           <div className="lg:col-span-3 card p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="font-display font-bold text-base">Recent Entries</p>
-              <a href="/entries" className="text-xs text-terra font-semibold hover:underline">View all →</a>
+              <p className="font-display font-bold text-base">{t('Recent Entries')}</p>
+              <a href="/entries" className="text-xs text-terra font-semibold hover:underline">{t('View all →')}</a>
             </div>
             {entriesLoading ? (
               <div className="flex justify-center py-8"><Spinner className="text-terra" /></div>
@@ -131,13 +133,13 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <EmptyState icon="📒" title="No entries yet" subtitle="Add your first income or expense" />
+              <EmptyState icon="📒" title={t('No entries yet')} subtitle={t('Add your first income or expense')} />
             )}
           </div>
 
           {/* Category breakdown */}
           <div className="lg:col-span-2 card p-4 md:p-5">
-            <p className="font-display font-bold text-base mb-4">Expenses by Category</p>
+            <p className="font-display font-bold text-base mb-4">{t('Expenses by Category')}</p>
             <CategoryBreakdown />
           </div>
         </div>
@@ -145,8 +147,8 @@ export default function DashboardPage() {
         {budgetSummary && (
           <div className="card p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="font-display font-bold text-base">Budget Health</p>
-              <a href="/budget" className="text-xs text-terra font-semibold hover:underline">Manage →</a>
+              <p className="font-display font-bold text-base">{t('Budget Health')}</p>
+              <a href="/budget" className="text-xs text-terra font-semibold hover:underline">{t('Manage →')}</a>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {healthLines.map((line) => (
@@ -172,10 +174,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
-      <Modal open={modal === 'income'} onClose={() => setModal(null)} title="Add Income — আয়">
+      <Modal open={modal === 'income'} onClose={() => setModal(null)} title={t('addIncomeTitle')}>
         <SmsEntryForm onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title="Add Expense — ব্যয়">
+      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title={t('addExpenseTitle')}>
         <ExpenseForm onSuccess={() => setModal(null)} />
       </Modal>
     </div>

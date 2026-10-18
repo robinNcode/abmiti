@@ -5,6 +5,7 @@ import { getImageUrl } from '@/utils';
 import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useTranslation } from 'react-i18next';
 
 interface Post {
   _id?: string; id?: string;
@@ -19,6 +20,7 @@ function estimateReadTime(content: string): number {
 }
 
 export default function BlogPostPage() {
+  const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,10 +65,10 @@ export default function BlogPostPage() {
         <div className="w-20 h-20 rounded-2xl bg-terra/10 flex items-center justify-center mb-6">
           <span className="text-4xl">📝</span>
         </div>
-        <h1 className="font-display text-3xl font-bold text-ink mb-3">Post Not Found</h1>
-        <p className="text-ink/50 mb-8 max-w-md">The blog post you're looking for doesn't exist or is no longer published.</p>
+        <h1 className="font-display text-3xl font-bold text-ink mb-3">{t('Post Not Found')}</h1>
+        <p className="text-ink/50 mb-8 max-w-md">{t("The blog post you're looking for doesn't exist or is no longer published.")}</p>
         <Link to="/" className="btn-primary px-8 py-3 rounded-2xl">
-          <ArrowLeft size={16} /> Back to Home
+          <ArrowLeft size={16} /> {t('Back to Home')}
         </Link>
       </div>
     </div>
@@ -81,7 +83,7 @@ export default function BlogPostPage() {
           {config.logo ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-10 max-w-40 object-contain" /> : <span className="font-display font-bold text-xl tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
         </Link>
         <Link to="/" className="text-ink/60 hover:text-terra font-medium transition-colors flex items-center gap-2 text-sm">
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={14} /> {t('Back')}
         </Link>
       </nav>
 
@@ -90,7 +92,7 @@ export default function BlogPostPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-terra/5 via-transparent to-mustard/5" />
         <div className="relative max-w-3xl mx-auto px-6 pt-12 pb-16 text-center">
           <Link to="/" className="inline-flex items-center gap-2 text-terra text-sm font-medium mb-6 hover:underline">
-            <ArrowLeft size={14} /> All Posts
+            <ArrowLeft size={14} /> {t('All Posts')}
           </Link>
           <h1 className="font-display text-4xl md:text-5xl font-bold text-ink leading-tight tracking-tight">{post.title}</h1>
           {post.excerpt && (
@@ -100,12 +102,12 @@ export default function BlogPostPage() {
             {created && (
               <span className="flex items-center gap-1.5">
                 <Calendar size={14} />
-                {new Date(created).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                {new Date(created).toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
               </span>
             )}
             <span className="flex items-center gap-1.5">
               <Clock size={14} />
-              {readTime} min read
+              {t('{{count}} min read', { count: readTime })}
             </span>
           </div>
         </div>
@@ -139,7 +141,7 @@ export default function BlogPostPage() {
 
       {/* Footer */}
       <footer className="bg-ink border-t border-white/10 py-8 text-center text-white/40 text-sm">
-        <p>&copy; {new Date().getFullYear()} {config.title || 'Abmiti'}. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} {config.title || 'Abmiti'}. {t('All rights reserved.')}</p>
       </footer>
     </div>
   );

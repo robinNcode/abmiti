@@ -1,12 +1,14 @@
 import { BudgetSummary } from '@/types';
 import { formatBDT } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function BudgetOverview({ summary }: { summary?: BudgetSummary }) {
+  const { t } = useTranslation();
   const cards = [
-    { label: 'Planned', value: summary?.totalPlanned ?? 0, color: 'text-sage' },
-    { label: 'Spent', value: summary?.totalActual ?? 0, color: 'text-terra' },
-    { label: 'Remaining', value: summary?.totalVariance ?? 0, color: (summary?.totalVariance ?? 0) >= 0 ? 'text-sage' : 'text-terra' },
-    { label: 'Allocated', value: `${summary?.allocationPercent ?? 0}%`, color: (summary?.allocationPercent ?? 0) > 100 ? 'text-mustard' : 'text-ink' },
+    { label: t('planned'), value: summary?.totalPlanned ?? 0, color: 'text-sage' },
+    { label: t('spent'), value: summary?.totalActual ?? 0, color: 'text-terra' },
+    { label: t('remaining'), value: summary?.totalVariance ?? 0, color: (summary?.totalVariance ?? 0) >= 0 ? 'text-sage' : 'text-terra' },
+    { label: t('allocated'), value: `${summary?.allocationPercent ?? 0}%`, color: (summary?.allocationPercent ?? 0) > 100 ? 'text-mustard' : 'text-ink' },
   ];
 
   return (

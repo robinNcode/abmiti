@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BudgetLine, BudgetLineInput, Category } from '@/types';
 import BudgetSubItemList from './BudgetSubItemList';
 
@@ -26,6 +27,7 @@ export default function BudgetLineForm({
   onSubmit: (line: BudgetLineInput) => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<BudgetLineInput>(line ? {
     name: line.name,
     icon: line.icon,
@@ -60,42 +62,42 @@ export default function BudgetLineForm({
     >
       <div className="grid grid-cols-[70px_1fr] gap-3">
         <div>
-          <label className="label">Icon</label>
+          <label className="label">{t('icon')}</label>
           <input className="input text-center" value={form.icon} onChange={(event) => setForm({ ...form, icon: event.target.value })} />
         </div>
         <div>
-          <label className="label">Name</label>
+          <label className="label">{t('name')}</label>
           <input className="input" required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="label">Allocation</label>
+          <label className="label">{t('Allocation')}</label>
           <select className="input" value={form.allocationMethod} onChange={(event) => setForm({ ...form, allocationMethod: event.target.value as BudgetLineInput['allocationMethod'] })}>
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed</option>
+            <option value="percentage">{t('Percentage')}</option>
+            <option value="fixed">{t('Fixed')}</option>
           </select>
         </div>
         <div>
-          <label className="label">Value</label>
+          <label className="label">{t('Value')}</label>
           <input className="input" type="number" min={0} step="0.01" value={form.allocationValue} onChange={(event) => setForm({ ...form, allocationValue: Number(event.target.value) })} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="label">Color</label>
+          <label className="label">{t('color')}</label>
           <input className="input h-11" type="color" value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} />
         </div>
         <label className="flex items-end gap-2 text-sm font-semibold pb-3">
           <input type="checkbox" checked={form.isActive} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} />
-          Active
+          {t('active')}
         </label>
       </div>
 
       <div>
-        <p className="label mb-2">Linked expense categories</p>
+        <p className="label mb-2">{t('Linked expense categories')}</p>
         <div className="flex flex-wrap gap-2 max-h-28 overflow-auto">
           {categories.map((category) => (
             <button
@@ -113,13 +115,13 @@ export default function BudgetLineForm({
       <BudgetSubItemList items={form.subItems} onChange={(subItems) => setForm({ ...form, subItems })} />
 
       <div>
-        <label className="label">Note</label>
+        <label className="label">{t('note')}</label>
         <textarea className="input min-h-[70px]" value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
       </div>
 
       <div className="flex justify-end gap-2">
-        <button type="button" onClick={onCancel} className="btn-ghost">Cancel</button>
-        <button type="submit" className="btn-primary">Save</button>
+        <button type="button" onClick={onCancel} className="btn-ghost">{t('cancel')}</button>
+        <button type="submit" className="btn-primary">{t('save')}</button>
       </div>
     </form>
   );

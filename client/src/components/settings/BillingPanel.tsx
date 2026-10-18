@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { addMonths, differenceInCalendarDays, format, parseISO } from 'date-fns';
+import { addMonths, differenceInCalendarDays, parseISO } from 'date-fns';
 import {
   BadgeCheck,
   Calendar,
@@ -14,7 +14,8 @@ import {
   Undo2,
   Wallet,
 } from 'lucide-react';
-import { cx, formatBDT } from '@/utils';
+import { cx, formatBDT, formatNumber } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 // ── Types ────────────────────────────────────────────────────
 type SubStatus = 'active' | 'expiring' | 'expired' | 'cancelled';
@@ -121,7 +122,14 @@ const paymentStatusStyles: Record<PaymentRecord['status'], string> = {
 const DAY_MS = 86_400_000;
 
 export default function BillingPanel() {
+  const { t, i18n } = useTranslation();
   const [historyFilter, setHistoryFilter] = useState<HistoryFilter>('all');
+  const locale = i18n.language === 'bn' ? 'bn-BD' : 'en-BD';
+  const formatLocalDate = (date: Date) => date.toLocaleDateString(locale, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 
   const startsAt = parseISO(subscription.startsAt);
   const expiresAt = parseISO(subscription.expiresAt);
@@ -158,7 +166,7 @@ export default function BillingPanel() {
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-white/70">
-                  Current Plan
+                  {t('Current Plan')}
                 </p>
                 <h2 className="font-display text-2xl font-bold leading-tight">{subscription.plan}</h2>
               </div>
@@ -169,7 +177,7 @@ export default function BillingPanel() {
               )}
             >
               <span className={cx('w-1.5 h-1.5 rounded-full', isActive ? 'bg-white' : 'bg-white/60')} />
-              {badge.label}
+              {t(badge.label)}
             </span>
           </div>
         </div>
@@ -179,19 +187,19 @@ export default function BillingPanel() {
           <div className="flex items-end justify-between mb-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-ink/50">
-                {daysLeft > 0 ? 'Days remaining' : 'Expired on'}
+                {daysLeft > 0 ? t('Days remaining') : t('Expired on')}
               </p>
               <p className="font-display text-3xl font-bold text-ink mt-0.5">
-                {daysLeft > 0 ? daysLeft : format(expiresAt, 'dd MMM yyyy')}
+                {daysLeft > 0 ? formatNumber(daysLeft) : formatLocalDate(expiresAt)}
                 {daysLeft > 0 && (
-                  <span className="text-base font-semibold text-ink/40 ml-1.5">days</span>
+                  <span className="text-base font-semibold text-ink/40 ml-1.5">{t('days')}</span>
                 )}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-ink/50">Renews on</p>
+              <p className="text-xs text-ink/50">{t('Renews on')}</p>
               <p className="font-semibold text-sm text-ink mt-0.5">
-                {format(expiresAt, 'dd MMM yyyy')}
+                {formatLocalDate(expiresAt)}
               </p>
             </div>
           </div>
@@ -207,9 +215,9 @@ export default function BillingPanel() {
             />
           </div>
           <div className="flex justify-between mt-1.5 text-[11px] text-ink/40">
-            <span>Started {format(startsAt, 'dd MMM yyyy')}</span>
-            <span>{progress}% of period used</span>
-            <span>Ends {format(expiresAt, 'dd MMM yyyy')}</span>
+            <span>{t('Started {{date}}', { date: formatLocalDate(startsAt) })}</span>
+            <span>{t('{{progress}}% of period used', { progress: formatNumber(progress) })}</span>
+            <span>{t('Ends {{date}}', { date: formatLocalDate(expiresAt) })}</span>
           </div>
 
           {/* Status banner */}
@@ -217,15 +225,17 @@ export default function BillingPanel() {
             <div className="flex items-start gap-2.5 mt-5 bg-mustard/10 border border-mustard/25 text-mustard-dark rounded-xl px-4 py-3 text-sm">
               <TriangleAlert size={16} className="shrink-0 mt-0.5" />
               <p className="leading-relaxed">
-                Your {subscription.plan} plan expires in <strong>{daysLeft} days</strong>. Renew now to
-                keep premium features uninterrupted.
+                {t('Your {{plan}} plan expires in {{count}} days. Renew now to keep premium features uninterrupted.', {
+                  plan: subscription.plan,
+                  count: formatNumber(daysLeft),
+                })}
               </p>
             </div>
           ) : !isActive ? (
             <div className="flex items-start gap-2.5 mt-5 bg-terra/10 border border-terra/20 text-terra rounded-xl px-4 py-3 text-sm">
               <Clock size={16} className="shrink-0 mt-0.5" />
               <p className="leading-relaxed">
-                This subscription is no longer active. Renew to restore your premium features.
+                {t('This subscription is no longer active. Renew to restore your premium features.')}
               </p>
             </div>
           ) : null}
@@ -234,15 +244,15 @@ export default function BillingPanel() {
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <button className="btn-primary flex-1">
               <RefreshCw size={14} />
-              {isActive ? 'Renew Plan' : 'Reactivate Plan'}
+              {isActive ? t('Renew Plan') : t('Reactivate Plan')}
             </button>
             <button className="btn-ghost flex-1">
               <Sparkles size={14} />
-              Upgrade Plan
+              {t('Upgrade Plan')}
             </button>
             {isActive && (
               <button className="btn-ghost text-terra hover:border-terra/30 hover:bg-terra/5">
-                Cancel
+                {t('Cancel')}
               </button>
             )}
           </div>
@@ -253,22 +263,22 @@ export default function BillingPanel() {
       <div className="card p-6">
         <div className="flex items-center gap-2 mb-5">
           <BadgeCheck size={16} className="text-terra" />
-          <h3 className="font-display font-bold text-lg">Plan Details</h3>
+          <h3 className="font-display font-bold text-lg">{t('Plan Details')}</h3>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: 'Plan',           value: subscription.plan,                          mono: false },
-            { label: 'Status',         value: badge.label,                                mono: false },
-            { label: 'Billing Cycle',  value: subscription.billingCycle === 'yearly' ? 'Yearly' : 'Monthly', mono: false },
-            { label: 'Seats',          value: `${subscription.seats} ${subscription.seats === 1 ? 'user' : 'users'}`, mono: false },
-            { label: 'Started On',     value: format(startsAt, 'dd MMM yyyy'),           mono: false },
-            { label: 'Expires On',     value: format(expiresAt, 'dd MMM yyyy'),           mono: false },
+            { label: 'Plan',           value: t(subscription.plan),                          mono: false },
+            { label: 'Status',         value: t(badge.label),                                mono: false },
+            { label: 'Billing Cycle',  value: t(subscription.billingCycle === 'yearly' ? 'Yearly' : 'Monthly'), mono: false },
+            { label: 'Seats',          value: `${formatNumber(subscription.seats)} ${t(subscription.seats === 1 ? 'user' : 'users')}`, mono: false },
+            { label: 'Started On',     value: formatLocalDate(startsAt),           mono: false },
+            { label: 'Expires On',     value: formatLocalDate(expiresAt),           mono: false },
             { label: 'Amount Paid',    value: formatBDT(subscription.amount),              mono: false },
             { label: 'Transaction ID', value: subscription.transactionId,                 mono: true  },
           ].map((row) => (
             <div key={row.label} className="p-4 bg-paper-mist/60 border border-paper-mist2 rounded-xl">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-ink/45">{row.label}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-ink/45">{t(row.label)}</p>
               <p className={cx(
                 'text-sm font-semibold text-ink mt-1 truncate',
                 row.mono && 'font-mono text-xs',
@@ -282,7 +292,7 @@ export default function BillingPanel() {
         <div className="flex items-center justify-between gap-4 mt-4 px-4 py-3 bg-terra/5 border border-terra/15 rounded-xl">
           <div className="flex items-center gap-2.5 min-w-0">
             <CreditCard size={15} className="text-terra shrink-0" />
-            <span className="text-sm text-ink/70">Total paid for this period</span>
+            <span className="text-sm text-ink/70">{t('Total paid for this period')}</span>
           </div>
           <span className="font-display text-xl font-bold text-terra shrink-0">
             {formatBDT(subscription.amount)}
@@ -295,9 +305,9 @@ export default function BillingPanel() {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Wallet size={16} className="text-terra" />
-            <h3 className="font-display font-bold text-lg">Payment Method</h3>
+            <h3 className="font-display font-bold text-lg">{t('Payment Method')}</h3>
           </div>
-          <button className="text-xs font-semibold text-terra hover:underline">Change</button>
+          <button className="text-xs font-semibold text-terra hover:underline">{t('Change')}</button>
         </div>
 
         <div className="flex items-center gap-4 p-4 bg-paper-mist rounded-xl border border-paper-mist2">
@@ -310,7 +320,7 @@ export default function BillingPanel() {
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-sage/10 text-sage border border-sage/20 px-2.5 py-1 text-[11px] font-semibold shrink-0">
             <CheckCircle2 size={11} />
-            Default
+            {t('Default')}
           </span>
         </div>
 
@@ -319,8 +329,8 @@ export default function BillingPanel() {
             <CreditCard size={18} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm text-ink">Add payment method</p>
-            <p className="text-xs text-ink/50">Card, Nagad or bank transfer</p>
+            <p className="font-semibold text-sm text-ink">{t('Add payment method')}</p>
+            <p className="text-xs text-ink/50">{t('Card, Nagad or bank transfer')}</p>
           </div>
         </div>
       </div>
@@ -330,40 +340,40 @@ export default function BillingPanel() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-5 border-b border-paper-mist2">
           <div className="flex items-center gap-2">
             <Receipt size={16} className="text-terra" />
-            <h3 className="font-display font-bold text-lg">Payment History</h3>
+            <h3 className="font-display font-bold text-lg">{t('Payment History')}</h3>
           </div>
           <button className="text-xs font-semibold text-terra hover:underline self-start sm:self-auto">
-            View all
+            {t('View all')}
           </button>
         </div>
 
         {/* Status Filter Tabs */}
         <div className="px-6 pt-4">
           <div className="flex gap-1 p-1 bg-paper-mist rounded-xl overflow-x-auto">
-            {HISTORY_TABS.map((t) => {
-              const count = t.key === 'all'
+            {HISTORY_TABS.map((tabItem) => {
+              const count = tabItem.key === 'all'
                 ? paymentHistory.length
-                : paymentHistory.filter((p) => p.status === t.key).length;
+                : paymentHistory.filter((p) => p.status === tabItem.key).length;
 
               return (
                 <button
-                  key={t.key}
-                  onClick={() => setHistoryFilter(t.key)}
+                  key={tabItem.key}
+                  onClick={() => setHistoryFilter(tabItem.key)}
                   className={cx(
                     'flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold transition-all',
-                    historyFilter === t.key
+                    historyFilter === tabItem.key
                       ? 'bg-white text-terra shadow-sm'
                       : 'text-ink/50 hover:text-ink',
                   )}
                 >
-                  {t.label}
+                  {t(tabItem.label)}
                   <span
                     className={cx(
                       'rounded-full px-1.5 text-[10px] font-bold leading-4',
-                      historyFilter === t.key ? 'bg-terra/10 text-terra' : 'bg-paper-mist2 text-ink/40',
+                      historyFilter === tabItem.key ? 'bg-terra/10 text-terra' : 'bg-paper-mist2 text-ink/40',
                     )}
                   >
-                    {count}
+                    {formatNumber(count)}
                   </span>
                 </button>
               );
@@ -377,8 +387,8 @@ export default function BillingPanel() {
               <div className="w-10 h-10 rounded-xl bg-paper-mist text-ink/25 flex items-center justify-center mx-auto mb-2">
                 <Receipt size={18} />
               </div>
-              <p className="text-sm font-semibold text-ink/70">No {HISTORY_TABS.find((t) => t.key === historyFilter)?.label.toLowerCase()} payments</p>
-              <p className="text-xs text-ink/45 mt-1">Transactions matching this filter will appear here.</p>
+              <p className="text-sm font-semibold text-ink/70">{t('No {{status}} payments', { status: t(HISTORY_TABS.find((tabItem) => tabItem.key === historyFilter)?.label ?? 'All').toLowerCase() })}</p>
+              <p className="text-xs text-ink/45 mt-1">{t('Transactions matching this filter will appear here.')}</p>
             </div>
           ) : (
             filteredPayments.map((p) => (
@@ -398,10 +408,10 @@ export default function BillingPanel() {
 
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-ink truncate">
-                  {subscription.plan} · {subscription.billingCycle}
+                  {t(subscription.plan)} · {t(subscription.billingCycle === 'yearly' ? 'Yearly' : 'Monthly')}
                 </p>
                 <p className="text-xs text-ink/50 font-mono truncate mt-0.5">
-                  {p.transactionId} · {format(parseISO(p.date), 'dd MMM yyyy')}
+                  {p.transactionId} · {formatLocalDate(parseISO(p.date))}
                 </p>
               </div>
 
@@ -416,12 +426,13 @@ export default function BillingPanel() {
                   paymentStatusStyles[p.status],
                 )}
               >
-                {p.status}
+                {t(p.status === 'paid' ? 'Paid' : p.status === 'pending' ? 'Pending' : 'Refunded')}
               </span>
 
               <button
                 disabled={p.status !== 'paid'}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-ink/40 hover:text-terra hover:bg-terra/5 transition-colors shrink-0 disabled:text-ink/15 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                aria-label={t('Download invoice')}
               >
                 <Download size={15} />
               </button>

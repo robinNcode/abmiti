@@ -31,7 +31,7 @@ export default function AdminLayout() {
             </div>
             <div>
               <p className="font-display font-bold text-base text-white tracking-tight leading-none">abmiti</p>
-              <p className="text-[10px] text-terra-light font-medium tracking-widest uppercase mt-0.5">admin panel</p>
+              <p className="text-[10px] text-terra-light font-medium tracking-widest uppercase mt-0.5">{t('Admin panel')}</p>
             </div>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default function AdminLayout() {
               )}
             >
               <Icon size={16} className="shrink-0" />
-              <span className="flex-1 truncate">{label}</span>
+              <span className="flex-1 truncate">{t(label)}</span>
               <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
             </NavLink>
           ))}
@@ -69,7 +69,7 @@ export default function AdminLayout() {
                 <Shield size={14} className="text-white" />
               </div>
               <span className="text-xs font-medium text-white/45 tracking-wider uppercase truncate">
-                abmiti admin
+                {t('abmiti admin')}
               </span>
             </div>
           }
@@ -89,7 +89,7 @@ export default function AdminLayout() {
             )}
           >
             <Icon size={18} className="mb-1" />
-            <span className="truncate w-full text-center">{label.split(' ')[0]}</span>
+            <span className="truncate w-full text-center">{t(label.split(' ')[0])}</span>
           </NavLink>
         ))}
       </nav>

@@ -38,7 +38,9 @@ export default function TopBar({
   };
 
   const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === 'en' ? 'bn' : 'en');
+    const nextLanguage = i18n.language === 'en' ? 'bn' : 'en';
+    localStorage.setItem('i18nextLng', nextLanguage);
+    void i18n.changeLanguage(nextLanguage);
   };
 
   const langLabel = i18n.language === 'en' ? 'বাংলা' : 'English';
