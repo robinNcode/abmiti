@@ -8,8 +8,11 @@ export const formatNumber = (value: number): string =>
   new Intl.NumberFormat(currentLocale()).format(value);
 export const formatCompactNumber = (value: number): string =>
   new Intl.NumberFormat(currentLocale(), { notation: 'compact' }).format(value);
-export const formatShortMonth = (month: number): string =>
-  new Intl.DateTimeFormat(currentLocale(), { month: 'short' }).format(new Date(2025, month - 1, 1));
+export const formatShortMonth = (month: number): string => {
+  const safeMonth = Number(month);
+  if (!Number.isInteger(safeMonth) || safeMonth < 1 || safeMonth > 12) return '';
+  return new Intl.DateTimeFormat(currentLocale(), { month: 'short' }).format(new Date(2025, safeMonth - 1, 1));
+};
 // ── Currency ─────────────────────────────────────────────────
 export const formatBDT = (amount: number): string =>
   '৳' + Math.abs(amount).toLocaleString(currentLocale(), { maximumFractionDigits: 0 });

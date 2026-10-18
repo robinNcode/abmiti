@@ -7,15 +7,15 @@ import { formatBDT, formatCompactNumber, formatShortMonth } from '@/utils';
 import { Spinner } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 
-const CustomTooltip = ({ active, payload, label }: {
+const CustomTooltip = ({ active, payload }: {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
-  label?: number;
+  payload?: Array<{ name: string; value: number; color: string; payload?: { month?: number } }>;
 }) => {
   if (!active || !payload?.length) return null;
+  const month = payload[0]?.payload?.month;
   return (
     <div className="card px-4 py-3 text-xs space-y-1.5 shadow-lift">
-      <p className="font-semibold text-ink/60 mb-2">{formatShortMonth(label ?? 1)}</p>
+      <p className="font-semibold text-ink/60 mb-2">{formatShortMonth(month ?? 1)}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex justify-between gap-6">
           <span style={{ color: p.color }} className="font-medium capitalize">{p.name}</span>

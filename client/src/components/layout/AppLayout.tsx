@@ -23,8 +23,8 @@ const PLANNING: NavItem[] = [
 ];
 
 const INSIGHTS: NavItem[] = [
-  { to: '/analytics', icon: BarChart2, label: 'Analytics' },
   { to: '/categories', icon: Tag, label: 'Categories' },
+  { to: '/analytics', icon: BarChart2, label: 'Analytics' },
   { to: '/category-report', icon: FileText, label: 'Report' },
 ];
 
