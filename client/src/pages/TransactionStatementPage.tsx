@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Download, Filter, X, TrendingUp, TrendingDown } from 'lucide-react';
+import { Download, Filter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
-import { PageHeader, Spinner, EmptyState } from '@/components/ui';
+import { PageHeader, Spinner, EmptyState, FilterPanel } from '@/components/ui';
 import { formatBDT, formatDate, cx } from '@/utils';
 import { Category, EntryType } from '@/types';
 
@@ -21,13 +21,15 @@ interface TransactionStatementItem {
   type: EntryType;
   amount: number;
   note: string;
+  sector?: string;
   category: Category;
   source: string;
+  account?: { name: string; type: string };
   runningBalance: number;
 }
 
 export default function TransactionStatementPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(true);
   const [filters, setFilters] = useState<TransactionStatementFilters>({
     startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
@@ -80,14 +82,14 @@ export default function TransactionStatementPage() {
   const exportToCSV = () => {
     if (!statementData?.length) return;
 
-    const headers = [t('Date'), t('Type'), t('Category'), t('Note'), t('Source'), t('Amount'), t('Balance')];
+    const headers = [t('Date'), t('Category'), t('Details'), t('Method'), t('Dr'), t('Cr'), t('Balance')];
     const rows = statementData.map(item => [
       formatDate(item.date),
-      t(item.type),
       item.category.name,
-      item.note,
+      `${t(item.type)}: ${item.note || '—'}`,
       item.source,
-      item.amount.toFixed(2),
+      ['expense', 'investment', 'savings', 'payable'].includes(item.type) ? item.amount.toFixed(2) : '',
+      ['income', 'receivable'].includes(item.type) ? item.amount.toFixed(2) : '',
       item.runningBalance.toFixed(2),
     ]);
 
@@ -106,8 +108,6 @@ export default function TransactionStatementPage() {
   };
 
   const finalBalance = statementData?.[statementData.length - 1]?.runningBalance ?? 0;
-  const totalTransactions = statementData?.length ?? 0;
-
   return (
     <div className="min-h-full">
       <PageHeader
@@ -123,77 +123,57 @@ export default function TransactionStatementPage() {
       <div className="px-4 md:px-8 pb-10 space-y-4">
         {/* Filters */}
         {showFilters && (
-          <div className="card p-6 animate-fade-in">
-            <div className="flex items-center justify-between mb-4">
-              <p className="font-display font-bold text-base">{t('Filters')}</p>
-              <button onClick={() => setShowFilters(false)} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors" aria-label={t('Close')}>
-                <X size={16} />
-              </button>
+          <FilterPanel
+            title={t('Filters')}
+            onClose={() => setShowFilters(false)}
+            onSubmit={onApplyFilters}
+            onReset={onResetFilters}
+            applyLabel={t('ApplyFilters') || 'Apply Filters'}
+            resetLabel={t('Reset') || 'Reset'}
+            inline
+          >
+            <div>
+              <label className="label">{t('Start Date')}</label>
+              <input {...register('startDate')} type="date" className="input min-h-[46px] bg-[#f7f2ea]" required />
             </div>
-
-            <form onSubmit={onApplyFilters} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="label">{t('Start Date')}</label>
-                  <input {...register('startDate')} type="date" className="input" required />
-                </div>
-                <div>
-                  <label className="label">{t('End Date')}</label>
-                  <input {...register('endDate')} type="date" className="input" required />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="label">{t('Entry Type')}</label>
-                  <select {...register('type')} className="input">
-                    <option value="">{t('All Types')}</option>
-                    <option value="income">{t('Income')}</option>
-                    <option value="expense">{t('Expense')}</option>
-                    <option value="investment">{t('Investment')}</option>
-                    <option value="savings">{t('Savings')}</option>
-                    <option value="payable">{t('Payable')}</option>
-                    <option value="receivable">{t('Receivable')}</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="label">{t('Categories') || 'Categories'}</label>
-                  <select {...register('categoryIds')} multiple className="input h-20" size={3}>
-                    {categories.map((cat) => (
-                      <option key={cat._id} value={cat._id}>
-                        {cat.icon} {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-ink/40 mt-1">{t('Hold Ctrl/Cmd to select multiple')}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn-primary flex-1">
-                  <Filter size={14} /> {t('ApplyFilters') || 'Apply Filters'}
-                </button>
-                <button type="button" onClick={onResetFilters} className="btn-ghost px-4">
-                  {t('Reset') || 'Reset'}
-                </button>
-              </div>
-            </form>
-          </div>
+            <div>
+              <label className="label">{t('End Date')}</label>
+              <input {...register('endDate')} type="date" className="input min-h-[46px] bg-[#f7f2ea]" required />
+            </div>
+            <div>
+              <label className="label">{t('Entry Type')}</label>
+              <select {...register('type')} className="input min-h-[46px] bg-[#f7f2ea]">
+                <option value="">{t('All Types')}</option>
+                <option value="income">{t('Income')}</option>
+                <option value="expense">{t('Expense')}</option>
+                <option value="investment">{t('Investment')}</option>
+                <option value="savings">{t('Savings')}</option>
+                <option value="payable">{t('Payable')}</option>
+                <option value="receivable">{t('Receivable')}</option>
+              </select>
+            </div>
+            <div className="lg:col-span-3">
+              <label className="label">{t('Categories') || 'Categories'}</label>
+              <select {...register('categoryIds')} multiple title={t('Hold Ctrl/Cmd to select multiple')} className="input h-[46px] min-h-[46px] bg-[#f7f2ea]" size={1}>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.icon} {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </FilterPanel>
         )}
 
         {/* Summary */}
         {statementData && statementData.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div className="card p-5 border border-sage/20">
               <p className="text-xs font-semibold uppercase tracking-wider text-ink/45 mb-2">{t('Current Balance')}</p>
               <p className={cx(
                 "font-display text-2xl font-bold",
                 finalBalance >= 0 ? "text-sage" : "text-red-600"
               )}>{formatBDT(finalBalance)}</p>
-            </div>
-            <div className="card p-5 border border-terra/20">
-              <p className="text-xs font-semibold uppercase tracking-wider text-ink/45 mb-2">{t('Total Transactions')}</p>
-              <p className="font-display text-2xl font-bold text-terra">{new Intl.NumberFormat(i18n.language === 'bn' ? 'bn-BD' : 'en-BD').format(totalTransactions)}</p>
             </div>
           </div>
         )}
@@ -212,34 +192,27 @@ export default function TransactionStatementPage() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b border-paper-mist2">
+                <table className="min-w-[1100px] w-full border-collapse border border-paper-mist2 text-sm">
+                  <thead className="bg-paper-mist">
                     <tr className="text-left">
-                      <th className="pb-3 font-semibold text-ink/70">                      {t('Date')}</th>
-                      <th className="pb-3 font-semibold text-ink/70 hidden md:table-cell">{t('Type')}</th>
-                      <th className="pb-3 font-semibold text-ink/70">{t('Category')}</th>
-                      <th className="pb-3 font-semibold text-ink/70 hidden lg:table-cell">{t('Note')}</th>
-                      <th className="pb-3 font-semibold text-ink/70 hidden lg:table-cell">{t('Method')}</th>
-                      <th className="pb-3 font-semibold text-ink/70 text-right">{t('Amount')}</th>
-                      <th className="pb-3 font-semibold text-ink/70 text-right">{t('Balance')}</th>
+                      <th className="border border-paper-mist2 px-3 py-2 font-semibold text-ink/70">{t('Date')}</th>
+                      <th className="border border-paper-mist2 px-3 py-2 font-semibold text-ink/70">{t('Category')}</th>
+                      <th className="border border-paper-mist2 px-3 py-2 font-semibold text-ink/70">{t('Details')}</th>
+                      <th className="border border-paper-mist2 px-3 py-2 font-semibold text-ink/70">{t('Method')}</th>
+                      <th className="border border-paper-mist2 px-3 py-2 font-semibold text-ink/70 text-right">{t('Dr')}</th>
+                      <th className="border border-paper-mist2 px-3 py-2 font-semibold text-ink/70 text-right">{t('Cr')}</th>
+                      <th className="border border-paper-mist2 px-3 py-2 font-semibold text-ink/70 text-right">{t('Balance')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {statementData.map((item, i) => {
                       const isCredit = item.type === 'income' || item.type === 'receivable';
                       return (
-                        <tr key={item._id} className="border-b border-paper-mist2 last:border-0 hover:bg-paper-mist transition-colors animate-fade-up"
+                        <tr key={item._id} className="hover:bg-paper-mist transition-colors animate-fade-up"
                           style={{ animationDelay: `${i * 20}ms` }}>
-                          <td className="py-3 text-ink/80 text-xs">{formatDate(item.date)}</td>
-                          <td className="py-3 hidden md:table-cell">
-                            <span className={cx(
-                              "inline-block px-2 py-1 rounded text-xs font-medium capitalize",
-                              isCredit ? "bg-sage/10 text-sage" : "bg-red-50 text-red-600"
-                            )}>
-                              {t(item.type)}
-                            </span>
-                          </td>
-                          <td className="py-3">
+                          <td className="border border-paper-mist2 px-3 py-2 text-ink/80 text-xs">{formatDate(item.date)}</td>
+                    
+                          <td className="border border-paper-mist2 px-3 py-2">
                             <div className="flex items-center gap-2">
                               <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0"
                                 style={{ backgroundColor: item.category.color + '22', border: `2px solid ${item.category.color}35` }}>
@@ -248,10 +221,15 @@ export default function TransactionStatementPage() {
                               <span className="font-medium text-xs">{item.category.name}</span>
                             </div>
                           </td>
-                          <td className="py-3 text-ink/60 text-xs max-w-xs truncate hidden lg:table-cell">
-                            {item.note || '—'}
+                          <td className="border border-paper-mist2 px-3 py-2">
+                            <span className={cx(
+                              "inline-block px-2 py-1 rounded text-xs font-medium capitalize",
+                              isCredit ? "bg-sage/10 text-sage" : "bg-red-50 text-red-600"
+                            )}>
+                              {t(item.type)}: {item.note || '—'}
+                            </span>
                           </td>
-                          <td className="py-3 text-ink/60 text-xs max-w-xs truncate hidden lg:table-cell">
+                          <td className="border border-paper-mist2 px-3 py-2 text-ink/60 text-xs whitespace-nowrap">
                             <span className={cx(
                               "inline-block px-2 py-1 rounded text-xs font-medium capitalize",
                               isCredit ? "bg-sage/10 text-sage" : "bg-red-50 text-red-600"
@@ -259,19 +237,13 @@ export default function TransactionStatementPage() {
                               {item.source || '—' }
                             </span>
                           </td>
-                          <td className="py-3 text-right font-semibold">
-                            <div className="flex items-center justify-end gap-1">
-                              {isCredit ? (
-                                <TrendingUp size={14} className="text-sage" />
-                              ) : (
-                                <TrendingDown size={14} className="text-red-600" />
-                              )}
-                              <span className={isCredit ? 'text-sage' : 'text-red-600'}>
-                                {isCredit ? '+' : '−'}{formatBDT(item.amount)}
-                              </span>
-                            </div>
+                          <td className="border border-paper-mist2 px-3 py-2 text-right font-semibold text-red-600">
+                            {!isCredit && <span>−{formatBDT(item.amount)}</span>}
                           </td>
-                          <td className="py-3 text-right">
+                          <td className="border border-paper-mist2 px-3 py-2 text-right font-semibold text-sage">
+                            {isCredit && <span>+{formatBDT(item.amount)}</span>}
+                          </td>
+                          <td className="border border-paper-mist2 px-3 py-2 text-right">
                             <span className={cx(
                               "font-bold",
                               item.runningBalance >= 0 ? "text-sage" : "text-red-600"
@@ -283,6 +255,15 @@ export default function TransactionStatementPage() {
                       );
                     })}
                   </tbody>
+                  <tfoot>
+                    <tr className="bg-paper-mist">
+                      <td colSpan={6} className="border border-paper-mist2 px-3 py-2 font-semibold text-right">{t('Final Balance')}</td>
+                      <td className="border border-paper-mist2 px-3 py-2 text-right font-bold"
+                        style={{ color: finalBalance >= 0 ? '#4CAF50' : '#F44336' }}>
+                        {formatBDT(finalBalance)}
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </>

@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import { cx } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
@@ -48,6 +48,38 @@ export const SummaryCard = ({ label, labelBn, value, sub, accent, icon }: Summar
     </div>
   );
 };
+
+// ── Compact filter panel ─────────────────────────────────────
+export const FilterPanel = ({ title, onClose, onSubmit, onReset, children, applyLabel, resetLabel, inline = false }: {
+  title: string; onClose?: () => void; onSubmit: (event: React.FormEvent<HTMLFormElement>) => void; onReset?: () => void;
+  children: React.ReactNode; applyLabel?: string; resetLabel?: string; inline?: boolean;
+}) => (
+  <div className="card animate-fade-in border-paper-mist2 bg-[#f3efe8] p-4 shadow-none">
+    <div className="flex items-center justify-between mb-3">
+      <p className="font-display font-bold text-base text-ink">{title}</p>
+      {onClose && (
+        <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors" aria-label="Close">
+          <X size={16} />
+        </button>
+      )}
+    </div>
+
+    <form onSubmit={onSubmit} className={inline ? 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1.15fr_1.15fr_1fr_1.35fr_1fr_1fr_1.45fr] lg:items-start' : 'space-y-4'}>
+      {children}
+      <div className={cx('flex items-end gap-2', inline ? 'h-full lg:pb-0' : 'pt-2')}>
+        <button type="submit" className="btn-primary flex-1 min-h-[46px] whitespace-nowrap">
+          <Filter size={14} />
+          {applyLabel || 'Apply Filters'}
+        </button>
+        {onReset && (
+          <button type="button" onClick={onReset} className="btn-ghost px-3 min-h-[46px] whitespace-nowrap">
+            {resetLabel || 'Reset'}
+          </button>
+        )}
+      </div>
+    </form>
+  </div>
+);
 
 // ── Empty state ──────────────────────────────────────────────
 export const EmptyState = ({ icon, title, subtitle }: {

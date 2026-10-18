@@ -1,5 +1,8 @@
 import { body, query } from 'express-validator';
 
+const isDatabaseId = (value: unknown): boolean =>
+  typeof value === 'string' && (/^[0-9a-f]{24}$/i.test(value) || /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
+
 export const validateMonthYearQuery = [
   query('month').isInt({ min: 1, max: 12 }).withMessage('Month must be between 1 and 12'),
   query('year').isInt({ min: 2000 }).withMessage('Year must be valid'),
@@ -17,7 +20,7 @@ const lineRules = [
   body('allocationMethod').isIn(['percentage', 'fixed']).withMessage('Allocation method is invalid'),
   body('allocationValue').isFloat({ min: 0 }).withMessage('Allocation value must be zero or greater'),
   body('linkedCategoryIds').optional().isArray(),
-  body('linkedCategoryIds.*').optional().isMongoId(),
+  body('linkedCategoryIds.*').optional().custom(isDatabaseId).withMessage('Valid category ID required'),
   body('subItems').optional().isArray(),
   body('subItems.*.name').optional().isString().trim().isLength({ min: 1, max: 100 }),
   body('subItems.*.expectedAmount').optional().isFloat({ min: 0 }),
@@ -43,7 +46,7 @@ export const validateBudget = [
   body('lines.*.allocationMethod').optional().isIn(['percentage', 'fixed']),
   body('lines.*.allocationValue').optional().isFloat({ min: 0 }),
   body('lines.*.linkedCategoryIds').optional().isArray(),
-  body('lines.*.linkedCategoryIds.*').optional().isMongoId(),
+  body('lines.*.linkedCategoryIds.*').optional().custom(isDatabaseId).withMessage('Valid category ID required'),
   body('lines.*.subItems').optional().isArray(),
 ];
 

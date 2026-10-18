@@ -41,7 +41,7 @@ apiClient.interceptors.response.use(
       const { refreshToken, setTokens, logout } = useAuthStore.getState();
       if (!refreshToken) { logout(); return Promise.reject(error); }
 
-      const { data } = await axios.post('/api/v1/auth/refresh', { refreshToken });
+      const { data } = await axios.post(`${apiClient.defaults.baseURL}/auth/refresh`, { refreshToken });
       const { accessToken: newAccess, refreshToken: newRefresh } = data.data;
       setTokens(newAccess, newRefresh);
 

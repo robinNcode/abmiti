@@ -1,11 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { summaryService } from './summary.service';
 import { sendSuccess } from '../../shared/utils/response';
-import { authenticate } from '../../shared/middleware';
+import { authenticate, requireUser } from '../../shared/middleware';
 import { container } from '../../container';
 
 const router = Router();
 router.use(authenticate);
+router.use(requireUser);
 
 router.get('/monthly', async (req: Request, res: Response, next: NextFunction) => {
   try {

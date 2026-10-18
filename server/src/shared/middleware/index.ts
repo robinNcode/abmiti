@@ -83,3 +83,9 @@ export const requireAdmin = (req: Request, _res: Response, next: NextFunction): 
   if (req.user?.userType !== 'admin') throw new ForbiddenError('Administrator access required');
   next();
 };
+
+/** Keep the personal-finance API separate from the administration API. */
+export const requireUser = (req: Request, _res: Response, next: NextFunction): void => {
+  if (req.user?.userType !== 'user') throw new ForbiddenError('User account access required');
+  next();
+};
