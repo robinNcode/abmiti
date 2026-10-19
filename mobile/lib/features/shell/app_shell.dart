@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/data/finance_repository.dart';
+import '../../shared/widgets/curved_navigation_bar.dart';
 import '../analytics/analytics_screen.dart';
 import '../budgets/budget_screen.dart';
 import '../categories/categories_screen.dart';
@@ -14,7 +16,8 @@ import '../reports/reports_screen.dart';
 
 /// AppShell provides the core navigation experience:
 /// - Responsive Smart Navigation Drawer with user profile header and grouped destinations
-/// - BottomNavigationBar for high-frequency screens (Overview, Activity, Budgets, Analytics)
+/// - CurvedNavigationBar modeled after `curved_navigation_bar`
+/// - Top bar quick language switcher (English / বাংলা)
 /// - FAB for fast transaction entry
 class AppShell extends StatefulWidget {
   const AppShell({
@@ -52,6 +55,7 @@ class _AppShellState extends State<AppShell> {
     final user = widget.auth.currentUser;
     final name = user?['name']?.toString() ?? 'Abmiti User';
     final email = user?['email']?.toString() ?? '';
+    final loc = context.appLocale;
 
     final pages = [
       OverviewTab(
@@ -66,10 +70,10 @@ class _AppShellState extends State<AppShell> {
     ];
 
     final titles = [
-      'Abmiti',
-      'Transactions',
-      'Budgets',
-      'Analytics',
+      loc.tr('app_title'),
+      loc.tr('nav_activity'),
+      loc.tr('nav_budgets'),
+      loc.tr('nav_analytics'),
     ];
 
     return Scaffold(
@@ -84,9 +88,48 @@ class _AppShellState extends State<AppShell> {
           style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
         ),
         actions: [
+          // ── Language Toggle Chip ──────────────────────────────────
+          TextButton(
+            onPressed: () => loc.toggleLanguage(),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.darkElevated
+                    : AppColors.pastelPeach.withAlpha(140),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.terra.withAlpha(100),
+                  width: 0.8,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.language_rounded,
+                      size: 14, color: AppColors.terra),
+                  const SizedBox(width: 4),
+                  Text(
+                    loc.isBengali ? 'বাং' : 'EN',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11,
+                      color: isDark ? Colors.white : AppColors.ink,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.account_balance_wallet_outlined),
-            tooltip: 'Categories',
+            tooltip: loc.tr('nav_categories'),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -97,7 +140,7 @@ class _AppShellState extends State<AppShell> {
           ),
           IconButton(
             icon: const Icon(Icons.person_outline_rounded),
-            tooltip: 'Profile',
+            tooltip: loc.tr('nav_profile'),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -163,7 +206,7 @@ class _AppShellState extends State<AppShell> {
                 children: [
                   _DrawerItem(
                     icon: Icons.dashboard_outlined,
-                    label: 'Overview',
+                    label: loc.tr('nav_overview'),
                     selected: _currentIndex == 0,
                     onTap: () {
                       Navigator.pop(context);
@@ -172,7 +215,7 @@ class _AppShellState extends State<AppShell> {
                   ),
                   _DrawerItem(
                     icon: Icons.receipt_long_outlined,
-                    label: 'Activity & Ledger',
+                    label: loc.tr('nav_activity'),
                     selected: _currentIndex == 1,
                     onTap: () {
                       Navigator.pop(context);
@@ -181,7 +224,7 @@ class _AppShellState extends State<AppShell> {
                   ),
                   _DrawerItem(
                     icon: Icons.pie_chart_outline_rounded,
-                    label: 'Monthly Budgets',
+                    label: loc.tr('nav_budgets'),
                     selected: _currentIndex == 2,
                     onTap: () {
                       Navigator.pop(context);
@@ -190,7 +233,7 @@ class _AppShellState extends State<AppShell> {
                   ),
                   _DrawerItem(
                     icon: Icons.insights_rounded,
-                    label: 'Financial Analytics',
+                    label: loc.tr('nav_analytics'),
                     selected: _currentIndex == 3,
                     onTap: () {
                       Navigator.pop(context);
@@ -203,23 +246,62 @@ class _AppShellState extends State<AppShell> {
                   ),
                   _DrawerItem(
                     icon: Icons.category_outlined,
-                    label: 'Categories',
+                    label: loc.tr('nav_categories'),
                     onTap: () => _navigateToDrawerDestination(
                       CategoriesScreen(financeRepo: widget.financeRepo),
                     ),
                   ),
                   _DrawerItem(
                     icon: Icons.assessment_outlined,
-                    label: 'Monthly Reports',
+                    label: loc.tr('nav_reports'),
                     onTap: () => _navigateToDrawerDestination(
                       ReportsScreen(financeRepo: widget.financeRepo),
                     ),
                   ),
                   _DrawerItem(
                     icon: Icons.settings_outlined,
-                    label: 'Profile & Settings',
+                    label: loc.tr('nav_profile'),
                     onTap: () => _navigateToDrawerDestination(
                       ProfileScreen(auth: widget.auth),
+                    ),
+                  ),
+                  // In-Drawer Language Switcher
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      leading: const Icon(Icons.translate_rounded,
+                          color: AppColors.terra, size: 22),
+                      title: Text(
+                        loc.isBengali ? 'English-এ দেখুন' : 'বাংলায় দেখুন',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.terra.withAlpha(25),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          loc.isBengali ? 'EN' : 'বাং',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11,
+                            color: AppColors.terra,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        loc.toggleLanguage();
+                        Navigator.pop(context);
+                      },
                     ),
                   ),
                 ],
@@ -233,10 +315,11 @@ class _AppShellState extends State<AppShell> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                leading: const Icon(Icons.logout_rounded, color: AppColors.danger),
-                title: const Text(
-                  'Sign Out',
-                  style: TextStyle(
+                leading:
+                    const Icon(Icons.logout_rounded, color: AppColors.danger),
+                title: Text(
+                  loc.tr('nav_sign_out'),
+                  style: const TextStyle(
                     color: AppColors.danger,
                     fontWeight: FontWeight.w700,
                   ),
@@ -268,41 +351,51 @@ class _AppShellState extends State<AppShell> {
                 );
               },
               icon: const Icon(Icons.add_rounded),
-              label: const Text(
-                'Add Entry',
-                style: TextStyle(fontWeight: FontWeight.w700),
+              label: Text(
+                loc.tr('add_entry'),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             )
           : null,
 
-      // ── Modern Navigation Bar ──────────────────────────────────────
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: _onBottomNavTapped,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard_rounded, color: AppColors.terra),
-            label: 'Overview',
+      // ── Curved Bottom Navigation Bar ───────────────────────────────
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _currentIndex,
+        height: 68,
+        backgroundColor: Colors.transparent,
+        color: isDark ? AppColors.darkSurface : AppColors.paperCard,
+        buttonBackgroundColor: AppColors.terra,
+        items: [
+          Icon(
+            Icons.dashboard_rounded,
+            size: 26,
+            color: _currentIndex == 0
+                ? Colors.white
+                : (isDark ? Colors.white70 : AppColors.ink),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon:
-                Icon(Icons.receipt_long_rounded, color: AppColors.terra),
-            label: 'Activity',
+          Icon(
+            Icons.receipt_long_rounded,
+            size: 26,
+            color: _currentIndex == 1
+                ? Colors.white
+                : (isDark ? Colors.white70 : AppColors.ink),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.pie_chart_outline_rounded),
-            selectedIcon:
-                Icon(Icons.pie_chart_rounded, color: AppColors.terra),
-            label: 'Budgets',
+          Icon(
+            Icons.pie_chart_rounded,
+            size: 26,
+            color: _currentIndex == 2
+                ? Colors.white
+                : (isDark ? Colors.white70 : AppColors.ink),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.insights_outlined),
-            selectedIcon: Icon(Icons.insights_rounded, color: AppColors.terra),
-            label: 'Analytics',
+          Icon(
+            Icons.insights_rounded,
+            size: 26,
+            color: _currentIndex == 3
+                ? Colors.white
+                : (isDark ? Colors.white70 : AppColors.ink),
           ),
         ],
+        onTap: _onBottomNavTapped,
       ),
     );
   }

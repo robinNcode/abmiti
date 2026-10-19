@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'core/constants/app_colors.dart';
+import 'core/localization/app_locale.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/shell/app_shell.dart';
@@ -35,8 +36,13 @@ Future<void> main() async {
   final api = ApiClient(storage);
   final auth = AuthRepository(api, storage);
   final financeRepo = FinanceRepository(api);
+  final appLocale = AppLocale(storage);
 
-  runApp(AbmitiApp(auth: auth, financeRepo: financeRepo));
+  runApp(AbmitiApp(
+    auth: auth,
+    financeRepo: financeRepo,
+    appLocale: appLocale,
+  ));
 }
 
 class AbmitiApp extends StatefulWidget {
@@ -44,10 +50,12 @@ class AbmitiApp extends StatefulWidget {
     super.key,
     required this.auth,
     required this.financeRepo,
+    required this.appLocale,
   });
 
   final AuthRepository auth;
   final FinanceRepository financeRepo;
+  final AppLocale appLocale;
 
   @override
   State<AbmitiApp> createState() => _AbmitiAppState();
@@ -66,23 +74,32 @@ class _AbmitiAppState extends State<AbmitiApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'অবমিতি — Abmiti',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
-      home: _restoring
-          ? const Scaffold(body: LoadingOverlay())
-          : AnimatedBuilder(
-              animation: widget.auth,
-              builder: (context, _) => widget.auth.user == null
-                  ? AuthScreen(auth: widget.auth)
-                  : AppShell(
-                      auth: widget.auth,
-                      financeRepo: widget.financeRepo,
-                    ),
-            ),
+    return LocaleScope(
+      locale: widget.appLocale,
+      child: AnimatedBuilder(
+        animation: widget.appLocale,
+        builder: (context, _) => MaterialApp(
+          title: widget.appLocale.isBengali
+              ? 'অবমিতি — আয় ব্যয় মিতি'
+              : 'Abmiti — Personal Finance',
+          locale: widget.appLocale.locale,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: ThemeMode.system,
+          home: _restoring
+              ? const Scaffold(body: LoadingOverlay())
+              : AnimatedBuilder(
+                  animation: widget.auth,
+                  builder: (context, _) => widget.auth.user == null
+                      ? AuthScreen(auth: widget.auth)
+                      : AppShell(
+                          auth: widget.auth,
+                          financeRepo: widget.financeRepo,
+                        ),
+                ),
+        ),
+      ),
     );
   }
 }

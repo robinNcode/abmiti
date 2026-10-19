@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/data/finance_repository.dart';
 import '../shell/app_shell.dart';
@@ -12,9 +13,17 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppShell(
+    final existingScope =
+        context.dependOnInheritedWidgetOfExactType<LocaleScope>();
+    final content = AppShell(
       auth: auth,
       financeRepo: FinanceRepository(auth.api),
+    );
+
+    if (existingScope != null) return content;
+    return LocaleScope(
+      locale: AppLocale(auth.storage),
+      child: content,
     );
   }
 }

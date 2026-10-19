@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/widgets/glossy_card.dart';
@@ -275,8 +276,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _SettingsTile(
                   icon: Icons.language_rounded,
                   title: 'Language / ভাষা',
-                  subtitle: 'English / বাংলা',
-                  onTap: () {},
+                  subtitle: context.appLocale.isBengali
+                      ? 'বাংলা (Bengali)'
+                      : 'English',
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        title: const Text(
+                          'Select Language / ভাষা নির্বাচন',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              title: const Text('English'),
+                              trailing: !context.appLocale.isBengali
+                                  ? const Icon(Icons.check_circle_rounded,
+                                      color: AppColors.terra)
+                                  : null,
+                              onTap: () {
+                                context.appLocale.setLanguage(AppLanguage.en);
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                            ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              title: const Text('বাংলা (Bengali)'),
+                              trailing: context.appLocale.isBengali
+                                  ? const Icon(Icons.check_circle_rounded,
+                                      color: AppColors.terra)
+                                  : null,
+                              onTap: () {
+                                context.appLocale.setLanguage(AppLanguage.bn);
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 Divider(
                   height: 1,
