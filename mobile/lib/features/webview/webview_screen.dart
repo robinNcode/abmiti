@@ -212,7 +212,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 // child: _buildWebView(),
                 child: _buildWebView(),
               ),
-  
+
               // Branded full-screen loading overlay
               if (_isLoading) const LoadingOverlay(),
             ],

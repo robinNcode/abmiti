@@ -14,7 +14,9 @@ class ConnectivityService {
 
   ConnectivityService() {
     // Immediately emit on changes
-    Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+    Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) {
       final isConnected = results.isNotEmpty &&
           results.any((r) => r != ConnectivityResult.none);
       _controller.add(isConnected);

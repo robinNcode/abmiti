@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'core/constants/app_colors.dart';
-import 'features/webview/webview_screen.dart';
+import 'features/auth/auth_screen.dart';
+import 'features/home/home_screen.dart';
+import 'shared/data/api_client.dart';
+import 'shared/data/auth_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +28,29 @@ Future<void> main() async {
     ),
   );
 
-  runApp(const AbmitiApp());
+  const storage = FlutterSecureStorage();
+  final api = ApiClient(storage);
+  runApp(AbmitiApp(auth: AuthRepository(api, storage)));
 }
 
-class AbmitiApp extends StatelessWidget {
-  const AbmitiApp({super.key});
+class AbmitiApp extends StatefulWidget {
+  const AbmitiApp({super.key, required this.auth});
+  final AuthRepository auth;
+
+  @override
+  State<AbmitiApp> createState() => _AbmitiAppState();
+}
+
+class _AbmitiAppState extends State<AbmitiApp> {
+  bool _restoring = true;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.auth.restore().whenComplete(() {
+      if (mounted) setState(() => _restoring = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +89,14 @@ class AbmitiApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const WebViewScreen(),
+      home: _restoring
+          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          : AnimatedBuilder(
+              animation: widget.auth,
+              builder: (context, _) => widget.auth.user == null
+                  ? AuthScreen(auth: widget.auth)
+                  : HomeScreen(auth: widget.auth),
+            ),
     );
   }
 }
