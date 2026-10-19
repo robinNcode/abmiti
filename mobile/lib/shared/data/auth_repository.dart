@@ -11,6 +11,9 @@ class AuthRepository extends ChangeNotifier {
   final FlutterSecureStorage storage;
   Map<String, dynamic>? user;
 
+  ApiClient get apiClient => api;
+  Map<String, dynamic>? get currentUser => user;
+
   Future<void> restore() async {
     final token = await storage.read(key: 'accessToken');
     if (token == null) return;

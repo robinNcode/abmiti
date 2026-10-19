@@ -68,6 +68,8 @@ class ApiClient {
   String _apiPath(String path) =>
       path.startsWith('/') ? path.substring(1) : path;
 
+  Dio get client => dio;
+
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) async =>
       _data(await dio.get(_apiPath(path), queryParameters: query));
   Future<Map<String, dynamic>> getPage(String path,
@@ -76,8 +78,12 @@ class ApiClient {
           (await dio.get(_apiPath(path), queryParameters: query)).data as Map);
   Future<dynamic> post(String path, {Object? body}) async =>
       _data(await dio.post(_apiPath(path), data: body));
+  Future<dynamic> put(String path, {Object? body}) async =>
+      _data(await dio.put(_apiPath(path), data: body));
   Future<dynamic> patch(String path, {Object? body}) async =>
       _data(await dio.patch(_apiPath(path), data: body));
+  Future<dynamic> delete(String path) async =>
+      _data(await dio.delete(_apiPath(path)));
 
   dynamic _data(Response<dynamic> response) => response.data['data'];
 

@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'core/constants/app_colors.dart';
+import 'core/theme/app_theme.dart';
 import 'features/auth/auth_screen.dart';
-import 'features/home/home_screen.dart';
+import 'features/shell/app_shell.dart';
 import 'shared/data/api_client.dart';
 import 'shared/data/auth_repository.dart';
+import 'shared/data/finance_repository.dart';
+import 'shared/widgets/loading_overlay.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,10 +20,10 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Brand the system UI
+  // Brand system UI
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: AppColors.paper,
+      statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
       statusBarBrightness: Brightness.light,
       systemNavigationBarColor: AppColors.ink,
@@ -30,12 +33,21 @@ Future<void> main() async {
 
   const storage = FlutterSecureStorage();
   final api = ApiClient(storage);
-  runApp(AbmitiApp(auth: AuthRepository(api, storage)));
+  final auth = AuthRepository(api, storage);
+  final financeRepo = FinanceRepository(api);
+
+  runApp(AbmitiApp(auth: auth, financeRepo: financeRepo));
 }
 
 class AbmitiApp extends StatefulWidget {
-  const AbmitiApp({super.key, required this.auth});
+  const AbmitiApp({
+    super.key,
+    required this.auth,
+    required this.financeRepo,
+  });
+
   final AuthRepository auth;
+  final FinanceRepository financeRepo;
 
   @override
   State<AbmitiApp> createState() => _AbmitiAppState();
@@ -57,45 +69,19 @@ class _AbmitiAppState extends State<AbmitiApp> {
     return MaterialApp(
       title: 'অবমিতি — Abmiti',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.terra,
-          brightness: Brightness.light,
-          primary: AppColors.terra,
-          onPrimary: AppColors.paper,
-          secondary: AppColors.sage,
-          onSecondary: AppColors.paper,
-          surface: AppColors.paper,
-          onSurface: AppColors.ink,
-        ),
-        scaffoldBackgroundColor: AppColors.paper,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.terra,
-          foregroundColor: AppColors.paper,
-          elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: AppColors.paper,
-            statusBarIconBrightness: Brightness.dark,
-            statusBarBrightness: Brightness.light,
-          ),
-        ),
-        snackBarTheme: const SnackBarThemeData(
-          backgroundColor: AppColors.terraDark,
-          contentTextStyle: TextStyle(
-            color: AppColors.paper,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.system,
       home: _restoring
-          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          ? const Scaffold(body: LoadingOverlay())
           : AnimatedBuilder(
               animation: widget.auth,
               builder: (context, _) => widget.auth.user == null
                   ? AuthScreen(auth: widget.auth)
-                  : HomeScreen(auth: widget.auth),
+                  : AppShell(
+                      auth: widget.auth,
+                      financeRepo: widget.financeRepo,
+                    ),
             ),
     );
   }
