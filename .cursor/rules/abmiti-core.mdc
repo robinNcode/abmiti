@@ -1,0 +1,15 @@
+---
+description: Core Abmiti product and repo conventions for every session
+alwaysApply: true
+---
+
+# Abmiti core
+
+Halal-friendly personal finance tracker. Canonical agent doc: `AGENTS.md`. Setup: `README.md`.
+
+- Packages: `client/` (Vite React, basename `/abmiti/`), `server/` (Express `/api/v1`), `mobile/` (Flutter WebView only).
+- Dual DB: `I*Repository` in `server/src/shared/types/repositories.ts`; implement Mongo and MySQL; wire `container.ts`.
+- No public admin signup. Payments: server-side SSLCommerz verification and fixed prices.
+- New UI strings: English and Bengali in `client/src/i18n.ts`.
+- Brand Tailwind tokens: `terra`, `sage`, `mustard`, `ink`, `paper`.
+- Never commit `.env`, keystores, or gateway secrets.

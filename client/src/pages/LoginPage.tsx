@@ -1,12 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 import { Spinner } from '@/components/ui';
 import GoogleAuthButton from '@/components/auth/GoogleAuthButton';
 import HomeButton from '@/components/auth/HomeButton';
+import { localizedApiError } from '@/utils';
 
 interface FormData { email: string; password: string; }
 
@@ -14,6 +16,7 @@ export default function LoginPage() {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const login = useMutation({
     mutationFn: authApi.login,
@@ -21,38 +24,34 @@ export default function LoginPage() {
       setAuth(data.user, data.accessToken, data.refreshToken);
         navigate(data.user.userType === 'admin' ? '/admin' : '/dashboard');
     },
-    onError: (e: unknown) => {
-      const msg = (e as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message ?? 'Login failed';
-      toast.error(msg);
-    },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Login failed')),
   });
 
   return (
     <div className="animate-fade-up">
       <div className="mb-8">
-        <p className="font-display text-3xl font-bold">Welcome back</p>
-        <p className="text-ink/50 text-sm mt-1">Sign in to your abmiti account</p>
+        <p className="font-display text-3xl font-bold">{t('Welcome back')}</p>
+        <p className="text-ink/50 text-sm mt-1">{t('Sign in to your abmiti account')}</p>
       </div>
 
       <form onSubmit={handleSubmit((d) => login.mutate(d))} className="space-y-4">
         <div>
-          <label className="label">Email</label>
-          <input {...register('email', { required: 'Email is required' })}
-            type="email" placeholder="you@example.com" className="input" />
+          <label className="label">{t('email')}</label>
+          <input {...register('email', { required: t('Email is required') })}
+            type="email" placeholder={t('you@example.com')} className="input" />
           {errors.email && <p className="text-xs text-terra mt-1">{errors.email.message}</p>}
         </div>
 
         <div>
-          <label className="label">Password</label>
-          <input {...register('password', { required: 'Password is required' })}
+          <label className="label">{t('password')}</label>
+          <input {...register('password', { required: t('Password is required') })}
             type="password" placeholder="••••••••" className="input" />
           {errors.password && <p className="text-xs text-terra mt-1">{errors.password.message}</p>}
         </div>
 
         <button type="submit" disabled={login.isPending}
           className="btn-primary w-full mt-2 py-3">
-          {login.isPending ? <Spinner /> : 'Sign In'}
+          {login.isPending ? <Spinner /> : t('Sign In')}
         </button>
       </form>
 
@@ -61,7 +60,7 @@ export default function LoginPage() {
           <div className="w-full border-t border-paper-mist2"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-paper text-ink/40">Or</span>
+          <span className="px-2 bg-paper text-ink/40">{t('Or')}</span>
         </div>
       </div>
 
@@ -69,9 +68,9 @@ export default function LoginPage() {
       <HomeButton />
 
       <p className="text-center text-sm text-ink/50 mt-6">
-        No account?{' '}
+        {t('No account?')}{' '}
         <Link to="/register" className="text-terra font-semibold hover:underline">
-          Register
+          {t('Register')}
         </Link>
       </p>
     </div>

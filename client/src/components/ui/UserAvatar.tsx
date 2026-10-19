@@ -1,5 +1,6 @@
 import React from 'react';
 import { cx } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 interface UserAvatarProps {
   avatar?: string;
@@ -14,13 +15,14 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   className = '',
   sizeClassName = 'w-8 h-8 text-sm',
 }) => {
+  const { t } = useTranslation();
   const isUrl = avatar && (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/'));
 
   if (isUrl) {
     return (
       <img
         src={avatar}
-        alt={name || 'User avatar'}
+        alt={name || t('User avatar')}
         referrerPolicy="no-referrer"
         className={cx(
           'rounded-full object-cover shrink-0 border border-terra/20',

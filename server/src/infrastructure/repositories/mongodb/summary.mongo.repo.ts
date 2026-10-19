@@ -136,6 +136,8 @@ export class MongoSummaryRepository implements ISummaryRepository {
       { $match: match },
       { $lookup: { from: 'categories', localField: 'category', foreignField: '_id', as: 'category' } },
       { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+      { $lookup: { from: 'accounts', localField: 'account', foreignField: '_id', as: 'account' } },
+      { $unwind: { path: '$account', preserveNullAndEmptyArrays: true } },
       { $sort: { date: 1 } },
       {
         $project: {
@@ -144,6 +146,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
           type: 1,
           amount: 1,
           note: 1,
+          sector: 1,
           source: 1,
           category: {
             _id: 1,
@@ -151,6 +154,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
             icon: 1,
             color: 1,
           },
+          account: { _id: 1, name: 1, type: 1 },
         },
       },
     ]);

@@ -2,10 +2,12 @@ import { Trash2 } from 'lucide-react';
 import { Entry } from '@/types';
 import { useDeleteEntry } from '@/hooks';
 import { formatDate, formatBDT, sourceBadgeClass, cx } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 interface Props { entry: Entry; style?: React.CSSProperties; }
 
 export default function EntryRow({ entry, style }: Props) {
+  const { t } = useTranslation();
   const del = useDeleteEntry();
 
   return (
@@ -31,7 +33,7 @@ export default function EntryRow({ entry, style }: Props) {
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-xs text-ink/40">{formatDate(entry.date)}</span>
           <span className={cx('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', sourceBadgeClass[entry.source])}>
-            {entry.source.toUpperCase()}
+            {t(entry.source)}
           </span>
           {entry.parsedFromSms && (
             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-mustard/10 text-mustard">
@@ -56,6 +58,8 @@ export default function EntryRow({ entry, style }: Props) {
       <button
         onClick={() => del.mutate(entry._id)}
         disabled={del.isPending}
+        aria-label={t('Delete entry')}
+        title={t('Delete')}
         className="opacity-0 group-hover:opacity-100 ml-1 w-7 h-7 rounded-lg hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all text-ink/30 shrink-0">
         <Trash2 size={13} />
       </button>

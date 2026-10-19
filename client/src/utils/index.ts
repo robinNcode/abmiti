@@ -1,19 +1,37 @@
-import { format, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { PaymentSource, EntryType } from '@/types';
+import i18n from '@/i18n';
+import type { TFunction } from 'i18next';
 
+const currentLocale = () => i18n.language === 'bn' ? 'bn-BD' : 'en-BD';
+export const formatNumber = (value: number): string =>
+  new Intl.NumberFormat(currentLocale()).format(value);
+export const formatCompactNumber = (value: number): string =>
+  new Intl.NumberFormat(currentLocale(), { notation: 'compact' }).format(value);
+export const formatShortMonth = (month: number): string => {
+  const safeMonth = Number(month);
+  if (!Number.isInteger(safeMonth) || safeMonth < 1 || safeMonth > 12) return '';
+  return new Intl.DateTimeFormat(currentLocale(), { month: 'short' }).format(new Date(2025, safeMonth - 1, 1));
+};
 // ── Currency ─────────────────────────────────────────────────
 export const formatBDT = (amount: number): string =>
-  '৳' + Math.abs(amount).toLocaleString('en-BD', { maximumFractionDigits: 0 });
+  '৳' + Math.abs(amount).toLocaleString(currentLocale(), { maximumFractionDigits: 0 });
 
 export const formatBDTSigned = (amount: number): string =>
   (amount >= 0 ? '+' : '−') + formatBDT(amount);
 
 // ── Dates ─────────────────────────────────────────────────────
 export const formatDate = (iso: string): string =>
-  format(parseISO(iso), 'dd MMM yyyy');
+  new Intl.DateTimeFormat(currentLocale(), { day: '2-digit', month: 'short', year: 'numeric' }).format(parseISO(iso));
 
 export const formatDateTime = (iso: string): string =>
-  format(parseISO(iso), 'dd MMM yyyy, h:mm a');
+  new Intl.DateTimeFormat(currentLocale(), {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(parseISO(iso));
 
 export const MONTHS = [
   'January','February','March','April','May','June',
@@ -26,7 +44,7 @@ export const SHORT_MONTHS = [
 ];
 
 export const monthLabel = (month: number, year: number) =>
-  `${MONTHS[month - 1]} ${year}`;
+  new Intl.DateTimeFormat(currentLocale(), { month: 'long', year: 'numeric' }).format(new Date(year, month - 1, 1));
 
 // ── Source badge styles ───────────────────────────────────────
 export const sourceBadgeClass: Record<PaymentSource, string> = {
@@ -56,9 +74,23 @@ export const typeColor: Record<EntryType, string> = {
   receivable: 'text-blue-600',
 };
 
+export const categoryTypeForEntry = (type: EntryType): 'income' | 'expense' =>
+  type === 'income' ? 'income' : 'expense';
+
 // ── clsx tiny util ───────────────────────────────────────────
 export const cx = (...classes: (string | undefined | null | false)[]): string =>
   classes.filter(Boolean).join(' ');
+
+export const localizedApiError = (
+  error: unknown,
+  t: TFunction,
+  fallbackKey = 'Something went wrong',
+): string => {
+  const asRecord = (value: unknown): Record<string, unknown> | undefined =>
+    typeof value === 'object' && value !== null ? value as Record<string, unknown> : undefined;
+  const message = asRecord(asRecord(asRecord(error)?.response)?.data)?.message;
+  return typeof message === 'string' ? t(message, { defaultValue: t(fallbackKey) }) : t(fallbackKey);
+};
 
 export const getImageUrl = (path?: string) => {
   if (!path) return '';

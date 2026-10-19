@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { siteApi } from '@/api/site.api';
 import { Users, FileText, MessageSquare, CreditCard, TrendingUp, Bell, ArrowUpRight, DollarSign } from 'lucide-react';
-import { cx } from '@/utils';
+import { cx, formatNumber, localizedApiError } from '@/utils';
+import { useTranslation } from 'react-i18next';
+import { formatBDT } from '@/utils';
+import toast from 'react-hot-toast';
 
 interface Stats {
   totalUsers: number; totalPosts: number; totalContacts: number;
@@ -36,22 +39,35 @@ const StatCard = ({ icon: Icon, label, value, sub, accent }: {
 };
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [recentContacts, setRecentContacts] = useState<any[]>([]);
   const [recentPayments, setRecentPayments] = useState<any[]>([]);
+  const planLabel = (plan: string) => {
+    if (plan === 'monthly') return t('Monthly');
+    if (plan === 'annual' || plan === 'yearly') return t('Yearly');
+    if (plan === 'coffee') return t('Coffee');
+    return plan;
+  };
 
   useEffect(() => {
     Promise.all([
       siteApi.adminStats(),
-      siteApi.contacts().catch(() => []),
-      siteApi.adminPayments().catch(() => []),
+      siteApi.contacts().catch((error) => {
+        toast.error(localizedApiError(error, t, 'Failed to load contact messages'));
+        return [];
+      }),
+      siteApi.adminPayments().catch((error) => {
+        toast.error(localizedApiError(error, t, 'Failed to load payments'));
+        return [];
+      }),
     ]).then(([s, c, p]) => {
       setStats(s);
       setRecentContacts((c as any[]).slice(0, 5));
       setRecentPayments((p as any[]).slice(0, 5));
-    }).finally(() => setLoading(false));
-  }, []);
+    }).catch((error) => toast.error(localizedApiError(error, t, 'Failed to load dashboard'))).finally(() => setLoading(false));
+  }, [t]);
 
   if (loading) return (
     <div className="flex-1 flex items-center justify-center">
@@ -63,23 +79,23 @@ export default function AdminDashboardPage() {
     <div className="p-4 md:p-8 max-w-[1400px] mx-auto w-full animate-fade-in">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight">Dashboard</h1>
-        <p className="text-sm text-white/35 mt-1">Overview of your platform</p>
+        <h1 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight">{t('Dashboard')}</h1>
+        <p className="text-sm text-white/35 mt-1">{t('Overview of your platform')}</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
-        <StatCard icon={Users}      label="Total Users"         value={stats?.totalUsers ?? 0}         accent="blue" />
-        <StatCard icon={DollarSign}  label="Total Revenue"       value={`৳${(stats?.totalRevenue ?? 0).toLocaleString()}`} sub={`${stats?.totalPayments ?? 0} payments`} accent="sage" />
-        <StatCard icon={Bell}        label="Active Subscriptions" value={stats?.activeSubscriptions ?? 0} sub={`${stats?.totalSubscriptions ?? 0} total`} accent="purple" />
-        <StatCard icon={MessageSquare} label="Contact Messages"  value={stats?.totalContacts ?? 0}      accent="amber" />
+        <StatCard icon={Users}      label={t('Total Users')} value={formatNumber(stats?.totalUsers ?? 0)} accent="blue" />
+        <StatCard icon={DollarSign} label={t('Total Revenue')} value={formatBDT(stats?.totalRevenue ?? 0)} sub={t('{{total}} payments', { total: formatNumber(stats?.totalPayments ?? 0) })} accent="sage" />
+        <StatCard icon={Bell} label={t('Active Subscriptions')} value={formatNumber(stats?.activeSubscriptions ?? 0)} sub={t('{{total}} total', { total: formatNumber(stats?.totalSubscriptions ?? 0) })} accent="purple" />
+        <StatCard icon={MessageSquare} label={t('Contact Messages')} value={formatNumber(stats?.totalContacts ?? 0)} accent="amber" />
       </div>
 
       {/* Secondary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-8">
-        <StatCard icon={FileText}    label="Blog Posts"          value={stats?.totalPosts ?? 0}         accent="terra" />
-        <StatCard icon={CreditCard}  label="Total Payments"      value={stats?.totalPayments ?? 0}      accent="blue" />
-        <StatCard icon={TrendingUp}  label="Total Subscriptions" value={stats?.totalSubscriptions ?? 0}  accent="sage" />
+        <StatCard icon={FileText} label={t('Blog Posts')} value={formatNumber(stats?.totalPosts ?? 0)} accent="terra" />
+        <StatCard icon={CreditCard} label={t('Total Payments')} value={formatNumber(stats?.totalPayments ?? 0)} accent="blue" />
+        <StatCard icon={TrendingUp} label={t('Total Subscriptions')} value={formatNumber(stats?.totalSubscriptions ?? 0)} accent="sage" />
       </div>
 
       {/* Recent Activity */}
@@ -87,13 +103,13 @@ export default function AdminDashboardPage() {
         {/* Recent Contact Messages */}
         <div className="admin-card">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-display text-base font-bold text-white/80">Recent Messages</h2>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/25">{recentContacts.length} shown</span>
+            <h2 className="font-display text-base font-bold text-white/80">{t('Recent Messages')}</h2>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/25">{t('{{total}} shown', { total: formatNumber(recentContacts.length) })}</span>
           </div>
           {recentContacts.length === 0 ? (
             <div className="py-8 text-center">
               <MessageSquare size={24} className="text-white/10 mx-auto mb-2" />
-              <p className="text-xs text-white/25">No contact messages yet</p>
+              <p className="text-xs text-white/25">{t('No contact messages yet')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -118,13 +134,13 @@ export default function AdminDashboardPage() {
         {/* Recent Payments */}
         <div className="admin-card">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-display text-base font-bold text-white/80">Recent Payments</h2>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/25">{recentPayments.length} shown</span>
+            <h2 className="font-display text-base font-bold text-white/80">{t('Recent Payments')}</h2>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/25">{t('{{total}} shown', { total: formatNumber(recentPayments.length) })}</span>
           </div>
           {recentPayments.length === 0 ? (
             <div className="py-8 text-center">
               <CreditCard size={24} className="text-white/10 mx-auto mb-2" />
-              <p className="text-xs text-white/25">No payments yet</p>
+              <p className="text-xs text-white/25">{t('No payments yet')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -138,15 +154,15 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-semibold text-white/70 capitalize">{p.plan}</span>
+                      <span className="text-xs font-semibold text-white/70 capitalize">{planLabel(p.plan)}</span>
                       <span className={cx(
                         'admin-badge',
                         p.status === 'paid' ? 'admin-badge-success' : 'admin-badge-warning',
-                      )}>{p.status}</span>
+                      )}>{p.status === 'paid' ? t('Paid') : t('Pending')}</span>
                     </div>
                     <p className="text-[10px] text-white/25 font-mono truncate">{p.transactionId ?? p.transaction_id ?? '—'}</p>
                   </div>
-                  <span className="text-sm font-bold text-white/60 shrink-0">৳{(p.amount ?? 0).toLocaleString()}</span>
+                  <span className="text-sm font-bold text-white/60 shrink-0">{formatBDT(p.amount ?? 0)}</span>
                 </div>
               ))}
             </div>

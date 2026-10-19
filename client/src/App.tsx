@@ -1,5 +1,12 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
+import { Spinner } from '@/components/ui';
+import { localizedApiError } from '@/utils';
 import AppLayout from '@/components/layout/AppLayout';
 import AuthLayout from '@/components/layout/AuthLayout';
 import AdminLayout from '@/components/layout/AdminLayout';
@@ -28,13 +35,18 @@ import SupportPage from '@/pages/SupportPage';
 import BlogPostPage from '@/pages/BlogPostPage';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const token = useAuthStore((s) => s.accessToken);
-  return token ? <>{children}</> : <Navigate to="/login" replace />;
+  const { accessToken, user } = useAuthStore();
+  return accessToken && user ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { accessToken, user } = useAuthStore();
-  return accessToken ? <Navigate to={user?.userType === 'admin' ? '/admin' : '/dashboard'} replace /> : <>{children}</>;
+  return accessToken && user ? <Navigate to={user.userType === 'admin' ? '/admin' : '/dashboard'} replace /> : <>{children}</>;
+};
+
+const UserRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = useAuthStore((s) => s.user);
+  return user?.userType === 'user' ? <>{children}</> : <Navigate to="/admin" replace />;
 };
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -43,6 +55,68 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default function App() {
+  const queryClient = useQueryClient();
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const setUser = useAuthStore((s) => s.setUser);
+  const logout = useAuthStore((s) => s.logout);
+  const { t } = useTranslation();
+  const [sessionReady, setSessionReady] = useState(!accessToken);
+  const sessionKey = useAuthStore((s) => {
+    const userId = s.user?._id ?? s.user?.id;
+    return userId ? `${userId}:${s.user?.userType}` : null;
+  });
+  const previousSessionKey = useRef(sessionKey);
+
+  useEffect(() => {
+    if (!accessToken) {
+      setSessionReady(true);
+      return;
+    }
+
+    let active = true;
+    void authApi.me()
+      .then((user) => {
+        if (active) setUser(user);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        toast.error(localizedApiError(error, t, 'Failed to retrieve user information'));
+        logout();
+      })
+      .finally(() => {
+        if (active) setSessionReady(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [accessToken, logout, setUser, t]);
+
+  useEffect(() => {
+    const syncSession = (event: StorageEvent) => {
+      if (event.key !== 'abmiti-auth') return;
+      if (event.newValue === null) {
+        logout();
+      } else {
+        void useAuthStore.persist.rehydrate();
+      }
+    };
+
+    window.addEventListener('storage', syncSession);
+    return () => window.removeEventListener('storage', syncSession);
+  }, [logout]);
+
+  useLayoutEffect(() => {
+    if (previousSessionKey.current !== sessionKey) {
+      queryClient.clear();
+      previousSessionKey.current = sessionKey;
+    }
+  }, [queryClient, sessionKey]);
+
+  if (!sessionReady) {
+    return <div className="min-h-screen flex items-center justify-center"><Spinner className="text-terra" /></div>;
+  }
+
   return (
     <BrowserRouter basename="/abmiti">
       <Routes>
@@ -53,17 +127,17 @@ export default function App() {
         </Route>
         <Route path="/" element={<LandingPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
-        <Route element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
-          <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
-          <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
-          <Route path="/admin/blog" element={<AdminRoute><AdminBlogPage /></AdminRoute>} />
-          <Route path="/admin/contacts" element={<AdminRoute><AdminContactsPage /></AdminRoute>} />
-          <Route path="/admin/notifications" element={<AdminRoute><AdminNotificationsPage /></AdminRoute>} />
-          <Route path="/admin/payments" element={<AdminRoute><AdminPaymentsPage /></AdminRoute>} />
-          <Route path="/admin/config" element={<AdminRoute><AdminConfigPage /></AdminRoute>} />
+        <Route element={<PrivateRoute><AdminRoute><AdminLayout /></AdminRoute></PrivateRoute>}>
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/blog" element={<AdminBlogPage />} />
+          <Route path="/admin/contacts" element={<AdminContactsPage />} />
+          <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+          <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+          <Route path="/admin/config" element={<AdminConfigPage />} />
         </Route>
 
-        <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+        <Route element={<PrivateRoute><UserRoute><AppLayout /></UserRoute></PrivateRoute>}>
           <Route path="/support" element={<SupportPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/entries"  element={<EntriesPage />} />

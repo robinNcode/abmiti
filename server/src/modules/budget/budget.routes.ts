@@ -7,11 +7,12 @@ import {
   validateMonthYearQuery,
   validateReorderLines,
 } from './budget.validators';
-import { authenticate, validate } from '../../shared/middleware';
+import { authenticate, requireUser, validate } from '../../shared/middleware';
 
 const router = Router();
 
 router.use(authenticate);
+router.use(requireUser);
 
 router.get('/templates', budgetController.templates);
 router.post('/from-template/:templateId', validateMonthYearQuery, validate, budgetController.fromTemplate);

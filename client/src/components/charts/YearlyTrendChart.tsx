@@ -3,18 +3,19 @@ import {
   CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import { useYearlyTrend } from '@/hooks';
-import { SHORT_MONTHS, formatBDT } from '@/utils';
+import { formatBDT, formatCompactNumber, formatShortMonth } from '@/utils';
 import { Spinner } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 
-const CustomTooltip = ({ active, payload, label }: {
+const CustomTooltip = ({ active, payload }: {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string }>;
-  label?: number;
+  payload?: Array<{ name: string; value: number; color: string; payload?: { month?: number } }>;
 }) => {
   if (!active || !payload?.length) return null;
+  const month = payload[0]?.payload?.month;
   return (
     <div className="card px-4 py-3 text-xs space-y-1.5 shadow-lift">
-      <p className="font-semibold text-ink/60 mb-2">{SHORT_MONTHS[(label ?? 1) - 1]}</p>
+      <p className="font-semibold text-ink/60 mb-2">{formatShortMonth(month ?? 1)}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex justify-between gap-6">
           <span style={{ color: p.color }} className="font-medium capitalize">{p.name}</span>
@@ -27,6 +28,7 @@ const CustomTooltip = ({ active, payload, label }: {
 
 export default function YearlyTrendChart() {
   const { data = [], isLoading } = useYearlyTrend();
+  const { t } = useTranslation();
 
   if (isLoading) return (
     <div className="flex justify-center py-12"><Spinner className="text-terra" /></div>
@@ -34,7 +36,7 @@ export default function YearlyTrendChart() {
 
   const chartData = data.map((d) => ({
     ...d,
-    name: SHORT_MONTHS[d.month - 1],
+    name: formatShortMonth(d.month),
   }));
 
   return (
@@ -58,12 +60,12 @@ export default function YearlyTrendChart() {
           <CartesianGrid strokeDasharray="3 3" stroke="#e8dcc8" vertical={false} />
           <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#5a4e3a', fontFamily: 'DM Sans' }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 10, fill: '#5a4e3a', fontFamily: 'DM Sans' }} axisLine={false} tickLine={false}
-            tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
+            tickFormatter={(v: number) => formatCompactNumber(v)} />
           <Tooltip content={<CustomTooltip />} />
           <Legend wrapperStyle={{ fontSize: '11px', fontFamily: 'DM Sans', paddingTop: '12px' }} />
-          <Area type="monotone" dataKey="income"  name="Income"  stroke="#4a7c59" strokeWidth={2} fill="url(#incomeGrad)"  dot={false} activeDot={{ r: 4 }} />
-          <Area type="monotone" dataKey="expense" name="Expense" stroke="#c2552a" strokeWidth={2} fill="url(#expenseGrad)" dot={false} activeDot={{ r: 4 }} />
-          <Area type="monotone" dataKey="savings" name="Savings" stroke="#2a6dc2" strokeWidth={2} fill="url(#savingsGrad)" dot={false} activeDot={{ r: 4 }} strokeDasharray="5 3" />
+          <Area type="monotone" dataKey="income"  name={t('income')}  stroke="#4a7c59" strokeWidth={2} fill="url(#incomeGrad)"  dot={false} activeDot={{ r: 4 }} />
+          <Area type="monotone" dataKey="expense" name={t('expense')} stroke="#c2552a" strokeWidth={2} fill="url(#expenseGrad)" dot={false} activeDot={{ r: 4 }} />
+          <Area type="monotone" dataKey="savings" name={t('savings')} stroke="#2a6dc2" strokeWidth={2} fill="url(#savingsGrad)" dot={false} activeDot={{ r: 4 }} strokeDasharray="5 3" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

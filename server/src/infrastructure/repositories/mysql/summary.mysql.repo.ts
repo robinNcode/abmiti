@@ -177,10 +177,12 @@ export class MySQLSummaryRepository implements ISummaryRepository {
     const where = conditions.join(' AND ');
 
     const [rows] = await this.pool.execute<any[]>(
-      `SELECT e.id AS _id, e.date, e.type, e.amount, e.note, e.source,
-              c.id AS category_id, c.name AS category_name, c.icon AS category_icon, c.color AS category_color
+      `SELECT e.id AS _id, e.date, e.type, e.amount, e.note, e.sector, e.source,
+              c.id AS category_id, c.name AS category_name, c.icon AS category_icon, c.color AS category_color,
+              a.id AS account_id, a.name AS account_name, a.type AS account_type
        FROM entries e
        JOIN categories c ON e.category_id = c.id
+       LEFT JOIN accounts a ON e.account_id = a.id
        WHERE ${where}
        ORDER BY e.date ASC, e.id ASC`,
       params,
@@ -201,6 +203,7 @@ export class MySQLSummaryRepository implements ISummaryRepository {
         type: r.type,
         amount: Number(r.amount),
         note: r.note,
+        sector: r.sector,
         source: r.source,
         category: {
           _id: r.category_id,
@@ -208,6 +211,7 @@ export class MySQLSummaryRepository implements ISummaryRepository {
           icon: r.category_icon,
           color: r.category_color,
         },
+        account: r.account_id ? { _id: r.account_id, name: r.account_name, type: r.account_type } : undefined,
         runningBalance: balance,
       };
     });

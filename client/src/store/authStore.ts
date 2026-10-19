@@ -34,9 +34,16 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'abmiti-auth',
       partialize: (s) => ({
-        user:         s.user,
         accessToken:  s.accessToken,
         refreshToken: s.refreshToken,
+      }),
+      // The user record is derived from the access token via /auth/me. Keeping
+      // it out of storage prevents an old user's role/profile being paired with
+      // a newly stored token after another person signs in in this browser.
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...(persistedState as Partial<AuthState>),
+        user: null,
       }),
     },
   ),

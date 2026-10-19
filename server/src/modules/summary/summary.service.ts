@@ -250,6 +250,7 @@ export const summaryService = {
       type: r.type,
       amount: r.amount,
       note: r.note,
+      sector: r.sector,
       category: r.category
         ? {
             _id: String(r.category._id),
@@ -259,6 +260,9 @@ export const summaryService = {
           }
         : { _id: '', name: 'Deleted Category', icon: '🗑️', color: '#9ca3af' },
       source: r.source,
+      account: r.account
+        ? { _id: String(r.account._id), name: r.account.name, type: r.account.type }
+        : undefined,
       runningBalance: r.runningBalance,
     }));
   },

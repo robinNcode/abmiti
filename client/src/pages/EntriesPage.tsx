@@ -8,6 +8,7 @@ import SmsEntryForm from '@/components/entry/SmsEntryForm';
 import ExpenseForm from '@/components/entry/ExpenseForm';
 import EntryRow from '@/components/entry/EntryRow';
 import { cx } from '@/utils';
+import { formatNumber } from '@/utils';
 
 type TypeFilter = 'all' | 'income' | 'expense' | 'investment' | 'savings' | 'payable' | 'receivable';
 
@@ -29,21 +30,21 @@ export default function EntriesPage() {
   const totalPages = data?.meta?.totalPages ?? 1;
   const total = data?.meta?.total ?? 0;
 
-  const filterBtns: { key: TypeFilter; label: string; transKey: string }[] = [
-    { key: 'all',        label: 'All', transKey: 'all' },
-    { key: 'income',     label: '↑ Income', transKey: 'income' },
-    { key: 'expense',    label: '↓ Expense', transKey: 'expense' },
-    { key: 'investment', label: '💼 Investment', transKey: 'investment' },
-    { key: 'savings',    label: '💰 Savings', transKey: 'savings' },
-    { key: 'payable',    label: '📤 Payable', transKey: 'payable' },
-    { key: 'receivable', label: '📥 Receivable', transKey: 'receivable' },
+  const filterBtns: { key: TypeFilter; transKey: string }[] = [
+    { key: 'all', transKey: 'all' },
+    { key: 'income', transKey: 'income' },
+    { key: 'expense', transKey: 'expense' },
+    { key: 'investment', transKey: 'investment' },
+    { key: 'savings', transKey: 'savings' },
+    { key: 'payable', transKey: 'payable' },
+    { key: 'receivable', transKey: 'receivable' },
   ];
 
   return (
     <div className="min-h-full">
       <PageHeader
-        title={`${t('entriesTitle')} — খাতা`}
-        subtitle={`${total} ${t('monthlyEntries')}`}
+        title={t('entriesTitle')}
+        subtitle={`${formatNumber(total)} ${t('monthlyEntries')}`}
         action={
           <>
             {/* Desktop: 6 buttons */}
@@ -57,7 +58,7 @@ export default function EntriesPage() {
             </div>
             {/* Mobile/Tablet: single Add Entry button */}
             <div className="xl:hidden">
-              <button onClick={() => setModal('add_menu')} className="btn-primary text-sm min-h-[44px] w-full">Add Entry +</button>
+              <button onClick={() => setModal('add_menu')} className="btn-primary text-sm min-h-[44px] w-full">{t('Add Entry +')}</button>
             </div>
           </>
         }
@@ -98,7 +99,7 @@ export default function EntriesPage() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-4 mt-4 border-t border-paper-mist2">
-                  <p className="text-xs text-ink/40">Page {page} of {totalPages}</p>
+                  <p className="text-xs text-ink/40">{t('Page {{page}} of {{totalPages}}', { page, totalPages })}</p>
                   <div className="flex gap-2">
                     <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                       className="btn-ghost px-3 py-2 disabled:opacity-30">
@@ -118,7 +119,7 @@ export default function EntriesPage() {
         </div>
       </div>
 
-      <Modal open={modal === 'add_menu'} onClose={() => setModal(null)} title="Select Entry Type">
+      <Modal open={modal === 'add_menu'} onClose={() => setModal(null)} title={t('Select Entry Type')}>
         <div className="flex flex-col gap-3 pb-2">
           <button onClick={() => setModal('income')} className="btn-sage w-full min-h-[44px] text-left px-4">↑ {t('addIncome')}</button>
           <button onClick={() => setModal('expense')} className="btn-primary w-full min-h-[44px] text-left px-4">↓ {t('addExpense')}</button>
@@ -128,19 +129,19 @@ export default function EntriesPage() {
           <button onClick={() => setModal('receivable')} className="btn-sage w-full min-h-[44px] text-left px-4">📥 {t('addReceivable')}</button>
         </div>
       </Modal>
-      <Modal open={modal === 'income'} onClose={() => setModal(null)} title={`${t('addIncomeTitle')} — আয়`}>
+      <Modal open={modal === 'income'} onClose={() => setModal(null)} title={t('addIncomeTitle')}>
         <SmsEntryForm onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title={`${t('addExpenseTitle')} — ব্যয়`}>
+      <Modal open={modal === 'expense'} onClose={() => setModal(null)} title={t('addExpenseTitle')}>
         <ExpenseForm onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'savings'} onClose={() => setModal(null)} title={`${t('addSavingsTitle')} — সঞ্চয়`}>
+      <Modal open={modal === 'savings'} onClose={() => setModal(null)} title={t('addSavingsTitle')}>
         <ExpenseForm type="savings" onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'investment'} onClose={() => setModal(null)} title="Add Investment — বিনিয়োগ">
+      <Modal open={modal === 'investment'} onClose={() => setModal(null)} title={t('addInvestment')}>
         <ExpenseForm type="investment" onSuccess={() => setModal(null)} />
       </Modal>
-      <Modal open={modal === 'payable'} onClose={() => setModal(null)} title={`${t('addPayableTitle')} — প্রদানযোগ্য`}>
+      <Modal open={modal === 'payable'} onClose={() => setModal(null)} title={t('addPayableTitle')}>
         <ExpenseForm type="payable" onSuccess={() => setModal(null)} />
       </Modal>
       <Modal open={modal === 'receivable'} onClose={() => setModal(null)} title={`${t('addReceivableTitle')} — প্রাপ্তযোগ্য`}>

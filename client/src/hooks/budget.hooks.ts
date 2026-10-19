@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api/client';
 import { IBudgetInput, IBudget } from '../types';
+import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import { localizedApiError } from '../utils';
 
 export const useBudgets = () => {
   return useQuery({
@@ -24,6 +27,7 @@ export const useMonthlyBudget = (month: number, year: number) => {
 
 export const useUpsertBudget = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: async (data: IBudgetInput) => {
       await apiClient.post('/budgets', data);
@@ -33,11 +37,13 @@ export const useUpsertBudget = () => {
       qc.invalidateQueries({ queryKey: ['budget', variables.month, variables.year] });
       qc.invalidateQueries({ queryKey: ['summary'] });
     },
+    onError: (error: unknown) => toast.error(localizedApiError(error, t, 'Failed to save budget')),
   });
 };
 
 export const useDeleteBudget = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: async (id: string) => {
       await apiClient.delete(`/budgets/${id}`);
@@ -47,5 +53,6 @@ export const useDeleteBudget = () => {
       qc.invalidateQueries({ queryKey: ['budget'] });
       qc.invalidateQueries({ queryKey: ['summary'] });
     },
+    onError: (error: unknown) => toast.error(localizedApiError(error, t, 'Failed to delete budget')),
   });
 };
