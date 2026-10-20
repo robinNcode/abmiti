@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { siteApi } from '@/api/site.api';
 import toast from 'react-hot-toast';
 import { Settings, Save, LayoutTemplate, Type, Image as ImageIcon, Upload, Trash2, X } from 'lucide-react';
@@ -58,6 +59,7 @@ const validate = (config: SiteConfig): string | null => {
 };
 
 export default function AdminConfigPage() {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<SiteConfig>(emptyConfig);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -74,12 +76,21 @@ export default function AdminConfigPage() {
           content: normalizeContent(value?.content),
         });
       })
-      .catch(() => {})
+      .catch(() => { })
+      .catch(() => { })
+      .finally(() => setLoading(false));
   }, []);
 
   const fields = useMemo<ContentField[]>(() => {
     const known = new Map(CONTENT_FIELDS.map((f) => [f.key, f]));
     for (const key of Object.keys(config.content)) {
+      if (!known.has(key)) known.set(key, { key, label: labelFromKey(key) });
+    }
+    return [...known.values()];
+  }, [config.content]);
+
+  const setContent = (key: string, value: string) =>
+    setConfig((cur) => ({ ...cur, content: { ...cur.content, [key]: value } }));
 
   const handleLogoUpload = async (file: File) => {
     setUploading(true);
