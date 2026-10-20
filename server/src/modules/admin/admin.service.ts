@@ -20,15 +20,30 @@ const all = async (collection: any, table: string) => {
   const [rows] = await getMySQLPool().query(`SELECT * FROM ${table} ORDER BY created_at DESC`); return rows;
 };
 const configDefaults = { title: 'Abmiti', logo: '', subtitle: 'Your personal financial companion', content: {} as RecordData };
+const parseConfigValue = (value: any) => {
+  if (typeof value !== 'string') return value;
+  try { return JSON.parse(value); } catch { return value; }
+};
 export const adminService = {
   publicConfig: async () => {
     if (env.DB_PROVIDER === 'mongodb') { const rows = await SiteConfig.find(); return Object.assign({}, configDefaults, ...rows.map((r: any) => ({ [r.key]: r.value }))); }
     const [rows] = await getMySQLPool().query<any[]>('SELECT config_key, config_value FROM site_config');
-    return Object.assign({}, configDefaults, ...rows.map((r) => ({ [r.config_key]: typeof r.config_value === 'string' ? JSON.parse(r.config_value) : r.config_value })));
+    return Object.assign({}, configDefaults, ...rows.map((r) => ({ [r.config_key]: parseConfigValue(r.config_value) })));
   },
   saveConfig: async (data: RecordData) => {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new BadRequestError('Invalid configuration payload');
     const allowed = ['title', 'logo', 'subtitle', 'content'];
     for (const key of Object.keys(data)) if (!allowed.includes(key)) throw new BadRequestError(`Unsupported config field: ${key}`);
+    for (const field of ['title', 'logo', 'subtitle'] as const) {
+      if (data[field] !== undefined && typeof data[field] !== 'string') throw new BadRequestError(`Config field "${field}" must be a string`);
+      if (typeof data[field] === 'string' && data[field].length > 1000) throw new BadRequestError(`Config field "${field}" is too long`);
+    }
+    if (data.content !== undefined) {
+      if (!data.content || typeof data.content !== 'object' || Array.isArray(data.content)) throw new BadRequestError('Config "content" must be an object');
+      for (const [key, value] of Object.entries(data.content)) {
+        if (typeof value !== 'string') throw new BadRequestError(`Content field "${key}" must be a string`);
+      }
+    }
     for (const [key, value] of Object.entries(data)) {
       if (env.DB_PROVIDER === 'mongodb') await SiteConfig.findOneAndUpdate({ key }, { key, value }, { upsert: true });
       else await getMySQLPool().execute('INSERT INTO site_config (config_key, config_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE config_value=VALUES(config_value)', [key, JSON.stringify(value)]);

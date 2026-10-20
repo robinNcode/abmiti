@@ -65,5 +65,5 @@ export const getImageUrl = (path?: string) => {
   if (path.startsWith('http')) return path;
   const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
   const host = baseUrl.replace('/api/v1', '');
-  return `${host}${path}`;
+  return `${host}/${path.replace(/^\/+/, '')}`;
 };
