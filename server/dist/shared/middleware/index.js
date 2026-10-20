@@ -9,23 +9,40 @@ const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const express_validator_1 = require("express-validator");
 const env_1 = require("../../config/env");
 const errors_1 = require("../utils/errors");
+const container_1 = require("../../container");
 // ── Auth middleware ──────────────────────────────────────────
 const authenticate = (req, _res, next) => {
     const header = req.headers.authorization;
     if (!header?.startsWith('Bearer '))
         throw new errors_1.UnauthorizedError('No token provided');
     const token = header.split(' ')[1];
+    let payload;
     try {
         const decoded = jsonwebtoken_1.default.verify(token, env_1.env.JWT_SECRET);
         if (typeof decoded !== 'object' || decoded === null || Array.isArray(decoded)) {
             throw new errors_1.UnauthorizedError('Invalid or expired token');
         }
-        req.user = decoded;
-        next();
+        payload = decoded;
+        if (typeof payload.userId !== 'string' || !payload.userId) {
+            throw new errors_1.UnauthorizedError('Invalid or expired token');
+        }
     }
     catch {
         throw new errors_1.UnauthorizedError('Invalid or expired token');
     }
+    void container_1.container.userRepo.findById(payload.userId).then((user) => {
+        if (!user) {
+            next(new errors_1.UnauthorizedError('User not found'));
+            return;
+        }
+        req.user = {
+            ...payload,
+            userId: String(user._id),
+            email: user.email,
+            userType: user.userType ?? 'user',
+        };
+        next();
+    }).catch(next);
 };
 exports.authenticate = authenticate;
 // ── Validation middleware ────────────────────────────────────

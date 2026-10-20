@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useTranslation } from 'react-i18next';
 
 interface MarkdownEditorProps {
   value: string;
@@ -41,6 +42,7 @@ const actions: ToolbarAction[] = [
 const tableTemplate = `\n| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Cell 1   | Cell 2   | Cell 3   |\n| Cell 4   | Cell 5   | Cell 6   |\n`;
 
 export default function MarkdownEditor({ value, onChange, placeholder, minHeight = '350px' }: MarkdownEditorProps) {
+  const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [preview, setPreview] = useState(false);
 
@@ -119,7 +121,7 @@ export default function MarkdownEditor({ value, onChange, placeholder, minHeight
             type="button"
             onClick={() => applyAction(action)}
             className={`w-7 h-7 rounded-md flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors ${i === 4 || i === 7 || i === 10 ? 'ml-1.5' : ''}`}
-            title={action.label}
+            title={t(action.label)}
           >
             {action.icon}
           </button>
@@ -128,7 +130,7 @@ export default function MarkdownEditor({ value, onChange, placeholder, minHeight
           type="button"
           onClick={insertTable}
           className="w-7 h-7 rounded-md flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.08] transition-colors ml-1.5"
-          title="Insert table"
+          title={t('Insert table')}
         >
           <Table size={14} />
         </button>
@@ -145,7 +147,7 @@ export default function MarkdownEditor({ value, onChange, placeholder, minHeight
           }`}
         >
           {preview ? <EyeOff size={12} /> : <Eye size={12} />}
-          {preview ? 'Edit' : 'Preview'}
+          {preview ? t('Edit') : t('Preview')}
         </button>
       </div>
 
@@ -165,7 +167,7 @@ export default function MarkdownEditor({ value, onChange, placeholder, minHeight
           "
           style={{ minHeight }}
         >
-          {value ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown> : <p className="text-white/20 italic">Nothing to preview</p>}
+          {value ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown> : <p className="text-white/20 italic">{t('Nothing to preview')}</p>}
         </div>
       ) : (
         <textarea
@@ -173,7 +175,7 @@ export default function MarkdownEditor({ value, onChange, placeholder, minHeight
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder || 'Write your content using Markdown…'}
+          placeholder={placeholder || t('Write your content using Markdown…')}
           className="w-full bg-transparent text-white/90 text-sm font-mono leading-relaxed p-4 resize-y focus:outline-none placeholder:text-white/20"
           style={{ minHeight }}
         />
@@ -182,7 +184,7 @@ export default function MarkdownEditor({ value, onChange, placeholder, minHeight
       {/* Status bar */}
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-white/[0.06] bg-white/[0.01]">
         <span className="text-[10px] text-white/20">
-          Markdown supported · <kbd className="px-1 py-0.5 rounded bg-white/[0.06] text-white/30 text-[9px]">Ctrl+B</kbd> Bold · <kbd className="px-1 py-0.5 rounded bg-white/[0.06] text-white/30 text-[9px]">Ctrl+I</kbd> Italic
+          {t('Markdown supported')} · <kbd className="px-1 py-0.5 rounded bg-white/[0.06] text-white/30 text-[9px]">Ctrl+B</kbd> {t('Bold')} · <kbd className="px-1 py-0.5 rounded bg-white/[0.06] text-white/30 text-[9px]">Ctrl+I</kbd> {t('Italic')}
         </span>
         <span className="text-[10px] text-white/20">{value.length} chars</span>
       </div>

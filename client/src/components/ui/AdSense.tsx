@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // Script loading state tracker across components to prevent redundant injection
 let scriptLoadingPromise: Promise<void> | null = null;
@@ -52,18 +53,15 @@ export const AdSense: React.FC<AdSenseProps> = ({
   responsive = true,
   className = '',
   style = { display: 'block' },
-  label = 'Advertisement',
+  label,
 }) => {
+  const { t } = useTranslation();
   const adRef = useRef<HTMLModElement | null>(null);
   const pushedRef = useRef<boolean>(false);
   const [adError, setAdError] = useState<boolean>(false);
 
-  // If no client ID configured in env or props, render nothing gracefully
-  if (!clientId || clientId.trim() === '') {
-    return null;
-  }
-
   useEffect(() => {
+    if (!clientId || clientId.trim() === '') return;
     let isMounted = true;
 
     loadAdSenseScript(clientId)
@@ -89,15 +87,20 @@ export const AdSense: React.FC<AdSenseProps> = ({
     };
   }, [clientId, slotId]);
 
+  // If no client ID configured in env or props, render nothing gracefully
+  if (!clientId || clientId.trim() === '') {
+    return null;
+  }
+
   if (adError) {
     return null; // Gracefully fail without breaking page layout
   }
 
   return (
     <div className={`adsense-container overflow-hidden max-w-full my-6 flex flex-col items-center ${className}`}>
-      {label && (
+      {(label ?? t('Advertisement')) && (
         <span className="text-[10px] tracking-wider uppercase text-ink/40 font-medium mb-1 select-none">
-          {label}
+          {label ?? t('Advertisement')}
         </span>
       )}
       <div className="w-full max-w-full overflow-hidden flex justify-center">

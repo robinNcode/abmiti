@@ -4,6 +4,7 @@ import { useUpsertBudget } from '@/hooks';
 import { Spinner } from '@/components/ui';
 import { IBudgetInput } from '@/types';
 import { cx, SHORT_MONTHS } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 interface Props { 
   onSuccess?: () => void;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function BudgetForm({ onSuccess, initialData }: Props) {
+  const { t, i18n } = useTranslation();
   const { register, handleSubmit, reset } = useForm<IBudgetInput>({
     defaultValues: initialData || {
       month: new Date().getMonth() + 1,
@@ -39,28 +41,28 @@ export default function BudgetForm({ onSuccess, initialData }: Props) {
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="label">Month</label>
+          <label className="label">{t('Month')}</label>
           <select {...register('month')} className="input w-full">
-            {SHORT_MONTHS.map((m, i) => (
-              <option key={i} value={i + 1}>{m}</option>
+            {SHORT_MONTHS.map((_, i) => (
+              <option key={i} value={i + 1}>{new Date(2025, i, 1).toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-BD', { month: 'short' })}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="label">Year</label>
+          <label className="label">{t('Year')}</label>
           <input {...register('year')} type="number" min="2000" className="input w-full" />
         </div>
       </div>
 
       <div>
-        <label className="label">Declared Income (BDT) *</label>
+        <label className="label">{t('Declared Income (BDT) *')}</label>
         <input {...register('totalIncome', { required: true, min: 0 })} type="number" step="0.01" min="0"
           placeholder="0" className="input w-full" />
       </div>
 
       <button type="submit" disabled={upsertBudget.isPending}
         className={cx('btn-primary w-full mt-2', upsertBudget.isPending && 'opacity-70')}>
-        {upsertBudget.isPending ? <Spinner /> : 'Save Budget'}
+        {upsertBudget.isPending ? <Spinner /> : t('Save Budget')}
       </button>
     </form>
   );

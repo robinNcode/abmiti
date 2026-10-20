@@ -2,9 +2,11 @@ import { useEffect, useState, useMemo } from 'react';
 import { siteApi } from '@/api/site.api';
 import toast from 'react-hot-toast';
 import { Search, MessageSquare, Trash2, Mail, Calendar, AlertCircle, User, CheckCircle, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
-import { cx } from '@/utils';
+import { cx, formatNumber, localizedApiError } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminContactsPage() {
+  const { t, i18n } = useTranslation();
   const [contacts, setContacts] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -20,8 +22,8 @@ export default function AdminContactsPage() {
     siteApi.contacts(page, limit).then((res) => {
       setContacts(res.data);
       setTotal(res.total);
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, [page]);
+    }).catch((error) => toast.error(localizedApiError(error, t, 'Failed to load contact messages'))).finally(() => setLoading(false));
+  }, [page, t]);
 
   const filtered = useMemo(() => {
     if (!search) return contacts;
@@ -35,9 +37,9 @@ export default function AdminContactsPage() {
     try {
       await siteApi.deleteContact(id);
       setContacts((cur) => cur.filter((c) => (c._id ?? c.id) !== id));
-      toast.success('Message deleted');
+      toast.success(t('Message deleted'));
       setTotal(t => Math.max(0, t - 1));
-    } catch { toast.error('Failed to delete'); }
+    } catch (error) { toast.error(localizedApiError(error, t, 'Failed to delete')); }
     setDeleteId(null);
   };
 
@@ -45,8 +47,8 @@ export default function AdminContactsPage() {
     try {
       await siteApi.resolveContact(id, isResolved);
       setContacts((cur) => cur.map((c) => (c._id ?? c.id) === id ? { ...c, is_resolved: isResolved, isResolved } : c));
-      toast.success(isResolved ? 'Marked as resolved' : 'Marked as unread');
-    } catch { toast.error('Failed to update status'); }
+      toast.success(isResolved ? t('Marked as resolved') : t('Marked as unread'));
+    } catch (error) { toast.error(localizedApiError(error, t, 'Failed to update status')); }
   };
 
   if (loading && contacts.length === 0) return (
@@ -62,8 +64,8 @@ export default function AdminContactsPage() {
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white tracking-tight">Contact Messages</h1>
-          <p className="text-sm text-white/35 mt-0.5">{total} messages received</p>
+          <h1 className="font-display text-2xl font-bold text-white tracking-tight">{t('Contact Messages')}</h1>
+          <p className="text-sm text-white/35 mt-0.5">{t('{{total}} messages received', { total: formatNumber(total) })}</p>
         </div>
       </div>
 
@@ -71,7 +73,7 @@ export default function AdminContactsPage() {
       <div className="admin-card mb-4 !p-3">
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
-          <input type="text" placeholder="Search by name, email or message…" value={search} onChange={(e) => setSearch(e.target.value)} className="admin-input pl-9 w-full" />
+          <input type="text" placeholder={t('Search by name, email or message…')} value={search} onChange={(e) => setSearch(e.target.value)} className="admin-input pl-9 w-full" />
         </div>
       </div>
 
@@ -79,8 +81,8 @@ export default function AdminContactsPage() {
       {filtered.length === 0 ? (
         <div className="admin-card py-16 text-center">
           <MessageSquare size={32} className="text-white/10 mx-auto mb-3" />
-          <p className="text-sm text-white/25 font-medium">No messages found</p>
-          <p className="text-xs text-white/15 mt-1">Contact messages from visitors will appear here</p>
+          <p className="text-sm text-white/25 font-medium">{t('No messages found')}</p>
+          <p className="text-xs text-white/15 mt-1">{t('Contact messages from visitors will appear here')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -107,7 +109,7 @@ export default function AdminContactsPage() {
                       {date && (
                         <div className="flex items-center gap-1.5 sm:ml-auto">
                           <Calendar size={11} className="text-white/15" />
-                          <span className="text-[10px] text-white/20">{new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                          <span className="text-[10px] text-white/20">{new Date(date).toLocaleDateString(i18n.language === 'bn' ? 'bn-BD' : 'en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                       )}
                     </div>
@@ -118,15 +120,15 @@ export default function AdminContactsPage() {
                     )}>{c.message}</p>
                     {c.message?.length > 200 && (
                       <button onClick={() => setSelectedMessage(selectedMessage?._id === cid ? null : c)} className="text-[10px] text-terra-light mt-1 hover:underline">
-                        {selectedMessage?._id === cid || selectedMessage?.id === cid ? 'Show less' : 'Read more'}
+                        {selectedMessage?._id === cid || selectedMessage?.id === cid ? t('Show less') : t('Read more')}
                       </button>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => handleResolve(cid, !isResolved)} className={cx('admin-icon-btn', isResolved ? 'text-amber-400/40 hover:text-amber-400' : 'text-sage-light/40 hover:text-sage-light')} title={isResolved ? 'Mark unread' : 'Mark resolved'}>
+                    <button onClick={() => handleResolve(cid, !isResolved)} className={cx('admin-icon-btn', isResolved ? 'text-amber-400/40 hover:text-amber-400' : 'text-sage-light/40 hover:text-sage-light')} title={isResolved ? t('Mark unread') : t('Mark resolved')}>
                       {isResolved ? <Circle size={14} /> : <CheckCircle size={14} />}
                     </button>
-                    <button onClick={() => setDeleteId(cid)} className="admin-icon-btn text-red-400/40 hover:text-red-400" title="Delete">
+                    <button onClick={() => setDeleteId(cid)} className="admin-icon-btn text-red-400/40 hover:text-red-400" title={t('Delete')}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -140,12 +142,12 @@ export default function AdminContactsPage() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 admin-card !py-3 !px-4">
-          <p className="text-xs text-white/35">Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}</p>
+          <p className="text-xs text-white/35">{t('Showing {{from}} to {{to}} of {{total}}', { from: formatNumber((page - 1) * limit + 1), to: formatNumber(Math.min(page * limit, total)), total: formatNumber(total) })}</p>
           <div className="flex items-center gap-2">
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="admin-btn-ghost !px-2 !py-1.5 disabled:opacity-20">
               <ChevronLeft size={16} />
             </button>
-            <span className="text-xs font-semibold text-white/50 w-8 text-center">{page} / {totalPages}</span>
+            <span className="text-xs font-semibold text-white/50 w-8 text-center">{t('Page {{page}} of {{totalPages}}', { page: formatNumber(page), totalPages: formatNumber(totalPages) })}</span>
             <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="admin-btn-ghost !px-2 !py-1.5 disabled:opacity-20">
               <ChevronRight size={16} />
             </button>
@@ -163,13 +165,13 @@ export default function AdminContactsPage() {
                 <AlertCircle size={18} className="text-red-400" />
               </div>
               <div>
-                <h3 className="font-display font-bold text-white/80">Delete Message</h3>
-                <p className="text-xs text-white/35">This action cannot be undone.</p>
+                <h3 className="font-display font-bold text-white/80">{t('Delete Message')}</h3>
+                <p className="text-xs text-white/35">{t('This action cannot be undone.')}</p>
               </div>
             </div>
             <div className="flex justify-end gap-3">
-              <button onClick={() => setDeleteId(null)} className="admin-btn-ghost">Cancel</button>
-              <button onClick={() => handleDelete(deleteId)} className="admin-btn-danger">Delete</button>
+              <button onClick={() => setDeleteId(null)} className="admin-btn-ghost">{t('Cancel')}</button>
+              <button onClick={() => handleDelete(deleteId)} className="admin-btn-danger">{t('Delete')}</button>
             </div>
           </div>
         </div>

@@ -54,8 +54,8 @@ export default function ProfilePage() {
   return (
     <div className="min-h-full">
       <PageHeader
-        title={t('Profile') || 'Profile'}
-        subtitle={t('profileSubtitle') || 'Manage your account settings and avatar'}
+        title={t('Profile')}
+        subtitle={t('profileSubtitle')}
       />
 
       <div className="px-4 md:px-8 pb-10 space-y-6">
@@ -79,13 +79,13 @@ export default function ProfilePage() {
                 <label className="label">{t('Name') || 'Name'}</label>
                 <input
                   {...register('name', {
-                    required: 'Name is required',
-                    minLength: { value: 1, message: 'Name must be at least 1 character' },
-                    maxLength: { value: 80, message: 'Name must be less than 80 characters' },
+                    required: t('Name is required'),
+                    minLength: { value: 1, message: t('Name must be at least 1 character') },
+                    maxLength: { value: 80, message: t('Name must be less than 80 characters') },
                   })}
                   type="text"
                   className="input"
-                  placeholder="Enter your name"
+                  placeholder={t('Enter your name')}
                 />
                 {errors.name && (
                   <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
@@ -95,7 +95,7 @@ export default function ProfilePage() {
               {/* Avatar Selector */}
               <div>
                 <label className="label">{t('Avatar') || 'Choose Your Avatar'}</label>
-                <p className="text-xs text-ink/50 mb-3">Select a Minecraft-style avatar or use your Google Profile Photo</p>
+                <p className="text-xs text-ink/50 mb-3">{t('Select a Minecraft-style avatar or use your Google Profile Photo')}</p>
 
                 {user?.avatar?.startsWith('http') && (
                   <div className="mb-3 flex items-center gap-3 p-3 bg-paper-mist rounded-xl">
@@ -108,11 +108,11 @@ export default function ProfilePage() {
                           : 'border-transparent hover:opacity-80'
                       }`}
                     >
-                      <img src={user.avatar} alt="Google Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      <img src={user.avatar} alt={t('Google Profile')} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </button>
                     <div className="text-xs">
-                      <p className="font-semibold">Google Account Photo</p>
-                      <p className="text-ink/50">Click to use your Google profile picture</p>
+                      <p className="font-semibold">{t('Google Account Photo')}</p>
+                      <p className="text-ink/50">{t('Click to use your Google profile picture')}</p>
                     </div>
                   </div>
                 )}
@@ -143,19 +143,19 @@ export default function ProfilePage() {
                   className="btn-primary flex-1"
                 >
                   <Save size={14} />
-                  {updateProfileMutation.isPending ? 'Saving...' : t('SaveChanges') || 'Save Changes'}
+                  {updateProfileMutation.isPending ? t('Saving...') : t('SaveChanges')}
                 </button>
               </div>
 
               {/* Success/Error Messages */}
               {updateProfileMutation.isSuccess && (
                 <div className="bg-sage/10 border border-sage/20 text-sage px-4 py-3 rounded-lg text-sm animate-fade-in">
-                  ✓ Profile updated successfully!
+                  {t('✓ Profile updated successfully!')}
                 </div>
               )}
               {updateProfileMutation.isError && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm animate-fade-in">
-                  ✗ Failed to update profile. Please try again.
+                  {t('✗ Failed to update profile. Please try again.')}
                 </div>
               )}
             </form>
@@ -163,14 +163,14 @@ export default function ProfilePage() {
 
           {/* Account Info */}
           <div className="card p-6 mt-4">
-            <h3 className="font-display font-bold text-lg mb-4">{t('AccountInfo') || 'Account Information'}</h3>
+            <h3 className="font-display font-bold text-lg mb-4">{t('AccountInfo')}</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-ink/60">{t('Email') || 'Email'}</span>
+                <span className="text-ink/60">{t('Email')}</span>
                 <span className="font-medium">{user?.email}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-ink/60">{t('UserID') || 'User ID'}</span>
+                <span className="text-ink/60">{t('UserID')}</span>
                 <span className="font-mono text-xs text-ink/80">{user?._id}</span>
               </div>
             </div>

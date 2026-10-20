@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { entriesApi } from '@/api/entries.api';
 import { categoriesApi, summaryApi } from '@/api/summary.api';
 import { accountsApi } from '@/api/accounts.api';
@@ -7,6 +8,7 @@ import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 import { useMonthStore } from '@/store/monthStore';
 import { CreateEntryDto, EntryType } from '@/types';
+import { localizedApiError } from '@/utils';
 
 // ── Query keys ───────────────────────────────────────────────
 export const QK = {
@@ -26,6 +28,7 @@ export const useEntries = (params: Parameters<typeof entriesApi.list>[0]) =>
 
 export const useCreateEntry = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (dto: CreateEntryDto) => entriesApi.create(dto),
     onSuccess: () => {
@@ -33,37 +36,38 @@ export const useCreateEntry = () => {
       qc.invalidateQueries({ queryKey: ['summary'] });
       qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
       qc.invalidateQueries({ queryKey: ['yearly'] });
-      toast.success('Entry saved ✓');
+      toast.success(t('Entry saved ✓'));
     },
-    onError: (e: unknown) => {
-      const msg = (e as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message ?? 'Failed to save entry';
-      toast.error(msg);
-    },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to save entry')),
   });
 };
 
 export const useDeleteEntry = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (id: string) => entriesApi.remove(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['entries'] });
       qc.invalidateQueries({ queryKey: ['summary'] });
       qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
-      toast.success('Entry deleted');
+      toast.success(t('Entry deleted'));
     },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to delete entry')),
   });
 };
 
-export const useParseSms = () =>
-  useMutation({
+export const useParseSms = () => {
+  const { t } = useTranslation();
+  return useMutation({
     mutationFn: (sms: string) => entriesApi.parseSms(sms),
-    onError: () => toast.error('Could not parse SMS'),
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Could not parse SMS')),
   });
+};
 
 export const useUpdateProfile = () => {
   const setAuth = useAuthStore((s) => s.setAuth);
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (payload: { budget?: number }) => authApi.updateMe(payload),
     onSuccess: (user) => {
@@ -72,9 +76,9 @@ export const useUpdateProfile = () => {
       if (accessToken && refreshToken) {
         setAuth(user, accessToken, refreshToken);
       }
-      toast.success('Profile updated');
+      toast.success(t('Profile updated'));
     },
-    onError: () => toast.error('Unable to update profile'),
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Unable to update profile')),
   });
 };
 
@@ -134,23 +138,21 @@ export const useCategories = (type?: EntryType) =>
 
 export const useCreateCategory = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: categoriesApi.create,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['cats'] }); toast.success('Category created'); },
-    onError: () => toast.error('Failed to create category'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['cats'] }); toast.success(t('Category created')); },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to create category')),
   });
 };
 
 export const useDeleteCategory = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: categoriesApi.remove,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['cats'] }); toast.success('Category deleted'); },
-    onError: (e: unknown) => {
-      const msg = (e as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message ?? 'Cannot delete category';
-      toast.error(msg);
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['cats'] }); toast.success(t('Category deleted')); },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Cannot delete category')),
   });
 };
 
@@ -163,23 +165,21 @@ export const useAccounts = () =>
 
 export const useCreateAccount = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: accountsApi.create,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['accounts'] }); toast.success('Account created'); },
-    onError: () => toast.error('Failed to create account'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['accounts'] }); toast.success(t('Account created')); },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to create account')),
   });
 };
 
 export const useDeleteAccount = () => {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: accountsApi.remove,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['accounts'] }); toast.success('Account deleted'); },
-    onError: (e: unknown) => {
-      const msg = (e as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message ?? 'Cannot delete account';
-      toast.error(msg);
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['accounts'] }); toast.success(t('Account deleted')); },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Cannot delete account')),
   });
 };
 

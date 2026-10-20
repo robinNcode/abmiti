@@ -18,4 +18,3 @@ apk/node_modules/
 
 # PHP storm project files
 .idea/
-/client/dist/

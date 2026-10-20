@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { useCreateEntry, useCategories, useAccounts, useCreateCategory } from '@/hooks';
 import { PaymentSource, EntryType } from '@/types';
 import { Spinner, Modal } from '@/components/ui';
-import { sourceLabel, cx } from '@/utils';
+import { sourceLabel, cx, categoryTypeForEntry } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 interface Props { 
   onSuccess?: () => void; 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
+  const { t } = useTranslation();
   const [showAddCat, setShowAddCat] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatIcon, setNewCatIcon] = useState('🏷️');
@@ -26,20 +28,21 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
 
   const createEntry = useCreateEntry();
   const createCategory = useCreateCategory();
-  const categoryType = type === 'investment' ? 'expense' : type;
-  const { data: categories = [] } = useCategories(categoryType as EntryType);
+  const categoryType = categoryTypeForEntry(type);
+  const { data: categories = [] } = useCategories(categoryType);
   const { data: accounts = [] } = useAccounts();
   const selectedCat = watch('categoryId');
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!newCatName.trim()) return;
     try {
       const newCat = await createCategory.mutateAsync({
         name: newCatName.trim(),
         icon: newCatIcon,
         color: newCatColor,
-        type: categoryType as 'income' | 'expense',
+        type: categoryType,
       });
       setValue('categoryId', newCat._id);
       setShowAddCat(false);
@@ -72,7 +75,7 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
     <form onSubmit={onSubmit} className="space-y-3">
       {/* Category grid */}
       <div>
-        <label className="label">Category</label>
+        <label className="label">{t('category')}</label>
         <div className="grid grid-cols-4 gap-1.5">
           {categories.map((cat) => (
             <button key={cat._id} type="button"
@@ -91,26 +94,26 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
             onClick={() => setShowAddCat(true)}
             className="flex flex-col items-center justify-center gap-1 py-2.5 px-1 rounded-xl border border-dashed border-paper-mist2 bg-paper-mist hover:border-terra/40 text-ink/70 text-xs font-semibold transition-all duration-150">
             <span className="text-lg leading-none">＋</span>
-            <span className="truncate w-full text-center text-[10px]">Add New</span>
+            <span className="truncate w-full text-center text-[10px]">{t('Add New')}</span>
           </button>
         </div>
 
-        <Modal open={showAddCat} onClose={() => setShowAddCat(false)} title="Create New Category">
+        <Modal open={showAddCat} onClose={() => setShowAddCat(false)} title={t('Create New Category')}>
           <form onSubmit={handleCreateCategory} className="space-y-4">
             <div>
-              <label className="label">Category Name</label>
+              <label className="label">{t('Category Name')}</label>
               <input
                 type="text"
                 required
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
-                placeholder="e.g. Subscriptions, Gifts"
+                placeholder={t('e.g. Subscriptions, Gifts')}
                 className="input"
               />
             </div>
             
             <div>
-              <label className="label">Select Icon</label>
+              <label className="label">{t('Select Icon')}</label>
               <div className="grid grid-cols-6 gap-2">
                 {['🏷️', '🍔', '🚗', '🏠', '🎮', '🏥', '🎓', '✈️', '🛒', '💰', '📈', '🎁'].map((emoji) => (
                   <button
@@ -129,7 +132,7 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
             </div>
 
             <div>
-              <label className="label">Select Color</label>
+              <label className="label">{t('Select Color')}</label>
               <div className="flex flex-wrap gap-2">
                 {['#BF6046', '#2E7D32', '#1565C0', '#E65100', '#6A1B9A', '#F57F17', '#37474F'].map((color) => (
                   <button
@@ -151,7 +154,7 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
               disabled={createCategory.isPending}
               className={cx('btn-primary w-full mt-2', createCategory.isPending && 'opacity-70')}
             >
-              {createCategory.isPending ? <Spinner /> : 'Create Category'}
+              {createCategory.isPending ? <Spinner /> : t('createCategory')}
             </button>
           </form>
         </Modal>
@@ -159,30 +162,30 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="label">Amount (BDT) *</label>
+          <label className="label">{t('Amount (BDT) *')}</label>
           <input {...register('amount', { required: true })} type="number" step="0.01" min="0.01"
             placeholder="0" className="input" />
         </div>
         <div>
-          <label className="label">Date</label>
+          <label className="label">{t('date')}</label>
           <input {...register('date')} type="date" className="input" />
         </div>
       </div>
 
       <div>
-        <label className="label">Description</label>
-        <input {...register('note')} placeholder="House rent, groceries..." className="input" />
+        <label className="label">{t('Description')}</label>
+        <input {...register('note')} placeholder={t('House rent, groceries...')} className="input" />
       </div>
 
       {type === 'investment' && (
         <div>
-          <label className="label">Sector</label>
-          <input {...register('sector')} placeholder="Stock, Real estate, Crypto..." className="input" />
+          <label className="label">{t('Sector')}</label>
+          <input {...register('sector')} placeholder={t('Stock, Real estate, Crypto...')} className="input" />
         </div>
       )}
 
       <div>
-        <label className="label">Paid Via</label>
+        <label className="label">{t('Paid Via')}</label>
         <div className="grid grid-cols-3 gap-1.5">
           {(Object.entries(sourceLabel) as [PaymentSource, string][]).slice(0, 6).map(([v, l]) => (
             <button key={v} type="button"
@@ -193,7 +196,7 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
                   ? 'bg-ink text-white border-ink'
                   : 'border-paper-mist2 hover:bg-paper-mist text-ink/60',
               )}>
-              {l}
+              {l.split(' ').slice(0, 1).join(' ')} {t(v)}
             </button>
           ))}
         </div>
@@ -202,8 +205,9 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
       {/* Account selection - only for savings type */}
       {type === 'savings' && (
         <div>
-          <label className="label">Account</label>
+          <label className="label">{t('account')}</label>
           <select {...register('accountId')} className="input">
+            <option value="">{accounts.length ? t('— Select account —') : t('No accounts available')}</option>
             {accounts.map((acc) => (
               <option key={acc._id} value={acc._id}>
                 {acc.name} ({acc.balance} BDT)
@@ -216,11 +220,11 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
       <button type="submit" disabled={createEntry.isPending}
         className={cx('btn-primary w-full mt-1', createEntry.isPending && 'opacity-70')}>
         {createEntry.isPending ? <Spinner /> : 
-          type === 'expense' ? '− Add Expense' :
-          type === 'savings' ? '💰 Add Savings' :
-          type === 'payable' ? '📤 Add Payable' :
-          type === 'receivable' ? '📥 Add Receivable' :
-          '− Add Entry'
+          type === 'expense' ? `− ${t('addExpense')}` :
+          type === 'savings' ? `💰 ${t('addSavings')}` :
+          type === 'payable' ? `📤 ${t('addPayable')}` :
+          type === 'receivable' ? `📥 ${t('addReceivable')}` :
+          `− ${t('add')}`
         }
       </button>
     </form>

@@ -75,19 +75,11 @@ export default function AdminConfigPage() {
         });
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
   }, []);
 
   const fields = useMemo<ContentField[]>(() => {
     const known = new Map(CONTENT_FIELDS.map((f) => [f.key, f]));
     for (const key of Object.keys(config.content)) {
-      if (!known.has(key)) known.set(key, { key, label: labelFromKey(key) });
-    }
-    return [...known.values()];
-  }, [config.content]);
-
-  const setContent = (key: string, value: string) =>
-    setConfig((cur) => ({ ...cur, content: { ...cur.content, [key]: value } }));
 
   const handleLogoUpload = async (file: File) => {
     setUploading(true);
@@ -147,8 +139,8 @@ export default function AdminConfigPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white tracking-tight">Site Configuration</h1>
-          <p className="text-sm text-white/35 mt-0.5">Manage public website details and landing page content</p>
+          <h1 className="font-display text-2xl font-bold text-white tracking-tight">{t('Site Configuration')}</h1>
+          <p className="text-sm text-white/35 mt-0.5">{t('Manage public website details and landing page content')}</p>
         </div>
         <button onClick={handleSave} disabled={saving || uploading} className="admin-btn-primary">
           {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save size={14} /> Save Changes</>}
@@ -162,7 +154,7 @@ export default function AdminConfigPage() {
             <div className="w-8 h-8 rounded-lg bg-terra/10 flex items-center justify-center">
               <Settings size={14} className="text-terra-light" />
             </div>
-            <h2 className="font-display font-bold text-lg text-white/80">Basic Settings</h2>
+            <h2 className="font-display font-bold text-lg text-white/80">{t('Basic Settings')}</h2>
           </div>
 
           <div>
@@ -235,7 +227,7 @@ export default function AdminConfigPage() {
             <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
               <LayoutTemplate size={14} className="text-blue-400" />
             </div>
-            <h2 className="font-display font-bold text-lg text-white/80">Landing Page Content</h2>
+            <h2 className="font-display font-bold text-lg text-white/80">{t('Landing Page Content')}</h2>
           </div>
 
           <div className="flex-1 space-y-4">

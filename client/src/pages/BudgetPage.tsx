@@ -74,7 +74,7 @@ export default function BudgetPage() {
 
         {activePercentage > 100 && (
           <div className="rounded-lg border border-mustard/30 bg-mustard/10 text-mustard px-4 py-3 text-sm font-semibold">
-            Active percentage allocations total {activePercentage}%. This is allowed, but planned spending exceeds the declared income base.
+            {t('Active percentage allocations total {{percent}}%. This is allowed, but planned spending exceeds the declared income base.', { percent: activePercentage })}
           </div>
         )}
 
@@ -92,13 +92,13 @@ export default function BudgetPage() {
               className="btn-ghost text-sm"
               onClick={() => mutations.saveAsTemplate.mutate({ id: budget._id, templateName: `${month}/${year} Budget` })}
             >
-              Save template
+              {t('Save template')}
             </button>
             <button
               className="btn-primary text-sm flex items-center gap-2"
               onClick={() => { setEditingLine(null); setLineModalOpen(true); }}
             >
-              <Plus size={16} /> Add line
+              <Plus size={16} /> {t('Add line')}
             </button>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function BudgetPage() {
         </div>
       </div>
 
-      <Modal open={lineModalOpen} onClose={() => setLineModalOpen(false)} title={editingLine ? 'Edit budget line' : 'Add budget line'}>
+      <Modal open={lineModalOpen} onClose={() => setLineModalOpen(false)} title={editingLine ? t('Edit budget line') : t('Add budget line')}>
         <BudgetLineForm
           line={editingLine ?? undefined}
           categories={categories}

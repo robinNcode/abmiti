@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { categoryController } from './category.controller';
-import { authenticate } from '../../shared/middleware';
+import { authenticate, requireUser } from '../../shared/middleware';
 import { body } from 'express-validator';
 import { validate } from '../../shared/middleware';
 
 const router = Router();
 router.use(authenticate);
+router.use(requireUser);
 
 const createValidator = [
   body('name').trim().notEmpty().withMessage('Name is required'),

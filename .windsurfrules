@@ -1,0 +1,5 @@
+# Abmiti — Windsurf
+
+Follow **AGENTS.md** at the repository root. README.md is the human product/setup doc.
+
+Packages: `client/` (React, `/abmiti/`), `server/` (Express, dual Mongo/MySQL repos), `mobile/` (Flutter WebView). Do not add a public admin register endpoint. Keep i18n in en + bn. Do not commit secrets.

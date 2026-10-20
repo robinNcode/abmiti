@@ -91,8 +91,10 @@ export interface ITransactionStatementRow {
   type: EntryType;
   amount: number;
   note: string;
+  sector?: string;
   category?: { _id: string; name: string; icon: string; color: string };
   source: string;
+  account?: { _id: string; name: string; type: string };
   runningBalance: number;
 }
 

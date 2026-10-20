@@ -31,7 +31,7 @@ export default function InvestmentsPage() {
 
       <div className="px-4 md:px-8 pb-10 space-y-4">
         <div className="card p-5">
-          <p className="text-sm text-ink/50">Total invested this month</p>
+          <p className="text-sm text-ink/50">{t('Total invested this month')}</p>
           <p className="font-display text-3xl font-bold mt-2">{formatBDT(totalInvested)}</p>
         </div>
 
@@ -55,7 +55,7 @@ export default function InvestmentsPage() {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between pt-4 mt-4 border-t border-paper-mist2">
-            <p className="text-xs text-ink/40">Page {page} of {totalPages}</p>
+            <p className="text-xs text-ink/40">{t('Page {{page}} of {{totalPages}}', { page, totalPages })}</p>
             <div className="flex gap-2">
               <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                 className="btn-ghost px-3 py-2 disabled:opacity-30">
