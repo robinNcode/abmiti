@@ -101,6 +101,7 @@ export declare const summaryService: {
         type: import("../../shared/types").EntryType;
         amount: number;
         note: string;
+        sector: string | undefined;
         category: {
             _id: string;
             name: string;
@@ -108,6 +109,11 @@ export declare const summaryService: {
             color: string;
         };
         source: string;
+        account: {
+            _id: string;
+            name: string;
+            type: string;
+        } | undefined;
         runningBalance: number;
     }[]>;
 };

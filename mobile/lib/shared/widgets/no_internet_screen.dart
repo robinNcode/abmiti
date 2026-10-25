@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 
 /// Branded offline screen shown when the device has no internet connection.
 ///
@@ -95,9 +96,9 @@ class _NoInternetScreenState extends State<NoInternetScreen>
                 const SizedBox(height: 40),
 
                 // App name
-                const Text(
-                  'অবমিতি',
-                  style: TextStyle(
+                Text(
+                  context.tr('app_title'),
+                  style: const TextStyle(
                     color: AppColors.paper,
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
@@ -106,11 +107,11 @@ class _NoInternetScreenState extends State<NoInternetScreen>
                 ),
                 const SizedBox(height: 16),
 
-                // Primary message in Bengali
-                const Text(
-                  'ইন্টারনেট সংযোগ নেই',
+                // Primary message
+                Text(
+                  context.tr('offline_title'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.paper,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -120,7 +121,7 @@ class _NoInternetScreenState extends State<NoInternetScreen>
 
                 // Secondary message
                 Text(
-                  'আপনার নেটওয়ার্ক সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।',
+                  context.tr('offline_subtitle'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.paper.withAlpha(200),
@@ -160,8 +161,8 @@ class _NoInternetScreenState extends State<NoInternetScreen>
                         : const Icon(Icons.refresh_rounded, size: 20),
                     label: Text(
                       _isRetrying
-                          ? 'পুনরায় চেষ্টা করা হচ্ছে...'
-                          : 'আবার চেষ্টা করুন',
+                          ? context.tr('retrying')
+                          : context.tr('try_again'),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

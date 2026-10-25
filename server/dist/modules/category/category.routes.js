@@ -7,6 +7,7 @@ const express_validator_1 = require("express-validator");
 const middleware_2 = require("../../shared/middleware");
 const router = (0, express_1.Router)();
 router.use(middleware_1.authenticate);
+router.use(middleware_1.requireUser);
 const createValidator = [
     (0, express_validator_1.body)('name').trim().notEmpty().withMessage('Name is required'),
     (0, express_validator_1.body)('type').isIn(['income', 'expense', 'savings', 'investment', 'payable', 'receivable']).withMessage('Type must be income, expense, savings, investment, payable, or receivable'),

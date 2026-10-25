@@ -103,6 +103,10 @@ cmd_clean() {
     info "✅ Clean complete."
 }
 
+cmd_connect() {
+    ./scripts/dev_connect.sh
+}
+
 # ─── Entry point ──────────────────────────────────────────────────────────────
 case "${1:-help}" in
     setup)   cmd_setup ;;
@@ -110,8 +114,9 @@ case "${1:-help}" in
     release) cmd_release ;;
     analyze) cmd_analyze ;;
     clean)   cmd_clean ;;
+    connect) cmd_connect ;;
     *)
-        echo "Usage: $0 {setup|debug|release|analyze|clean}"
+        echo "Usage: $0 {setup|debug|release|analyze|clean|connect}"
         exit 1
         ;;
 esac

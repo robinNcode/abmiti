@@ -7,6 +7,7 @@ const middleware_1 = require("../../shared/middleware");
 const container_1 = require("../../container");
 const router = (0, express_1.Router)();
 router.use(middleware_1.authenticate);
+router.use(middleware_1.requireUser);
 router.get('/monthly', async (req, res, next) => {
     try {
         const now = new Date();

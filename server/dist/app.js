@@ -19,6 +19,19 @@ const routes_1 = require("./routes");
 const connection_1 = require("./infrastructure/database/mongodb/connection");
 const connection_2 = require("./infrastructure/database/mysql/connection");
 const app = (0, express_1.default)();
+/** Flutter Web assigns a different localhost port on each debug run. */
+const isLocalDevelopmentOrigin = (origin) => {
+    try {
+        const url = new URL(origin);
+        return url.protocol === 'http:' &&
+            (url.hostname === 'localhost' ||
+                url.hostname === '127.0.0.1' ||
+                url.hostname === '[::1]');
+    }
+    catch {
+        return false;
+    }
+};
 // ── Security middleware ──────────────────────────────────────
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
@@ -26,6 +39,10 @@ app.use((0, cors_1.default)({
         // Allow server-to-server requests (no origin) in development
         if (!origin && env_1.env.NODE_ENV === 'development')
             return callback(null, true);
+        // Flutter Web uses an ephemeral localhost port in development.
+        if (origin && env_1.env.NODE_ENV === 'development' && isLocalDevelopmentOrigin(origin)) {
+            return callback(null, true);
+        }
         if (origin && env_1.env.CLIENT_URLS.includes(origin))
             return callback(null, true);
         callback(new Error(`CORS: origin "${origin}" is not allowed`));
