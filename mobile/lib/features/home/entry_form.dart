@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/entry_types.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 
-/// Modal bottom sheet form for adding a new transaction entry.
+/// Modal bottom sheet form for adding or editing a transaction entry.
 class EntryFormModal extends StatefulWidget {
   const EntryFormModal({
     super.key,
     required this.financeRepo,
     required this.onEntryCreated,
+    this.entry,
   });
 
   final FinanceRepository financeRepo;
   final VoidCallback onEntryCreated;
 
+  /// When set, the modal edits this existing entry instead of creating one.
+  final Map<String, dynamic>? entry;
+
   static Future<void> show(
     BuildContext context, {
     required FinanceRepository financeRepo,
     required VoidCallback onEntryCreated,
+    Map<String, dynamic>? entry,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -27,6 +34,7 @@ class EntryFormModal extends StatefulWidget {
       builder: (ctx) => EntryFormModal(
         financeRepo: financeRepo,
         onEntryCreated: onEntryCreated,
+        entry: entry,
       ),
     );
   }
@@ -39,19 +47,40 @@ class _EntryFormModalState extends State<EntryFormModal> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
-  String _type = 'expense';
+  late String _type;
   String _source = 'cash';
   String? _selectedCategoryId;
-  final DateTime _date = DateTime.now();
+  late DateTime _date;
   bool _submitting = false;
   String? _errorMessage;
 
   List<Map<String, dynamic>> _categories = [];
   bool _loadingCategories = true;
 
+  bool get _editing => widget.entry != null;
+
   @override
   void initState() {
     super.initState();
+    final entry = widget.entry;
+    _type = entry?['type']?.toString() ?? 'expense';
+    _source = entry?['source']?.toString() ?? 'cash';
+    _date =
+        DateTime.tryParse(entry?['date']?.toString() ?? '') ?? DateTime.now();
+
+    final rawCategory = entry?['category'];
+    if (rawCategory is Map && rawCategory['_id'] != null) {
+      _selectedCategoryId = rawCategory['_id'].toString();
+    } else if (rawCategory is String && rawCategory.isNotEmpty) {
+      _selectedCategoryId = rawCategory;
+    }
+
+    final amount = entry?['amount'];
+    if (amount is num) {
+      _amountController.text = amount.toString();
+    }
+    _noteController.text = entry?['note']?.toString() ?? '';
+
     _loadCategories();
   }
 
@@ -63,15 +92,26 @@ class _EntryFormModalState extends State<EntryFormModal> {
   }
 
   Future<void> _loadCategories() async {
+    if (mounted) setState(() => _loadingCategories = true);
+
     try {
-      final list = await widget.financeRepo.fetchCategories(type: _type);
-      if (mounted) {
-        setState(() {
-          _categories = list;
-          _selectedCategoryId = list.isNotEmpty ? list.first['_id']?.toString() : null;
-          _loadingCategories = false;
-        });
+      var list = await widget.financeRepo
+          .fetchCategories(type: EntryTypes.categoryTypeOf(_type));
+      if (list.isEmpty && _type != 'expense') {
+        // Fall back to expense categories when a type has none seeded.
+        list = await widget.financeRepo.fetchCategories(type: 'expense');
       }
+
+      if (!mounted) return;
+      setState(() {
+        _categories = list;
+        if (_selectedCategoryId == null ||
+            !list.any((c) => c['_id']?.toString() == _selectedCategoryId)) {
+          _selectedCategoryId =
+              list.isNotEmpty ? list.first['_id']?.toString() : null;
+        }
+        _loadingCategories = false;
+      });
     } catch (_) {
       if (mounted) setState(() => _loadingCategories = false);
     }
@@ -81,16 +121,56 @@ class _EntryFormModalState extends State<EntryFormModal> {
     if (_type == newType) return;
     setState(() {
       _type = newType;
-      _loadingCategories = true;
       _selectedCategoryId = null;
     });
     _loadCategories();
   }
 
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2015, 1, 1),
+      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+    );
+    if (picked != null && mounted) {
+      setState(() => _date = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            _date.hour,
+            _date.minute,
+          ));
+    }
+  }
+
+  String get _formattedDate {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${_date.day} ${months[_date.month - 1]} ${_date.year}';
+  }
+
   Future<void> _submit() async {
+    final loc = context.appLocale;
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount <= 0) {
-      setState(() => _errorMessage = 'Please enter a valid amount');
+      setState(() => _errorMessage = loc.tr('amount_invalid'));
+      return;
+    }
+    if (_selectedCategoryId == null) {
+      setState(() => _errorMessage = loc.tr('category_required'));
       return;
     }
 
@@ -99,18 +179,25 @@ class _EntryFormModalState extends State<EntryFormModal> {
       _errorMessage = null;
     });
 
+    final note = _noteController.text.trim();
+
     try {
       final payload = <String, dynamic>{
-        'type': _type,
         'amount': amount,
+        'categoryId': _selectedCategoryId,
         'source': _source,
         'date': _date.toIso8601String(),
-        if (_noteController.text.trim().isNotEmpty)
-          'note': _noteController.text.trim(),
-        if (_selectedCategoryId != null) 'category': _selectedCategoryId,
+        'note': note,
+        if (!_editing) 'type': _type,
       };
 
-      await widget.financeRepo.createEntry(payload);
+      if (_editing) {
+        await widget.financeRepo
+            .updateEntry(widget.entry!['_id'].toString(), payload);
+      } else {
+        await widget.financeRepo.createEntry(payload);
+      }
+
       if (mounted) {
         Navigator.pop(context);
         widget.onEntryCreated();
@@ -129,6 +216,7 @@ class _EntryFormModalState extends State<EntryFormModal> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final media = MediaQuery.of(context);
+    final loc = context.appLocale;
 
     return Container(
       padding: EdgeInsets.fromLTRB(20, 16, 20, media.viewInsets.bottom + 24),
@@ -156,7 +244,7 @@ class _EntryFormModalState extends State<EntryFormModal> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'New Entry',
+                  _editing ? loc.tr('edit_entry') : loc.tr('new_entry_title'),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -169,57 +257,40 @@ class _EntryFormModalState extends State<EntryFormModal> {
             ),
             const SizedBox(height: 14),
 
-            // Type Segment selector
-            Row(
-              children: [
-                Expanded(
-                  child: _TypeChip(
-                    label: 'Expense',
-                    icon: Icons.arrow_upward_rounded,
-                    isSelected: _type == 'expense',
-                    selectedColor: AppColors.terra,
-                    onTap: () => _onTypeChanged('expense'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _TypeChip(
-                    label: 'Income',
-                    icon: Icons.arrow_downward_rounded,
-                    isSelected: _type == 'income',
-                    selectedColor: AppColors.sage,
-                    onTap: () => _onTypeChanged('income'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _TypeChip(
-                    label: 'Savings',
-                    icon: Icons.savings_outlined,
-                    isSelected: _type == 'savings',
-                    selectedColor: AppColors.mustard,
-                    onTap: () => _onTypeChanged('savings'),
-                  ),
-                ),
-              ],
+            // ── Type selector (create) / read-only type (edit) ───────
+            _TypeGrid(
+              selected: _type,
+              enabled: !_editing,
+              onSelected: _onTypeChanged,
             ),
+            if (_editing) ...[
+              const SizedBox(height: 8),
+              Text(
+                loc.tr('entry_type_fixed'),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark ? AppColors.darkMuted : AppColors.inkLight,
+                ),
+              ),
+            ],
             const SizedBox(height: 18),
 
             // Amount Field
             TextField(
               controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              autofocus: true,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              autofocus: !_editing,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 prefixText: '৳ ',
-                prefixStyle: TextStyle(
+                prefixStyle: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: AppColors.terra,
                 ),
                 hintText: '0.00',
-                labelText: 'Amount',
+                labelText: loc.tr('amount'),
               ),
             ),
             const SizedBox(height: 14),
@@ -230,28 +301,62 @@ class _EntryFormModalState extends State<EntryFormModal> {
             else if (_categories.isNotEmpty)
               DropdownButtonFormField<String>(
                 initialValue: _selectedCategoryId,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: InputDecoration(labelText: loc.tr('category')),
                 items: _categories.map((c) {
                   return DropdownMenuItem<String>(
                     value: c['_id']?.toString(),
-                    child: Text(c['name']?.toString() ?? 'Unnamed'),
+                    child: Text(
+                      '${c['icon'] != null ? '${c['icon']} ' : ''}${c['name'] ?? 'Unnamed'}',
+                    ),
                   );
                 }).toList(),
                 onChanged: (val) => setState(() => _selectedCategoryId = val),
+              )
+            else
+              Text(
+                loc.tr('no_categories_for_type'),
+                style: const TextStyle(fontSize: 13, color: AppColors.danger),
               ),
+            const SizedBox(height: 14),
+
+            // Date picker
+            InkWell(
+              onTap: _pickDate,
+              borderRadius: BorderRadius.circular(14),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: loc.tr('date'),
+                  suffixIcon:
+                      const Icon(Icons.calendar_today_rounded, size: 18),
+                ),
+                child: Text(
+                  _formattedDate,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 14),
 
             // Source Selector
             DropdownButtonFormField<String>(
               initialValue: _source,
-              decoration: const InputDecoration(labelText: 'Payment Source'),
-              items: const [
-                DropdownMenuItem(value: 'cash', child: Text('Cash')),
-                DropdownMenuItem(value: 'bank', child: Text('Bank Transfer')),
-                DropdownMenuItem(value: 'bkash', child: Text('bKash')),
-                DropdownMenuItem(value: 'nagad', child: Text('Nagad')),
-                DropdownMenuItem(value: 'card', child: Text('Card')),
-                DropdownMenuItem(value: 'other', child: Text('Other')),
+              decoration: InputDecoration(labelText: loc.tr('payment_source')),
+              items: [
+                DropdownMenuItem(
+                    value: 'cash', child: Text(loc.tr('source_cash'))),
+                DropdownMenuItem(
+                    value: 'bank', child: Text(loc.tr('source_bank'))),
+                DropdownMenuItem(
+                    value: 'bkash', child: Text(loc.tr('source_bkash'))),
+                DropdownMenuItem(
+                    value: 'nagad', child: Text(loc.tr('source_nagad'))),
+                DropdownMenuItem(
+                    value: 'card', child: Text(loc.tr('source_card'))),
+                DropdownMenuItem(
+                    value: 'other', child: Text(loc.tr('source_other'))),
               ],
               onChanged: (val) {
                 if (val != null) setState(() => _source = val);
@@ -262,9 +367,11 @@ class _EntryFormModalState extends State<EntryFormModal> {
             // Note
             TextField(
               controller: _noteController,
-              decoration: const InputDecoration(
-                labelText: 'Note (Optional)',
-                hintText: 'e.g. Grocery, Lunch, Rent',
+              maxLength: 300,
+              decoration: InputDecoration(
+                counterText: '',
+                labelText: loc.tr('note_optional'),
+                hintText: loc.tr('note_hint'),
               ),
             ),
 
@@ -288,7 +395,9 @@ class _EntryFormModalState extends State<EntryFormModal> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text('Add Entry'),
+                  : Text(
+                      _editing ? loc.tr('save_changes') : loc.tr('add_entry'),
+                    ),
             ),
           ],
         ),
@@ -297,64 +406,91 @@ class _EntryFormModalState extends State<EntryFormModal> {
   }
 }
 
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.selectedColor,
-    required this.onTap,
+/// Grid of the six supported entry types.
+class _TypeGrid extends StatelessWidget {
+  const _TypeGrid({
+    required this.selected,
+    required this.enabled,
+    required this.onSelected,
   });
 
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final Color selectedColor;
-  final VoidCallback onTap;
+  final String selected;
+  final bool enabled;
+  final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = context.appLocale;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 8.0;
+        final width = (constraints.maxWidth - gap * 2) / 3;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? selectedColor
-              : (isDark ? AppColors.darkElevated : AppColors.pastelCream.withAlpha(150)),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected
-                ? selectedColor
-                : (isDark ? AppColors.darkBorder : AppColors.pastelApricot.withAlpha(120)),
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: isSelected
-                  ? Colors.white
-                  : (isDark ? Colors.white70 : AppColors.ink),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: isSelected
-                    ? Colors.white
-                    : (isDark ? Colors.white70 : AppColors.ink),
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: EntryTypes.all.map((type) {
+            final color = EntryTypes.colorOf(type);
+            final isSelected = type == selected;
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+
+            return SizedBox(
+              width: width,
+              child: InkWell(
+                onTap: enabled ? () => onSelected(type) : null,
+                borderRadius: BorderRadius.circular(14),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? color
+                        : (isDark
+                            ? AppColors.darkElevated
+                            : AppColors.pastelCream.withAlpha(150)),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isSelected
+                          ? color
+                          : (isDark
+                              ? AppColors.darkBorder
+                              : AppColors.pastelApricot.withAlpha(120)),
+                    ),
+                  ),
+                  child: Opacity(
+                    opacity: enabled ? 1 : (isSelected ? 1 : 0.45),
+                    child: Column(
+                      children: [
+                        Icon(
+                          EntryTypes.iconOf(type),
+                          size: 18,
+                          color: isSelected
+                              ? Colors.white
+                              : (isDark
+                                  ? Colors.white70
+                                  : EntryTypes.colorOf(type)),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          loc.tr('filter_$type'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isSelected
+                                ? Colors.white
+                                : (isDark ? Colors.white70 : AppColors.ink),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 }

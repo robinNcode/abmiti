@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/error_state.dart';
@@ -77,9 +78,60 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return '৳${value.toStringAsFixed(0)}';
   }
 
+  /// Year selector shown at the top of the analytics body.
+  Widget _buildYearPicker(bool isDark) {
+    return PopupMenuButton<int>(
+      initialValue: _selectedYear,
+      onSelected: (year) {
+        if (year != _selectedYear) {
+          setState(() {
+            _selectedYear = year;
+            _selectedMonthIndex = null;
+          });
+          _loadAnalytics();
+        }
+      },
+      itemBuilder: (context) {
+        final current = DateTime.now().year;
+        return [
+          PopupMenuItem(value: current, child: Text('$current')),
+          PopupMenuItem(value: current - 1, child: Text('${current - 1}')),
+          PopupMenuItem(value: current - 2, child: Text('${current - 2}')),
+        ];
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkElevated
+              : AppColors.pastelIce.withAlpha(90),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.pastelPeach.withAlpha(120),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$_selectedYear',
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.arrow_drop_down, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = context.appLocale;
 
     final totalIncome = (_yearlySummary['totalIncome'] as num?) ?? 0;
     final totalExpense = (_yearlySummary['totalExpense'] as num?) ?? 0;
@@ -87,68 +139,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final netSavings = totalIncome - totalExpense;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Financial Analytics',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        actions: [
-          PopupMenuButton<int>(
-            initialValue: _selectedYear,
-            onSelected: (year) {
-              if (year != _selectedYear) {
-                setState(() {
-                  _selectedYear = year;
-                  _selectedMonthIndex = null;
-                });
-                _loadAnalytics();
-              }
-            },
-            itemBuilder: (context) {
-              final current = DateTime.now().year;
-              return [
-                PopupMenuItem(value: current, child: Text('$current')),
-                PopupMenuItem(
-                    value: current - 1, child: Text('${current - 1}')),
-                PopupMenuItem(
-                    value: current - 2, child: Text('${current - 2}')),
-              ];
-            },
-            child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? AppColors.darkElevated
-                    : AppColors.pastelIce.withAlpha(90),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.pastelPeach.withAlpha(120),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '$_selectedYear',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.arrow_drop_down, size: 18),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: _loadAnalytics,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
           children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildYearPicker(isDark),
+            ),
+            const SizedBox(height: 12),
             if (_loading)
               const ShimmerLoading(count: 4)
             else if (_error != null)
@@ -163,7 +163,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$_selectedYear Net Growth',
+                      '$_selectedYear ${loc.tr('net_growth')}',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -185,21 +185,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       children: [
                         Expanded(
                           child: _MiniMetric(
-                            label: 'Total Earned',
+                            label: loc.tr('total_earned'),
                             amount: _formatCurrency(totalIncome),
                             color: AppColors.sage,
                           ),
                         ),
                         Expanded(
                           child: _MiniMetric(
-                            label: 'Total Spent',
+                            label: loc.tr('total_spent'),
                             amount: _formatCurrency(totalExpense),
                             color: AppColors.terra,
                           ),
                         ),
                         Expanded(
                           child: _MiniMetric(
-                            label: 'Total Saved',
+                            label: loc.tr('total_saved'),
                             amount: _formatCurrency(totalSavings),
                             color: AppColors.mustard,
                           ),
@@ -213,8 +213,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
               // ── Glossy Trend Chart ─────────────────────────────────
               SectionHeader(
-                title: 'Annual Income vs Expense Trend',
-                action: _selectedMonthIndex != null ? 'Reset' : null,
+                title: loc.tr('trend_title'),
+                action: _selectedMonthIndex != null ? loc.tr('reset') : null,
                 onAction: () => setState(() => _selectedMonthIndex = null),
               ),
               GlossyCard(
@@ -227,6 +227,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: _GlossyTrendPainterWidget(
                         trendData: _yearlyTrend,
                         selectedIndex: _selectedMonthIndex,
+                        monthLabels: [
+                          for (var i = 1; i <= 12; i++) loc.monthShort(i),
+                        ],
                         onMonthSelected: (idx) {
                           setState(() => _selectedMonthIndex = idx);
                         },
@@ -244,11 +247,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         );
                         final inc = ((match['income'] as num?) ?? 0);
                         final exp = ((match['expense'] as num?) ?? 0);
-                        const monthNames = [
-                          'January', 'February', 'March', 'April', 'May', 'June',
-                          'July', 'August', 'September', 'October', 'November', 'December'
-                        ];
-                        final name = monthNames[_selectedMonthIndex!];
+                        final name = loc.monthName(_selectedMonthIndex! + 1);
 
                         return Container(
                           padding: const EdgeInsets.symmetric(
@@ -260,19 +259,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 name,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12),
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                               Row(
                                 children: [
                                   Text(
-                                    'Income: ${_formatCurrency(inc)}',
+                                    '${loc.tr('income_label')} ${_formatCurrency(inc)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 12,
@@ -281,7 +278,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    'Expense: ${_formatCurrency(exp)}',
+                                    '${loc.tr('expense_label')} ${_formatCurrency(exp)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 12,
@@ -297,17 +294,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       const SizedBox(height: 12),
                     ],
 
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _LegendIndicator(
                           color: AppColors.sage,
-                          label: 'Income',
+                          label: loc.tr('income'),
                         ),
-                        SizedBox(width: 24),
+                        const SizedBox(width: 24),
                         _LegendIndicator(
                           color: AppColors.terra,
-                          label: 'Expense',
+                          label: loc.tr('expense'),
                         ),
                       ],
                     ),
@@ -318,10 +315,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
               // ── Budget Warnings & Advisories ────────────────────────
               if (_warnings.isNotEmpty) ...[
-                const SectionHeader(title: 'Budget Warnings'),
+                SectionHeader(title: loc.tr('budget_warnings')),
                 ..._warnings.map((w) {
                   final msg = w['message']?.toString() ??
-                      'One of your budgets has exceeded threshold.';
+                      loc.tr('budget_warning_default');
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
@@ -431,11 +428,15 @@ class _GlossyTrendPainterWidget extends StatelessWidget {
     required this.trendData,
     this.selectedIndex,
     required this.onMonthSelected,
+    required this.monthLabels,
   });
 
   final List<Map<String, dynamic>> trendData;
   final int? selectedIndex;
   final ValueChanged<int> onMonthSelected;
+
+  /// Localized abbreviated month labels for the x axis.
+  final List<String> monthLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -473,6 +474,7 @@ class _GlossyTrendPainterWidget extends StatelessWidget {
               expense: expensePoints,
               selectedIndex: selectedIndex,
               isDark: isDark,
+              monthLabels: monthLabels,
             ),
           ),
         );
@@ -487,16 +489,14 @@ class _ChartPainter extends CustomPainter {
     required this.expense,
     this.selectedIndex,
     required this.isDark,
+    required this.monthLabels,
   });
 
   final List<double> income;
   final List<double> expense;
   final int? selectedIndex;
   final bool isDark;
-
-  static const List<String> _monthNames = [
-    'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'
-  ];
+  final List<String> monthLabels;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -604,7 +604,7 @@ class _ChartPainter extends CustomPainter {
 
     for (int i = 0; i < 12; i++) {
       final x = i * stepX;
-      final textSpan = TextSpan(text: _monthNames[i], style: textStyle);
+      final textSpan = TextSpan(text: monthLabels[i], style: textStyle);
       final textPainter = TextPainter(
         text: textSpan,
         textDirection: TextDirection.ltr,

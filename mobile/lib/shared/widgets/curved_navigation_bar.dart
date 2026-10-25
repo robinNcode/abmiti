@@ -21,7 +21,8 @@ class CurvedNavigationBar extends StatefulWidget {
     this.animationCurve = Curves.easeOutCubic,
     this.animationDuration = const Duration(milliseconds: 350),
     this.height = 70.0,
-  })  : assert(items.length >= 2, 'CurvedNavigationBar must have at least 2 items'),
+  })  : assert(items.length >= 2,
+            'CurvedNavigationBar must have at least 2 items'),
         assert(0 <= index && index < items.length, 'Index out of bounds');
 
   final List<Widget> items;

@@ -1,3 +1,4 @@
+import 'package:abmiti/core/localization/app_locale.dart';
 import 'package:abmiti/shared/widgets/loading_overlay.dart';
 import 'package:abmiti/shared/widgets/no_internet_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,10 @@ void main() {
       ),
     );
 
-    // Verify that the Bengali brand name is displayed.
-    expect(find.text('অবমিতি'), findsOneWidget);
+    // Verify that the brand name is displayed in the default language.
+    expect(find.text('Abmiti'), findsOneWidget);
 
-    // Verify that 'Personal Finance' subtitle is displayed.
+    // Verify that the 'Personal Finance' subtitle is displayed.
     expect(find.text('Personal Finance'), findsOneWidget);
 
     // Verify that CircularProgressIndicator is present.
@@ -39,16 +40,40 @@ void main() {
     );
 
     // Verify key UI text and icons are rendered.
-    expect(find.text('ইন্টারনেট সংযোগ নেই'), findsOneWidget);
+    expect(find.text('No internet connection'), findsOneWidget);
     expect(find.byIcon(Icons.wifi_off_rounded), findsOneWidget);
-    expect(find.text('আবার চেষ্টা করুন'), findsOneWidget);
+    expect(find.text('Try again'), findsOneWidget);
 
     // Tap the retry button and verify callback.
-    await tester.tap(find.text('আবার চেষ্টা করুন'));
+    await tester.tap(find.text('Try again'));
     await tester.pump(); // Start delayed execution of retry
     await tester.pump(const Duration(
         milliseconds: 900)); // Advance time past Future.delayed (800ms)
 
     expect(retryCalled, isTrue);
+  });
+
+  testWidgets('offline and loading screens render in Bengali',
+      (WidgetTester tester) async {
+    final locale = AppLocale();
+    await locale.setLanguage(AppLanguage.bn);
+
+    await tester.pumpWidget(
+      LocaleScope(
+        locale: locale,
+        child: const MaterialApp(home: LoadingOverlay()),
+      ),
+    );
+    expect(find.text('অবমিতি'), findsOneWidget);
+    expect(find.text('ব্যক্তিগত অর্থায়ন'), findsOneWidget);
+
+    await tester.pumpWidget(
+      LocaleScope(
+        locale: locale,
+        child: MaterialApp(home: NoInternetScreen(onRetry: () {})),
+      ),
+    );
+    expect(find.text('ইন্টারনেট সংযোগ নেই'), findsOneWidget);
+    expect(find.text('আবার চেষ্টা করুন'), findsOneWidget);
   });
 }

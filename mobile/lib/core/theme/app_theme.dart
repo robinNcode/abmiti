@@ -15,8 +15,7 @@ class AppTheme {
   static const _fontFamily = 'Roboto';
 
   static TextTheme _textTheme(Brightness brightness) {
-    final color =
-        brightness == Brightness.light ? AppColors.ink : Colors.white;
+    final color = brightness == Brightness.light ? AppColors.ink : Colors.white;
     return TextTheme(
       headlineLarge: TextStyle(
           fontFamily: _fontFamily,
@@ -49,14 +48,11 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           fontSize: 14,
           color: color),
-      bodyLarge: TextStyle(
-          fontFamily: _fontFamily, fontSize: 16, color: color),
-      bodyMedium: TextStyle(
-          fontFamily: _fontFamily, fontSize: 14, color: color),
+      bodyLarge: TextStyle(fontFamily: _fontFamily, fontSize: 16, color: color),
+      bodyMedium:
+          TextStyle(fontFamily: _fontFamily, fontSize: 14, color: color),
       bodySmall: TextStyle(
-          fontFamily: _fontFamily,
-          fontSize: 12,
-          color: color.withAlpha(180)),
+          fontFamily: _fontFamily, fontSize: 12, color: color.withAlpha(180)),
       labelLarge: TextStyle(
           fontFamily: _fontFamily,
           fontWeight: FontWeight.w600,
@@ -192,8 +188,7 @@ class AppTheme {
           backgroundColor: AppColors.paper,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(24))),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
         ),
         dialogTheme: DialogThemeData(
           backgroundColor: AppColors.paper,
@@ -304,15 +299,14 @@ class AppTheme {
           contentTextStyle: const TextStyle(
               color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         bottomSheetTheme: const BottomSheetThemeData(
           backgroundColor: AppColors.darkSurface,
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(24))),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
         ),
         dialogTheme: DialogThemeData(
           backgroundColor: AppColors.darkSurface,
@@ -320,8 +314,8 @@ class AppTheme {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         ),
-        dividerTheme: const DividerThemeData(
-            color: AppColors.darkBorder, thickness: 1),
+        dividerTheme:
+            const DividerThemeData(color: AppColors.darkBorder, thickness: 1),
         chipTheme: ChipThemeData(
           backgroundColor: AppColors.darkElevated,
           shape:

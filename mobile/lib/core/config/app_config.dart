@@ -9,7 +9,8 @@ enum ApiEnvironment {
   differentRouterUsb(
     id: 'different_router_usb',
     name: 'Different Router (USB / ADB)',
-    description: 'PC & Phone on different routers; connected via USB cable (adb reverse)',
+    description:
+        'PC & Phone on different routers; connected via USB cable (adb reverse)',
     defaultUrl: 'http://127.0.0.1:5000/api/v1',
   ),
 
@@ -18,7 +19,8 @@ enum ApiEnvironment {
   sameRouterLan(
     id: 'same_router_lan',
     name: 'Same Router (LAN IP)',
-    description: 'PC & Phone on same Wi-Fi / subnet (PC IP: 192.168.26.65:5000)',
+    description:
+        'PC & Phone on same Wi-Fi / subnet (PC IP: 192.168.26.65:5000)',
     defaultUrl: 'http://192.168.26.65:5000/api/v1',
   ),
 
@@ -90,8 +92,7 @@ class AppConfig with ChangeNotifier {
   String get currentBaseUrl => _currentBaseUrl;
 
   /// Default same-router URL incorporating LAN_IP define if provided.
-  static String get defaultSameRouterUrl =>
-      'http://$_definedLanIp:5000/api/v1';
+  static String get defaultSameRouterUrl => 'http://$_definedLanIp:5000/api/v1';
 
   /// Initial load from storage and compile-time defines.
   Future<void> initialize() async {
@@ -137,7 +138,9 @@ class AppConfig with ChangeNotifier {
   /// Switch environment and optionally save a custom URL.
   Future<void> setEnvironment(ApiEnvironment env, {String? customUrl}) async {
     _currentEnv = env;
-    if (env == ApiEnvironment.custom && customUrl != null && customUrl.isNotEmpty) {
+    if (env == ApiEnvironment.custom &&
+        customUrl != null &&
+        customUrl.isNotEmpty) {
       _currentBaseUrl = normalizeUrl(customUrl);
       await _storage.write(key: _storageKeyUrl, value: _currentBaseUrl);
     } else {

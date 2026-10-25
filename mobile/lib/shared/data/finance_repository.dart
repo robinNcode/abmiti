@@ -95,7 +95,8 @@ class FinanceRepository {
     return [];
   }
 
-  Future<Map<String, dynamic>> createCategory(Map<String, dynamic> payload) async {
+  Future<Map<String, dynamic>> createCategory(
+      Map<String, dynamic> payload) async {
     final response = await _apiClient.client.post('/categories', data: payload);
     final data = response.data;
     if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
@@ -106,7 +107,8 @@ class FinanceRepository {
 
   Future<Map<String, dynamic>> updateCategory(
       String id, Map<String, dynamic> payload) async {
-    final response = await _apiClient.client.patch('/categories/$id', data: payload);
+    final response =
+        await _apiClient.client.patch('/categories/$id', data: payload);
     final data = response.data;
     if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
       return data['data'] as Map<String, dynamic>;
@@ -127,7 +129,8 @@ class FinanceRepository {
         queryParameters: {'month': month, 'year': year},
       );
       final data = response.data;
-      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      if (data is Map<String, dynamic> &&
+          data['data'] is Map<String, dynamic>) {
         return data['data'] as Map<String, dynamic>;
       }
       return null;
@@ -142,7 +145,8 @@ class FinanceRepository {
       final response =
           await _apiClient.client.get('/budgets/$budgetId/summary');
       final data = response.data;
-      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      if (data is Map<String, dynamic> &&
+          data['data'] is Map<String, dynamic>) {
         return data['data'] as Map<String, dynamic>;
       }
       return null;
@@ -153,6 +157,17 @@ class FinanceRepository {
 
   Future<Map<String, dynamic>> saveBudget(Map<String, dynamic> payload) async {
     final response = await _apiClient.client.post('/budgets', data: payload);
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> updateBudget(
+      String budgetId, Map<String, dynamic> payload) async {
+    final response =
+        await _apiClient.client.put('/budgets/$budgetId', data: payload);
     final data = response.data;
     if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
       return data['data'] as Map<String, dynamic>;
@@ -171,8 +186,35 @@ class FinanceRepository {
     return {};
   }
 
+  Future<void> updateBudgetLine(
+      String budgetId, String lineId, Map<String, dynamic> lineData) async {
+    await _apiClient.client
+        .put('/budgets/$budgetId/lines/$lineId', data: lineData);
+  }
+
   Future<void> deleteBudgetLine(String budgetId, String lineId) async {
     await _apiClient.client.delete('/budgets/$budgetId/lines/$lineId');
+  }
+
+  // ── Notifications ────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> fetchNotifications() async {
+    final response = await _apiClient.client.get('/notifications');
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is List) {
+      return (data['data'] as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<void> markNotificationRead(String id) async {
+    await _apiClient.client.patch('/notifications/$id/read');
+  }
+
+  Future<void> markAllNotificationsRead() async {
+    await _apiClient.client.patch('/notifications/read-all');
   }
 
   // ── Entries (Ledger) ───────────────────────────────────────
@@ -209,6 +251,17 @@ class FinanceRepository {
 
   Future<Map<String, dynamic>> createEntry(Map<String, dynamic> payload) async {
     final response = await _apiClient.client.post('/entries', data: payload);
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> updateEntry(
+      String id, Map<String, dynamic> payload) async {
+    final response =
+        await _apiClient.client.patch('/entries/$id', data: payload);
     final data = response.data;
     if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
       return data['data'] as Map<String, dynamic>;

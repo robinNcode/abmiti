@@ -26,10 +26,8 @@ class GlossyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor =
-        isDark ? AppColors.darkElevated : AppColors.paperCard;
-    final borderColor =
-        isDark ? AppColors.darkBorder : AppColors.paperMist;
+    final cardColor = isDark ? AppColors.darkElevated : AppColors.paperCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.paperMist;
 
     final container = AnimatedContainer(
       duration: const Duration(milliseconds: 200),

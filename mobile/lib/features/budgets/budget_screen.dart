@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -76,28 +77,37 @@ class _BudgetScreenState extends State<BudgetScreen> {
     _loadBudget();
   }
 
-  Future<void> _createQuickBudget() async {
-    final incomeController = TextEditingController(text: '50000');
-    final income = await showDialog<double>(
+  /// Prompt for a monthly income amount; returns null when cancelled.
+  Future<double?> _promptIncome({
+    required String title,
+    required String message,
+    required String confirmLabel,
+    double initial = 50000,
+  }) {
+    final loc = context.appLocale;
+    final incomeController = TextEditingController(
+      text: initial == initial.roundToDouble()
+          ? initial.toStringAsFixed(0)
+          : initial.toString(),
+    );
+
+    return showDialog<double>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Create Budget'),
+        title: Text(title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Enter your estimated monthly income to start allocating categories:',
-              style: TextStyle(fontSize: 13),
-            ),
+            Text(message, style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 14),
             TextField(
               controller: incomeController,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Estimated Income',
+              decoration: InputDecoration(
+                labelText: loc.tr('estimated_income'),
                 prefixText: '৳ ',
               ),
             ),
@@ -106,17 +116,55 @@ class _BudgetScreenState extends State<BudgetScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(loc.tr('cancel')),
           ),
           FilledButton(
             onPressed: () {
               final val = double.tryParse(incomeController.text.trim());
               Navigator.pop(ctx, val);
             },
-            child: const Text('Create'),
+            child: Text(confirmLabel),
           ),
         ],
       ),
+    );
+  }
+
+  /// Edit the budget's estimated monthly income (PUT /budgets/:id).
+  Future<void> _editIncome() async {
+    if (_budget == null || _budget!['_id'] == null) return;
+    final loc = context.appLocale;
+    final current = (_budget!['totalIncome'] as num?)?.toDouble() ?? 0;
+
+    final income = await _promptIncome(
+      title: loc.tr('edit_estimated_income'),
+      message: loc.tr('edit_income_hint'),
+      confirmLabel: loc.tr('save'),
+      initial: current > 0 ? current : 50000,
+    );
+    if (income == null || income < 0 || !mounted) return;
+
+    try {
+      setState(() => _loading = true);
+      await widget.financeRepo
+          .updateBudget(_budget!['_id'].toString(), {'totalIncome': income});
+      _loadBudget();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(ApiClient.messageFrom(e))),
+        );
+        setState(() => _loading = false);
+      }
+    }
+  }
+
+  Future<void> _createQuickBudget() async {
+    final loc = context.appLocale;
+    final income = await _promptIncome(
+      title: loc.tr('create_budget'),
+      message: loc.tr('estimated_income_hint'),
+      confirmLabel: loc.tr('create'),
     );
 
     if (income == null || income <= 0) return;
@@ -140,19 +188,28 @@ class _BudgetScreenState extends State<BudgetScreen> {
     }
   }
 
-  Future<void> _showAddLineDialog() async {
+  Future<void> _showLineDialog({Map<String, dynamic>? line}) async {
     if (_budget == null || _budget!['_id'] == null) return;
+    final loc = context.appLocale;
     final budgetId = _budget!['_id'].toString();
+    final editing = line != null;
 
-    final nameController = TextEditingController();
-    final valueController = TextEditingController();
-    String method = 'fixed';
+    final nameController =
+        TextEditingController(text: line?['name']?.toString() ?? '');
+    final valueController = TextEditingController(
+      text: line == null
+          ? ''
+          : _formatAllocationValue((line['allocationValue'] as num?) ?? 0),
+    );
+    String method = line?['allocationMethod']?.toString() ?? 'fixed';
 
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add Budget Line'),
+          title: Text(
+            editing ? loc.tr('edit_budget_line') : loc.tr('add_budget_line'),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -160,9 +217,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
               children: [
                 TextField(
                   controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Line Name',
-                    hintText: 'e.g. Housing, Food, Utilities',
+                  decoration: InputDecoration(
+                    labelText: loc.tr('line_name'),
+                    hintText: loc.tr('line_name_hint'),
                   ),
                   autofocus: true,
                 ),
@@ -170,12 +227,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 DropdownButtonFormField<String>(
                   initialValue: method,
                   decoration:
-                      const InputDecoration(labelText: 'Allocation Method'),
-                  items: const [
+                      InputDecoration(labelText: loc.tr('allocation_method')),
+                  items: [
                     DropdownMenuItem(
-                        value: 'fixed', child: Text('Fixed Amount (৳)')),
+                        value: 'fixed', child: Text(loc.tr('fixed_amount'))),
                     DropdownMenuItem(
-                        value: 'percentage', child: Text('Percentage (%)')),
+                        value: 'percentage', child: Text(loc.tr('percentage'))),
                   ],
                   onChanged: (val) {
                     if (val != null) {
@@ -189,8 +246,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
-                    labelText:
-                        method == 'fixed' ? 'Amount (৳)' : 'Percent (%)',
+                    labelText: method == 'fixed'
+                        ? loc.tr('amount_bdt')
+                        : loc.tr('percent_sign'),
                     prefixText: method == 'fixed' ? '৳ ' : null,
                     suffixText: method == 'percentage' ? '%' : null,
                   ),
@@ -201,11 +259,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
+              child: Text(loc.tr('cancel')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Add'),
+              child: Text(editing ? loc.tr('save') : loc.tr('add')),
             ),
           ],
         ),
@@ -216,15 +274,27 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
     final name = nameController.text.trim();
     final val = double.tryParse(valueController.text.trim());
-    if (name.isEmpty || val == null || val <= 0) return;
+    if (name.isEmpty || val == null || val < 0) return;
 
     try {
-      await widget.financeRepo.addBudgetLine(budgetId, {
+      final payload = {
         'name': name,
         'allocationMethod': method,
         'allocationValue': val,
-        'order': 0,
-      });
+      };
+
+      if (editing) {
+        await widget.financeRepo.updateBudgetLine(
+          budgetId,
+          line['_id'].toString(),
+          payload,
+        );
+      } else {
+        await widget.financeRepo.addBudgetLine(
+          budgetId,
+          {...payload, 'order': 0},
+        );
+      }
       _loadBudget();
     } catch (e) {
       if (mounted) {
@@ -233,6 +303,30 @@ class _BudgetScreenState extends State<BudgetScreen> {
         );
       }
     }
+  }
+
+  /// Open the line dialog prefilled for editing the summary line [lineId].
+  Future<void> _editLine(String lineId) async {
+    final raw = _rawLine(lineId);
+    if (raw == null) return;
+    await _showLineDialog(line: raw);
+  }
+
+  Map<String, dynamic>? _rawLine(String lineId) {
+    final lines = _budget?['lines'];
+    if (lines is! List) return null;
+    for (final item in lines) {
+      if (item is Map && item['_id']?.toString() == lineId) {
+        return Map<String, dynamic>.from(item);
+      }
+    }
+    return null;
+  }
+
+  String _formatAllocationValue(num value) {
+    return value == value.roundToDouble()
+        ? value.toStringAsFixed(0)
+        : value.toStringAsFixed(2);
   }
 
   Future<void> _deleteLine(String lineId) async {
@@ -270,14 +364,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = context.appLocale;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Budgets',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-      ),
       body: RefreshIndicator(
         onRefresh: _loadBudget,
         child: ListView(
@@ -290,7 +379,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
               ),
             ),
             const SizedBox(height: 18),
-
             if (_loading)
               const ShimmerLoading(count: 4)
             else if (_error != null)
@@ -298,10 +386,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
             else if (_budget == null)
               EmptyState(
                 icon: Icons.account_balance_wallet_outlined,
-                title: 'No budget set for this month',
-                subtitle:
-                    'Create a monthly budget to set allocation targets and prevent overspending.',
-                actionLabel: 'Create Budget',
+                title: loc.tr('no_budget_set'),
+                subtitle: loc.tr('no_budget_hint'),
+                actionLabel: loc.tr('create_budget'),
                 action: _createQuickBudget,
               )
             else ...[
@@ -314,32 +401,51 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Planned Budget',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.white.withAlpha(200),
-                                fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                loc.tr('planned_budget'),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white.withAlpha(200),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _formatCurrency(
-                                  (_budgetSummary?['totalPlanned'] as num?) ??
-                                      (_budget?['totalIncome'] as num?) ??
-                                      0),
-                              style: const TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                              const SizedBox(height: 4),
+                              Text(
+                                _formatCurrency(
+                                    (_budgetSummary?['totalPlanned'] as num?) ??
+                                        (_budget?['totalIncome'] as num?) ??
+                                        0),
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                '${loc.tr('income')} ${_formatCurrency((_budget?['totalIncome'] as num?) ?? 0)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withAlpha(190),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _editIncome,
+                          tooltip: loc.tr('edit_estimated_income'),
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: Colors.white,
+                          ),
                         ),
                         ProgressRing(
                           percentage: ((_budgetSummary?['totalPlanned']
@@ -369,7 +475,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _BudgetMiniStat(
-                            label: 'Total Spent',
+                            label: loc.tr('total_spent'),
                             amount: _formatCurrency(
                                 (_budgetSummary?['totalActual'] as num?) ?? 0),
                             color: AppColors.pastelPeach,
@@ -380,7 +486,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             color: Colors.white.withAlpha(50),
                           ),
                           _BudgetMiniStat(
-                            label: 'Remaining',
+                            label: loc.tr('remaining'),
                             amount: _formatCurrency(
                                 (_budgetSummary?['totalVariance'] as num?) ??
                                     0),
@@ -396,9 +502,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
               // ── Lines Section ──────────────────────────────────────
               SectionHeader(
-                title: 'Budget Allocations',
-                action: '+ Add Line',
-                onAction: _showAddLineDialog,
+                title: loc.tr('budget_allocations'),
+                action: '+ ${loc.tr('add_line')}',
+                onAction: () => _showLineDialog(),
               ),
 
               if (_budgetSummary?['lines'] is List &&
@@ -416,9 +522,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.darkElevated
-                          : AppColors.paperCard,
+                      color:
+                          isDark ? AppColors.darkElevated : AppColors.paperCard,
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color: isDark
@@ -458,14 +563,21 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             ),
                             PopupMenuButton<String>(
                               onSelected: (val) {
+                                if (val == 'edit') _editLine(lineId);
                                 if (val == 'delete') _deleteLine(lineId);
                               },
                               itemBuilder: (ctx) => [
-                                const PopupMenuItem(
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text(loc.tr('edit_line')),
+                                ),
+                                PopupMenuItem(
                                   value: 'delete',
-                                  child: Text('Delete Line',
-                                      style:
-                                          TextStyle(color: AppColors.danger)),
+                                  child: Text(
+                                    loc.tr('delete_line'),
+                                    style: const TextStyle(
+                                        color: AppColors.danger),
+                                  ),
                                 ),
                               ],
                               icon: const Icon(Icons.more_vert, size: 18),
@@ -488,15 +600,14 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         ),
                         const SizedBox(height: 6),
                         Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               status == 'over_budget'
-                                  ? 'Exceeded budget'
+                                  ? loc.tr('exceeded_budget')
                                   : status == 'warning'
-                                      ? 'Near threshold'
-                                      : 'On track',
+                                      ? loc.tr('near_threshold')
+                                      : loc.tr('on_track'),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -504,7 +615,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               ),
                             ),
                             Text(
-                              '${percent.toStringAsFixed(0)}% used',
+                              '${percent.toStringAsFixed(0)}% ${loc.tr('used')}',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -522,11 +633,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
               else
                 EmptyState(
                   icon: Icons.list_alt_rounded,
-                  title: 'No budget lines yet',
-                  subtitle:
-                      'Tap "+ Add Line" above to split your monthly budget into categories.',
-                  actionLabel: 'Add Line',
-                  action: _showAddLineDialog,
+                  title: loc.tr('no_budget_lines'),
+                  subtitle: loc.tr('no_budget_lines_hint'),
+                  actionLabel: loc.tr('add_line'),
+                  action: () => _showLineDialog(),
                 ),
             ],
           ],
@@ -534,7 +644,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
       ),
       floatingActionButton: _budget != null
           ? FloatingActionButton(
-              onPressed: _showAddLineDialog,
+              onPressed: () => _showLineDialog(),
               child: const Icon(Icons.add_rounded),
             )
           : null,

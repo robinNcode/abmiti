@@ -115,7 +115,8 @@ class ApiClient {
         return (
           success: true,
           latencyMs: stopwatch.elapsedMilliseconds,
-          message: 'Connected successfully (${stopwatch.elapsedMilliseconds}ms)',
+          message:
+              'Connected successfully (${stopwatch.elapsedMilliseconds}ms)',
         );
       }
       return (
@@ -130,14 +131,16 @@ class ApiClient {
           return (
             success: false,
             latencyMs: stopwatch.elapsedMilliseconds,
-            message: 'Timed out. Verify PC IP or run: adb reverse tcp:5000 tcp:5000',
+            message:
+                'Timed out. Verify PC IP or run: adb reverse tcp:5000 tcp:5000',
           );
         }
         if (e.type == DioExceptionType.connectionError) {
           return (
             success: false,
             latencyMs: stopwatch.elapsedMilliseconds,
-            message: 'Connection refused. Is backend running? On diff router, run: adb reverse tcp:5000 tcp:5000',
+            message:
+                'Connection refused. Is backend running? On diff router, run: adb reverse tcp:5000 tcp:5000',
           );
         }
       }
@@ -165,4 +168,3 @@ class ApiClient {
     return 'Something went wrong. Please try again.';
   }
 }
-

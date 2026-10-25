@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -82,22 +83,21 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   }
 
   Future<void> _deleteCategory(String id) async {
+    final loc = context.appLocale;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: const Text(
-          'Are you sure you want to delete this category? Associated entries will remain intact.',
-        ),
+        title: Text(loc.tr('delete_category')),
+        content: Text(loc.tr('delete_category_confirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(loc.tr('cancel')),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(loc.tr('delete')),
           ),
         ],
       ),
@@ -110,7 +110,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
       _loadCategories();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Category deleted')),
+          SnackBar(content: Text(loc.tr('category_deleted'))),
         );
       }
     } catch (e) {
@@ -137,12 +137,13 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = context.appLocale;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Categories',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          loc.tr('categories_title'),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         bottom: TabBar(
           controller: _tabController,
@@ -150,14 +151,16 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           indicatorColor: AppColors.terra,
           indicatorWeight: 3,
           labelColor: AppColors.terra,
-          unselectedLabelColor: isDark ? AppColors.darkMuted : AppColors.inkLight,
-          labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-          tabs: const [
-            Tab(text: 'Expense'),
-            Tab(text: 'Income'),
-            Tab(text: 'Savings'),
-            Tab(text: 'Payable'),
-            Tab(text: 'Receivable'),
+          unselectedLabelColor:
+              isDark ? AppColors.darkMuted : AppColors.inkLight,
+          labelStyle:
+              const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+          tabs: [
+            Tab(text: loc.tr('filter_expense')),
+            Tab(text: loc.tr('filter_income')),
+            Tab(text: loc.tr('filter_savings')),
+            Tab(text: loc.tr('filter_payable')),
+            Tab(text: loc.tr('filter_receivable')),
           ],
         ),
       ),
@@ -174,10 +177,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
               : _categories.isEmpty
                   ? EmptyState(
                       icon: Icons.category_outlined,
-                      title: 'No categories found',
-                      subtitle:
-                          'Add custom categories to personalize your spending logs.',
-                      actionLabel: 'Create Category',
+                      title: loc.tr('no_categories'),
+                      subtitle: loc.tr('no_categories_hint'),
+                      actionLabel: loc.tr('create_category'),
                       action: () {
                         CategoryFormDialog.show(
                           context,
@@ -216,7 +218,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withAlpha(isDark ? 25 : 8),
+                                  color:
+                                      Colors.black.withAlpha(isDark ? 25 : 8),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -244,7 +247,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         name,
@@ -255,7 +259,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                                       ),
                                       if (isDefault)
                                         Text(
-                                          'Default Category',
+                                          loc.tr('default_category'),
                                           style: TextStyle(
                                             fontSize: 11,
                                             color: isDark
@@ -267,7 +271,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.edit_outlined, size: 20),
+                                  icon:
+                                      const Icon(Icons.edit_outlined, size: 20),
                                   onPressed: () {
                                     CategoryFormDialog.show(
                                       context,

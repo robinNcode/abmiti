@@ -48,8 +48,10 @@ You don't need to rebuild the app to change environments:
 ## Implemented API flows
 
 - `POST /auth/login`, `POST /auth/register`, `POST /auth/refresh`, `GET /auth/me`, and `PATCH /auth/me`. Access and refresh tokens are kept in platform secure storage. The API client retries expired access tokens and signs out when refresh fails. Admin accounts are denied access to the personal finance screens.
-- `GET /summary/monthly`, `GET /summary/categories`, `GET /entries`, `GET /budgets`, `POST /entries`, and `GET /categories` power the overview, activity list, and transaction form.
-- `GET /notifications`, `PATCH /notifications/read-all`, and `PATCH /notifications/:id/read` power in-app notifications.
+- `GET /summary/monthly`, `GET /summary/categories`, `GET /summary/yearly`, `GET /summary/yearly-summary`, `GET /summary/budget-warnings`, `GET /entries`, `POST /entries`, `PATCH /entries/:id`, `DELETE /entries/:id`, and `GET /categories` power the overview, activity list, analytics, and transaction form. All six entry types (`income`, `expense`, `savings`, `investment`, `payable`, `receivable`) can be created and edited, with a date picker for back-dated entries.
+- `GET /budgets`, `POST /budgets`, `PUT /budgets/:id`, `GET /budgets/:id/summary`, `POST /budgets/:id/lines`, `PUT /budgets/:id/lines/:lineId`, and `DELETE /budgets/:id/lines/:lineId` power the budget screen, including editing the estimated income and editing or removing allocation lines.
+- `GET /categories`, `POST /categories`, `PATCH /categories/:id`, and `DELETE /categories/:id` power the categories manager with per-type tabs.
+- `GET /notifications`, `PATCH /notifications/read-all`, and `PATCH /notifications/:id/read` power the in-app notification inbox and the unread badge in the app bar.
 - `GET /subscriptions` shows server-reported plan history. `POST /payments/start` opens the backend-created SSLCommerz checkout URL. A plan is never marked paid by the app; the backend verifies the gateway callback/IPN.
 
 The existing API has no password reset route, mobile-native Google OAuth callback, account deletion route, or notification pagination. Google OAuth still redirects to the web client. The mobile app does not simulate those flows or expose them as native actions. Subscription checkout and reporting require the server's SSLCommerz configuration.
@@ -58,11 +60,21 @@ The existing API has no password reset route, mobile-native Google OAuth callbac
 
 ```text
 lib/
-  core/constants/       Brand colors
-  features/auth/        Login and registration
-  features/home/        Overview, activity, profile and transaction entry
-  shared/data/          API client, token refresh and auth repository
-  features/webview/     Existing shell retained for reference
+  core/                  Colors, theme, API environment switcher, EN/BN locale
+  features/auth/         Login and registration
+  features/shell/        App shell: drawer, bottom navigation, app bar
+  features/home/         Overview, activity ledger, transaction form
+  features/categories/   Category manager and form
+  features/budgets/      Monthly budget with editable allocation lines
+  features/analytics/    Yearly trend and category analytics
+  features/reports/      Monthly reports
+  features/profile/      Profile, subscription and checkout
+  features/notifications/ In-app notification inbox
+  features/webview/      Existing shell retained for reference
+  shared/data/           API client, token refresh, auth and finance repositories
+  shared/widgets/        Reusable UI primitives
+
+test/                    Widget and unit tests (auth, shell, tabs, config, widgets)
 ```
 
 ## Commands

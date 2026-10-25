@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/entry_types.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -38,6 +40,7 @@ class _ActivityTabState extends State<ActivityTab> {
     {'key': 'expense', 'label': 'Expense'},
     {'key': 'income', 'label': 'Income'},
     {'key': 'savings', 'label': 'Savings'},
+    {'key': 'investment', 'label': 'Investment'},
     {'key': 'payable', 'label': 'Payable'},
     {'key': 'receivable', 'label': 'Receivable'},
   ];
@@ -138,6 +141,7 @@ class _ActivityTabState extends State<ActivityTab> {
   }
 
   Future<void> _deleteEntry(String id, int index) async {
+    final loc = context.appLocale;
     final removed = _entries[index];
     setState(() {
       _entries.removeAt(index);
@@ -147,7 +151,7 @@ class _ActivityTabState extends State<ActivityTab> {
       await widget.financeRepo.deleteEntry(id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transaction deleted')),
+          SnackBar(content: Text(loc.tr('transaction_deleted'))),
         );
       }
     } catch (e) {
@@ -160,6 +164,15 @@ class _ActivityTabState extends State<ActivityTab> {
         );
       }
     }
+  }
+
+  Future<void> _editEntry(Map<String, dynamic> entry) async {
+    await EntryFormModal.show(
+      context,
+      financeRepo: widget.financeRepo,
+      entry: entry,
+      onEntryCreated: () => _loadEntries(refresh: true),
+    );
   }
 
   void _onFilterSelected(String key) {
@@ -187,6 +200,7 @@ class _ActivityTabState extends State<ActivityTab> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = context.appLocale;
 
     return Scaffold(
       body: Column(
@@ -204,15 +218,14 @@ class _ActivityTabState extends State<ActivityTab> {
                 final opt = _filterOptions[index];
                 final isSelected = _selectedFilter == opt['key'];
                 return ChoiceChip(
-                  label: Text(opt['label']!),
+                  label: Text(loc.tr('filter_${opt['key']}')),
                   selected: isSelected,
                   selectedColor: AppColors.terra,
                   labelStyle: TextStyle(
                     color: isSelected
                         ? Colors.white
                         : (isDark ? Colors.white70 : AppColors.ink),
-                    fontWeight:
-                        isSelected ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     fontSize: 12,
                   ),
                   backgroundColor: isDark
@@ -244,25 +257,23 @@ class _ActivityTabState extends State<ActivityTab> {
                         onRetry: () => _loadEntries(refresh: true),
                       )
                     : _entries.isEmpty
-                        ? const EmptyState(
+                        ? EmptyState(
                             icon: Icons.receipt_long_rounded,
-                            title: 'No transactions found',
-                            subtitle:
-                                'Try selecting a different filter or tap + to add one.',
+                            title: loc.tr('no_entries_found'),
+                            subtitle: loc.tr('no_entries_hint'),
                           )
                         : RefreshIndicator(
                             onRefresh: () => _loadEntries(refresh: true),
                             child: ListView.builder(
                               controller: _scrollController,
-                              padding: const EdgeInsets.fromLTRB(
-                                  20, 10, 20, 80),
+                              padding:
+                                  const EdgeInsets.fromLTRB(20, 10, 20, 80),
                               itemCount:
                                   _entries.length + (_loadingMore ? 1 : 0),
                               itemBuilder: (context, index) {
                                 if (index >= _entries.length) {
                                   return const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 16),
+                                    padding: EdgeInsets.symmetric(vertical: 16),
                                     child: Center(
                                       child: CircularProgressIndicator(
                                           strokeWidth: 2),
@@ -272,11 +283,10 @@ class _ActivityTabState extends State<ActivityTab> {
 
                                 final e = _entries[index];
                                 final id = e['_id']?.toString() ?? '';
-                                final type =
-                                    e['type']?.toString() ?? 'expense';
-                                final isExpense = type == 'expense';
-                                final amount =
-                                    (e['amount'] as num?) ?? 0;
+                                final type = e['type']?.toString() ?? 'expense';
+                                final typeColor = EntryTypes.colorOf(type);
+                                final isCredit = EntryTypes.isCredit(type);
+                                final amount = (e['amount'] as num?) ?? 0;
                                 final note = e['note']?.toString();
                                 final cat = e['category'] is Map
                                     ? e['category']['name']
@@ -285,131 +295,79 @@ class _ActivityTabState extends State<ActivityTab> {
                                     e['source']?.toString() ?? 'cash';
                                 final dateStr =
                                     _formatDate(e['date']?.toString());
-                                final title =
-                                    (note != null && note.isNotEmpty)
-                                        ? note
-                                        : (cat ??
-                                            (isExpense
-                                                ? 'Expense'
-                                                : 'Income'));
+                                final title = (note != null && note.isNotEmpty)
+                                    ? note
+                                    : (cat ?? loc.tr('filter_$type'));
 
                                 return Dismissible(
                                   key: Key(id.isNotEmpty ? id : '$index'),
                                   direction: DismissDirection.endToStart,
                                   background: Container(
                                     alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.only(
-                                        right: 20),
-                                    margin: const EdgeInsets.only(
-                                        bottom: 10),
+                                    padding: const EdgeInsets.only(right: 20),
+                                    margin: const EdgeInsets.only(bottom: 10),
                                     decoration: BoxDecoration(
                                       color: AppColors.danger,
-                                      borderRadius:
-                                          BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: const Icon(
                                       Icons.delete_outline_rounded,
                                       color: Colors.white,
                                     ),
                                   ),
-                                  onDismissed: (_) =>
-                                      _deleteEntry(id, index),
-                                  child: Container(
-                                    margin: const EdgeInsets.only(
-                                        bottom: 10),
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? AppColors.darkElevated
-                                          : AppColors.paperCard,
-                                      borderRadius:
-                                          BorderRadius.circular(16),
-                                      border: Border.all(
+                                  onDismissed: (_) => _deleteEntry(id, index),
+                                  child: InkWell(
+                                    onTap: () => _editEntry(e),
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(14),
+                                      decoration: BoxDecoration(
                                         color: isDark
-                                            ? AppColors.darkBorder
-                                            : AppColors.paperMist,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          padding:
-                                              const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: (isExpense
-                                                    ? AppColors.terra
-                                                    : AppColors.sage)
-                                                .withAlpha(25),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: Icon(
-                                            isExpense
-                                                ? Icons
-                                                    .arrow_upward_rounded
-                                                : Icons
-                                                    .arrow_downward_rounded,
-                                            color: isExpense
-                                                ? AppColors.terra
-                                                : AppColors.sage,
-                                            size: 20,
-                                          ),
+                                            ? AppColors.darkElevated
+                                            : AppColors.paperCard,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isDark
+                                              ? AppColors.darkBorder
+                                              : AppColors.paperMist,
                                         ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                title,
-                                                style: const TextStyle(
-                                                  fontWeight:
-                                                      FontWeight.w700,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 3),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    dateStr,
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      color: isDark
-                                                          ? AppColors
-                                                              .darkMuted
-                                                          : AppColors
-                                                              .inkLight,
-                                                    ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: typeColor.withAlpha(25),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Icon(
+                                              EntryTypes.iconOf(type),
+                                              color: typeColor,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  title,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 14,
                                                   ),
-                                                  const SizedBox(width: 8),
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 6,
-                                                            vertical: 2),
-                                                    decoration:
-                                                        BoxDecoration(
-                                                      color: isDark
-                                                          ? Colors
-                                                              .white10
-                                                          : AppColors
-                                                              .paperMist,
-                                                      borderRadius:
-                                                          BorderRadius
-                                                              .circular(
-                                                                  6),
-                                                    ),
-                                                    child: Text(
-                                                      source
-                                                          .toUpperCase(),
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      dateStr,
                                                       style: TextStyle(
-                                                        fontSize: 9,
-                                                        fontWeight:
-                                                            FontWeight
-                                                                .w700,
+                                                        fontSize: 11,
                                                         color: isDark
                                                             ? AppColors
                                                                 .darkMuted
@@ -417,23 +375,50 @@ class _ActivityTabState extends State<ActivityTab> {
                                                                 .inkLight,
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                                    const SizedBox(width: 8),
+                                                    Container(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 2),
+                                                      decoration: BoxDecoration(
+                                                        color: isDark
+                                                            ? Colors.white10
+                                                            : AppColors
+                                                                .paperMist,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(6),
+                                                      ),
+                                                      child: Text(
+                                                        source.toUpperCase(),
+                                                        style: TextStyle(
+                                                          fontSize: 9,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: isDark
+                                                              ? AppColors
+                                                                  .darkMuted
+                                                              : AppColors
+                                                                  .inkLight,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          '${isExpense ? '-' : '+'}${_formatCurrency(amount)}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 15,
-                                            color: isExpense
-                                                ? AppColors.terra
-                                                : AppColors.sage,
+                                          Text(
+                                            '${isCredit ? '+' : '-'}${_formatCurrency(amount)}',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 15,
+                                              color: typeColor,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -83,6 +84,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = context.appLocale;
 
     final income = (_summary['income'] as num?) ?? 0;
     final expense = (_summary['expense'] as num?) ?? 0;
@@ -93,9 +95,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Monthly Report',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          loc.tr('report_title'),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
       body: RefreshIndicator(
@@ -117,11 +119,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
             else if (_error != null)
               ErrorState(message: _error!, onRetry: _loadReport)
             else if (income == 0 && expense == 0 && savings == 0)
-              const EmptyState(
+              EmptyState(
                 icon: Icons.assessment_outlined,
-                title: 'No data for this month',
-                subtitle:
-                    'There are no recorded transactions in this period.',
+                title: loc.tr('no_data_month'),
+                subtitle: loc.tr('no_data_month_hint'),
               )
             else ...[
               // ── Report Glossy Hero Card ─────────────────────────────
@@ -133,7 +134,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Net Savings',
+                      loc.tr('net_savings'),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -160,9 +161,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Savings Rate',
-                            style: TextStyle(
+                          Text(
+                            loc.tr('savings_rate'),
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: AppColors.inkLight,
@@ -189,7 +190,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 children: [
                   Expanded(
                     child: StatChip(
-                      label: 'Total Income',
+                      label: loc.tr('total_income'),
                       amount: _formatCurrency(income),
                       icon: Icons.arrow_downward_rounded,
                       color: AppColors.sage,
@@ -199,7 +200,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: StatChip(
-                      label: 'Total Expense',
+                      label: loc.tr('total_expense'),
                       amount: _formatCurrency(expense),
                       icon: Icons.arrow_upward_rounded,
                       color: AppColors.terra,
@@ -211,10 +212,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
               const SizedBox(height: 24),
 
               // ── Category Spending Breakdown ─────────────────────────
-              const SectionHeader(title: 'Spending by Category'),
+              SectionHeader(title: loc.tr('spending_by_category')),
               if (_categories.isEmpty)
                 Text(
-                  'No categorized expenses for this month.',
+                  loc.tr('no_categorized_expenses'),
                   style: TextStyle(
                     color: isDark ? AppColors.darkMuted : AppColors.inkLight,
                     fontSize: 13,
@@ -222,8 +223,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 )
               else
                 ..._categories.map((cat) {
-                  final catName =
-                      cat['categoryName']?.toString() ?? 'General';
+                  final catName = cat['categoryName']?.toString() ?? 'General';
                   final total = (cat['total'] as num?) ?? 0;
                   final percentage =
                       expense > 0 ? (total / expense).clamp(0.0, 1.0) : 0.0;
@@ -232,9 +232,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? AppColors.darkElevated
-                          : AppColors.paperCard,
+                      color:
+                          isDark ? AppColors.darkElevated : AppColors.paperCard,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isDark
@@ -246,8 +245,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               catName,
@@ -284,7 +282,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: Text(
-                            '${(percentage * 100).toStringAsFixed(1)}% of expenses',
+                            '${(percentage * 100).toStringAsFixed(1)}% ${loc.tr('of_expenses')}',
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,

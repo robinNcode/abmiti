@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/entry_types.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -96,7 +98,7 @@ class _OverviewTabState extends State<OverviewTab> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = 'Failed to load dashboard data. Please try again.';
+          _error = context.appLocale.tr('dashboard_load_error');
           _loading = false;
         });
       }
@@ -109,6 +111,7 @@ class _OverviewTabState extends State<OverviewTab> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = context.appLocale;
     if (_loading) {
       return const SingleChildScrollView(
         padding: EdgeInsets.all(20),
@@ -155,7 +158,7 @@ class _OverviewTabState extends State<OverviewTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Net Balance',
+                          loc.tr('net_balance'),
                           style: TextStyle(
                             color: Colors.white.withAlpha(200),
                             fontSize: 13,
@@ -202,7 +205,7 @@ class _OverviewTabState extends State<OverviewTab> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _HeroStat(
-                        label: 'Income',
+                        label: loc.tr('income'),
                         amount: _formatCurrency(income),
                         color: AppColors.pastelIce,
                         icon: Icons.south_west_rounded,
@@ -213,7 +216,7 @@ class _OverviewTabState extends State<OverviewTab> {
                         color: Colors.white.withAlpha(50),
                       ),
                       _HeroStat(
-                        label: 'Expenses',
+                        label: loc.tr('expenses'),
                         amount: _formatCurrency(expense),
                         color: AppColors.pastelPeach,
                         icon: Icons.north_east_rounded,
@@ -231,7 +234,7 @@ class _OverviewTabState extends State<OverviewTab> {
             children: [
               Expanded(
                 child: StatChip(
-                  label: 'Savings',
+                  label: loc.tr('savings'),
                   amount: _formatCurrency(savings),
                   icon: Icons.savings_outlined,
                   color: AppColors.sage,
@@ -241,7 +244,7 @@ class _OverviewTabState extends State<OverviewTab> {
               const SizedBox(width: 12),
               Expanded(
                 child: StatChip(
-                  label: 'Expense Ratio',
+                  label: loc.tr('expense_ratio'),
                   amount: income > 0
                       ? '${((expense / income) * 100).toStringAsFixed(0)}%'
                       : '0%',
@@ -272,7 +275,7 @@ class _OverviewTabState extends State<OverviewTab> {
                       Row(
                         children: [
                           Text(
-                            'Monthly Budget',
+                            loc.tr('monthly_budget'),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -286,8 +289,8 @@ class _OverviewTabState extends State<OverviewTab> {
                       const SizedBox(height: 6),
                       Text(
                         totalPlanned > 0
-                            ? '${_formatCurrency(totalActual)} spent of ${_formatCurrency(totalPlanned)}'
-                            : 'Set up your budget to track limits and stay disciplined.',
+                            ? '${_formatCurrency(totalActual)} ${loc.tr('budget_spent_of')} ${_formatCurrency(totalPlanned)}'
+                            : loc.tr('budget_setup_hint'),
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).brightness == Brightness.dark
@@ -306,8 +309,8 @@ class _OverviewTabState extends State<OverviewTab> {
           // ── Category Breakdown ─────────────────────────────────────
           if (_categories.isNotEmpty) ...[
             SectionHeader(
-              title: 'Top Categories',
-              action: 'View All',
+              title: loc.tr('top_categories'),
+              action: loc.tr('view_all'),
               onAction: widget.onNavigateToLedger,
             ),
             SizedBox(
@@ -364,26 +367,27 @@ class _OverviewTabState extends State<OverviewTab> {
 
           // ── Recent Activity ────────────────────────────────────────
           SectionHeader(
-            title: 'Recent Transactions',
-            action: 'View Ledger',
+            title: loc.tr('recent_transactions'),
+            action: loc.tr('view_ledger'),
             onAction: widget.onNavigateToLedger,
           ),
           if (_recentEntries.isEmpty)
-            const EmptyState(
+            EmptyState(
               icon: Icons.receipt_long_rounded,
-              title: 'No transactions yet',
-              subtitle: 'Tap the + button above to log your first expense or income.',
+              title: loc.tr('no_transactions'),
+              subtitle: loc.tr('no_transactions_hint'),
             )
           else
             ..._recentEntries.map((e) {
               final type = e['type']?.toString() ?? 'expense';
-              final isExpense = type == 'expense';
+              final typeColor = EntryTypes.colorOf(type);
+              final isCredit = EntryTypes.isCredit(type);
               final amount = (e['amount'] as num?) ?? 0;
               final note = e['note']?.toString();
               final cat = e['category'] is Map ? e['category']['name'] : null;
               final title = (note != null && note.isNotEmpty)
                   ? note
-                  : (cat ?? (isExpense ? 'Expense' : 'Income'));
+                  : (cat ?? loc.tr('filter_$type'));
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
@@ -405,15 +409,12 @@ class _OverviewTabState extends State<OverviewTab> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (isExpense ? AppColors.terra : AppColors.sage)
-                            .withAlpha(25),
+                        color: typeColor.withAlpha(25),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
-                        isExpense
-                            ? Icons.arrow_upward_rounded
-                            : Icons.arrow_downward_rounded,
-                        color: isExpense ? AppColors.terra : AppColors.sage,
+                        EntryTypes.iconOf(type),
+                        color: typeColor,
                         size: 18,
                       ),
                     ),
@@ -444,11 +445,11 @@ class _OverviewTabState extends State<OverviewTab> {
                       ),
                     ),
                     Text(
-                      '${isExpense ? '-' : '+'}${_formatCurrency(amount)}',
+                      '${isCredit ? '+' : '-'}${_formatCurrency(amount)}',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
-                        color: isExpense ? AppColors.terra : AppColors.sage,
+                        color: typeColor,
                       ),
                     ),
                   ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 
 /// Error state with retry button, icon, and message.
 class ErrorState extends StatelessWidget {
@@ -33,7 +34,7 @@ class ErrorState extends StatelessWidget {
             TextButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Try again'),
+              label: Text(context.tr('try_again')),
             ),
           ],
         ]),

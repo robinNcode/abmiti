@@ -14,6 +14,7 @@ import '../categories/categories_screen.dart';
 import '../home/activity_tab.dart';
 import '../home/entry_form.dart';
 import '../home/overview_tab.dart';
+import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
 import '../reports/reports_screen.dart';
 
@@ -42,7 +43,43 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
+  int _unreadNotifications = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String? get _userId {
+    final user = widget.auth.currentUser;
+    return (user?['_id'] ?? user?['id'])?.toString();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshUnreadCount();
+  }
+
+  Future<void> _refreshUnreadCount() async {
+    try {
+      final items = await widget.financeRepo.fetchNotifications();
+      if (!mounted) return;
+      setState(
+          () => _unreadNotifications = unreadNotificationCount(items, _userId));
+    } catch (_) {
+      // Background badge refresh — ignore failures.
+    }
+  }
+
+  Future<void> _openNotifications() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NotificationsScreen(
+          financeRepo: widget.financeRepo,
+          userId: _userId,
+        ),
+      ),
+    );
+    _refreshUnreadCount();
+  }
 
   void _onBottomNavTapped(int index) {
     setState(() => _currentIndex = index);
@@ -59,10 +96,10 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final user = widget.auth.currentUser;
-    final name = user?['name']?.toString() ?? 'Abmiti User';
-    final email = user?['email']?.toString() ?? '';
     final loc = context.appLocale;
+    final user = widget.auth.currentUser;
+    final name = user?['name']?.toString() ?? loc.tr('default_user_name');
+    final email = user?['email']?.toString() ?? '';
 
     final pages = [
       OverviewTab(
@@ -104,8 +141,7 @@ class _AppShellState extends State<AppShell> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: isDark
                     ? AppColors.darkElevated
@@ -133,6 +169,44 @@ class _AppShellState extends State<AppShell> {
                 ],
               ),
             ),
+          ),
+          IconButton(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.notifications_none_rounded),
+                if (_unreadNotifications > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(
+                        color: AppColors.danger,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 14,
+                        minHeight: 14,
+                      ),
+                      child: Text(
+                        _unreadNotifications > 9
+                            ? '9+'
+                            : '$_unreadNotifications',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 8,
+                          height: 1,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            tooltip: loc.tr('notifications_title'),
+            onPressed: _openNotifications,
           ),
           IconButton(
             icon: const Icon(Icons.account_balance_wallet_outlined),
@@ -275,7 +349,8 @@ class _AppShellState extends State<AppShell> {
                   if (widget.config != null && widget.apiClient != null)
                     _DrawerItem(
                       icon: Icons.settings_input_antenna_rounded,
-                      label: 'API Server (${widget.config!.currentEnv.name})',
+                      label:
+                          '${loc.tr('api_server')} (${widget.config!.currentEnv.name})',
                       onTap: () {
                         Navigator.pop(context);
                         EnvSwitcherSheet.show(

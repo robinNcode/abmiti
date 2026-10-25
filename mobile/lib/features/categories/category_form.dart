@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 
@@ -46,8 +47,16 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
   String? _error;
 
   static const List<String> _colorOptions = [
-    '#C2552A', '#4A7C59', '#D4973E', '#2B6CB0', '#805AD5', '#D53F8C',
-    '#319795', '#DD6B20', '#718096', '#E53E3E'
+    '#C2552A',
+    '#4A7C59',
+    '#D4973E',
+    '#2B6CB0',
+    '#805AD5',
+    '#D53F8C',
+    '#319795',
+    '#DD6B20',
+    '#718096',
+    '#E53E3E'
   ];
 
   static const List<Map<String, dynamic>> _iconOptions = [
@@ -91,9 +100,10 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
   }
 
   Future<void> _submit() async {
+    final loc = context.appLocale;
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _error = 'Please enter a category name');
+      setState(() => _error = loc.tr('category_name_required'));
       return;
     }
 
@@ -136,11 +146,12 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEditing = widget.existingCategory != null;
+    final loc = context.appLocale;
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: Text(
-        isEditing ? 'Edit Category' : 'New Category',
+        isEditing ? loc.tr('edit_category') : loc.tr('new_category'),
         style: const TextStyle(fontWeight: FontWeight.w800),
       ),
       content: SingleChildScrollView(
@@ -150,9 +161,9 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Category Name',
-                hintText: 'e.g. Groceries, Fuel, Utilities',
+              decoration: InputDecoration(
+                labelText: loc.tr('category_name'),
+                hintText: loc.tr('category_name_hint'),
               ),
               autofocus: true,
             ),
@@ -161,14 +172,22 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
             // Type selector
             DropdownButtonFormField<String>(
               initialValue: _type,
-              decoration: const InputDecoration(labelText: 'Type'),
-              items: const [
-                DropdownMenuItem(value: 'expense', child: Text('Expense')),
-                DropdownMenuItem(value: 'income', child: Text('Income')),
-                DropdownMenuItem(value: 'savings', child: Text('Savings')),
-                DropdownMenuItem(value: 'payable', child: Text('Payable')),
-                DropdownMenuItem(value: 'receivable', child: Text('Receivable')),
-                DropdownMenuItem(value: 'investment', child: Text('Investment')),
+              decoration: InputDecoration(labelText: loc.tr('category_type')),
+              items: [
+                DropdownMenuItem(
+                    value: 'expense', child: Text(loc.tr('filter_expense'))),
+                DropdownMenuItem(
+                    value: 'income', child: Text(loc.tr('filter_income'))),
+                DropdownMenuItem(
+                    value: 'savings', child: Text(loc.tr('filter_savings'))),
+                DropdownMenuItem(
+                    value: 'payable', child: Text(loc.tr('filter_payable'))),
+                DropdownMenuItem(
+                    value: 'receivable',
+                    child: Text(loc.tr('filter_receivable'))),
+                DropdownMenuItem(
+                    value: 'investment',
+                    child: Text(loc.tr('filter_investment'))),
               ],
               onChanged: (val) {
                 if (val != null) setState(() => _type = val);
@@ -177,9 +196,9 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
             const SizedBox(height: 16),
 
             // Color Palette
-            const Text(
-              'Color Tag',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            Text(
+              loc.tr('color_tag'),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -187,7 +206,8 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
               runSpacing: 8,
               children: _colorOptions.map((cHex) {
                 final c = _hexToColor(cHex);
-                final isSelected = _selectedColor.toLowerCase() == cHex.toLowerCase();
+                final isSelected =
+                    _selectedColor.toLowerCase() == cHex.toLowerCase();
                 return GestureDetector(
                   onTap: () => setState(() => _selectedColor = cHex),
                   child: Container(
@@ -210,9 +230,9 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
             const SizedBox(height: 16),
 
             // Icon Selector
-            const Text(
-              'Icon',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            Text(
+              loc.tr('icon'),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -224,7 +244,8 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
                   label: Icon(opt['icon'] as IconData, size: 18),
                   selected: isSelected,
                   selectedColor: AppColors.terra,
-                  onSelected: (_) => setState(() => _selectedIcon = opt['name'] as String),
+                  onSelected: (_) =>
+                      setState(() => _selectedIcon = opt['name'] as String),
                 );
               }).toList(),
             ),
@@ -242,7 +263,7 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(loc.tr('cancel')),
         ),
         FilledButton(
           onPressed: _submitting ? null : _submit,
@@ -250,9 +271,10 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
               ? const SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white),
                 )
-              : Text(isEditing ? 'Save' : 'Create'),
+              : Text(isEditing ? loc.tr('save') : loc.tr('create')),
         ),
       ],
     );

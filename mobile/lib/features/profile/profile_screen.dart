@@ -33,10 +33,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadSubscription() async {
     try {
-      final response =
-          await widget.auth.apiClient.client.get('/subscriptions');
+      final response = await widget.auth.apiClient.client.get('/subscriptions');
       final data = response.data;
-      if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      if (data is Map<String, dynamic> &&
+          data['data'] is Map<String, dynamic>) {
         final sub = data['data'] as Map<String, dynamic>;
         if (mounted) {
           setState(() {
@@ -77,20 +77,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _signOut() async {
+    final loc = context.appLocale;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out from Abmiti?'),
+        title: Text(loc.tr('sign_out')),
+        content: Text(loc.tr('sign_out_confirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(loc.tr('cancel')),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sign Out'),
+            child: Text(loc.tr('sign_out')),
           ),
         ],
       ),
@@ -104,16 +105,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = context.appLocale;
     final user = widget.auth.currentUser;
-    final name = user?['name']?.toString() ?? 'Abmiti User';
+    final name = user?['name']?.toString() ?? loc.tr('default_user_name');
     final email = user?['email']?.toString() ?? '';
-    final isPro = _tier.toLowerCase() == 'pro' || _tier.toLowerCase() == 'premium';
+    final isPro =
+        _tier.toLowerCase() == 'pro' || _tier.toLowerCase() == 'premium';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Profile & Settings',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          loc.tr('profile_title'),
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
       body: ListView(
@@ -168,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          isPro ? 'PRO MEMBER' : 'FREE PLAN',
+                          isPro ? loc.tr('pro_member') : loc.tr('free_plan'),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -180,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (isPro && _validUntil.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Valid until: $_validUntil',
+                          loc.tr('valid_until').replaceAll('{n}', _validUntil),
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.ink.withAlpha(160),
@@ -211,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Unlock Abmiti Pro',
+                        loc.tr('unlock_pro'),
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium
@@ -221,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Get unlimited budget lines, SMS auto-parsing for Bangladesh bank/MFS rails, advanced analytics export, and priority sync.',
+                    loc.tr('pro_description'),
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.4,
@@ -243,8 +246,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         : const Icon(Icons.bolt_rounded, size: 18),
                     label: Text(
                       _initiatingPayment
-                          ? 'Opening Gateway...'
-                          : 'Upgrade via SSLCommerz',
+                          ? loc.tr('opening_gateway')
+                          : loc.tr('upgrade_btn'),
                     ),
                   ),
                 ],
@@ -265,8 +268,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 _SettingsTile(
                   icon: Icons.security_rounded,
-                  title: 'Halal Personal Finance',
-                  subtitle: 'No interest, debt traps, or gambling framing',
+                  title: loc.tr('halal_finance'),
+                  subtitle: loc.tr('halal_subtitle'),
                   onTap: () {},
                 ),
                 Divider(
@@ -275,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 _SettingsTile(
                   icon: Icons.language_rounded,
-                  title: 'Language / ভাষা',
+                  title: loc.tr('language_switch'),
                   subtitle: context.appLocale.isBengali
                       ? 'বাংলা (Bengali)'
                       : 'English',
@@ -286,9 +289,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        title: const Text(
-                          'Select Language / ভাষা নির্বাচন',
-                          style: TextStyle(
+                        title: Text(
+                          loc.tr('select_language'),
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                           ),
@@ -336,8 +339,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 _SettingsTile(
                   icon: Icons.info_outline_rounded,
-                  title: 'About Abmiti',
-                  subtitle: 'v1.1.0 • Made with ❤️ for Bangladesh',
+                  title: loc.tr('about_abmiti'),
+                  subtitle: loc.tr('about_version'),
                   onTap: () {},
                 ),
               ],
@@ -354,9 +357,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             onPressed: _signOut,
             icon: const Icon(Icons.logout_rounded, size: 20),
-            label: const Text(
-              'Sign Out',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            label: Text(
+              loc.tr('sign_out'),
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         ],

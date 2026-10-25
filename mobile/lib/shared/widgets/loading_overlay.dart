@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 
 /// Full-screen branded loading overlay shown while the WebView loads a page.
 ///
@@ -76,9 +77,9 @@ class _LoadingOverlayState extends State<LoadingOverlay>
             ),
             const SizedBox(height: 28),
             // App name
-            const Text(
-              'অবমিতি',
-              style: TextStyle(
+            Text(
+              context.tr('app_title'),
+              style: const TextStyle(
                 color: AppColors.paper,
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
@@ -87,7 +88,7 @@ class _LoadingOverlayState extends State<LoadingOverlay>
             ),
             const SizedBox(height: 6),
             Text(
-              'Personal Finance',
+              context.tr('personal_finance'),
               style: TextStyle(
                 color: AppColors.paper.withAlpha(180),
                 fontSize: 13,

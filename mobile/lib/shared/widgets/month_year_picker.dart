@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 
 /// Interactive Month/Year selector component for reports, summaries, and budgets.
 class MonthYearPicker extends StatelessWidget {
@@ -12,11 +13,6 @@ class MonthYearPicker extends StatelessWidget {
 
   final DateTime selectedDate;
   final ValueChanged<DateTime> onChanged;
-
-  static const List<String> _monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
 
   void _previousMonth() {
     final prev = DateTime(selectedDate.year, selectedDate.month - 1, 1);
@@ -31,15 +27,18 @@ class MonthYearPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final monthName = _monthNames[selectedDate.month - 1];
+    final monthName = context.appLocale.monthName(selectedDate.month);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkElevated : AppColors.pastelIce.withAlpha(70),
+        color:
+            isDark ? AppColors.darkElevated : AppColors.pastelIce.withAlpha(70),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.pastelPeach.withAlpha(120),
+          color: isDark
+              ? AppColors.darkBorder
+              : AppColors.pastelPeach.withAlpha(120),
           width: 0.8,
         ),
       ),
@@ -58,7 +57,8 @@ class MonthYearPicker extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.terra),
+                const Icon(Icons.calendar_today_rounded,
+                    size: 14, color: AppColors.terra),
                 const SizedBox(width: 6),
                 Text(
                   '$monthName ${selectedDate.year}',

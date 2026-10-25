@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
+import '../localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import 'app_config.dart';
 
@@ -124,7 +125,9 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Switched API to: $target'),
+          content: Text(
+            context.appLocale.tr('switched_api').replaceAll('{n}', target),
+          ),
           backgroundColor: AppColors.sageDark,
           behavior: SnackBarBehavior.floating,
         ),
@@ -136,6 +139,7 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final loc = context.appLocale;
 
     return Container(
       decoration: BoxDecoration(
@@ -166,10 +170,11 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.settings_input_antenna, color: AppColors.terra),
+                const Icon(Icons.settings_input_antenna,
+                    color: AppColors.terra),
                 const SizedBox(width: 10),
                 Text(
-                  'API Environment & Network',
+                  loc.tr('api_env_title'),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -178,7 +183,7 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Switch between different routers, same router (LAN), or production without rebuilding.',
+              loc.tr('api_env_subtitle'),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
               ),
@@ -223,7 +228,7 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                env.name,
+                                loc.tr('env_${env.id}'),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   color: isSelected ? AppColors.terra : null,
@@ -240,7 +245,7 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          env.description,
+                          loc.tr('env_${env.id}_desc'),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -253,9 +258,7 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.black26
-                                : Colors.grey[100],
+                            color: isDark ? Colors.black26 : Colors.grey[100],
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -267,7 +270,9 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
                             style: TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 11,
-                              color: isDark ? AppColors.mustardLight : AppColors.mustard,
+                              color: isDark
+                                  ? AppColors.mustardLight
+                                  : AppColors.mustard,
                             ),
                           ),
                         ),
@@ -283,12 +288,12 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
               const SizedBox(height: 8),
               TextField(
                 controller: _lanIpController,
-                decoration: const InputDecoration(
-                  labelText: 'Ubuntu PC LAN IP',
+                decoration: InputDecoration(
+                  labelText: loc.tr('lan_ip_label'),
                   hintText: '192.168.26.65',
-                  prefixIcon: Icon(Icons.computer),
-                  border: OutlineInputBorder(),
-                  helperText: 'Find with "ip addr" on Ubuntu. Port 5000 is used.',
+                  prefixIcon: const Icon(Icons.computer),
+                  border: const OutlineInputBorder(),
+                  helperText: loc.tr('lan_ip_helper'),
                 ),
                 onChanged: (_) => setState(() => _testResult = null),
               ),
@@ -299,12 +304,12 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
               const SizedBox(height: 8),
               TextField(
                 controller: _customUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'Custom API URL / Tunnel',
+                decoration: InputDecoration(
+                  labelText: loc.tr('custom_url_label'),
                   hintText: 'https://xxx.trycloudflare.com/api/v1',
-                  prefixIcon: Icon(Icons.link),
-                  border: OutlineInputBorder(),
-                  helperText: 'Localtunnel, Cloudflare tunnel, or Ngrok URL',
+                  prefixIcon: const Icon(Icons.link),
+                  border: const OutlineInputBorder(),
+                  helperText: loc.tr('custom_url_helper'),
                 ),
                 onChanged: (_) => setState(() => _testResult = null),
               ),
@@ -320,14 +325,15 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.sage.withAlpha(80)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.info_outline, size: 18, color: AppColors.sageDark),
-                    SizedBox(width: 8),
+                    const Icon(Icons.info_outline,
+                        size: 18, color: AppColors.sageDark),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Ensure USB debugging is enabled and run on PC:\nadb reverse tcp:5000 tcp:5000',
-                        style: TextStyle(fontSize: 11.5, height: 1.3),
+                        loc.tr('usb_hint'),
+                        style: const TextStyle(fontSize: 11.5, height: 1.3),
                       ),
                     ),
                   ],
@@ -391,7 +397,9 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.wifi_find, size: 18),
-                    label: Text(_testing ? 'Testing...' : 'Test Ping'),
+                    label: Text(
+                      _testing ? loc.tr('testing') : loc.tr('test_ping'),
+                    ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
@@ -402,7 +410,7 @@ class _EnvSwitcherSheetState extends State<EnvSwitcherSheet> {
                   child: FilledButton.icon(
                     onPressed: _applyAndClose,
                     icon: const Icon(Icons.check, size: 18),
-                    label: const Text('Apply URL'),
+                    label: Text(loc.tr('apply_url')),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),

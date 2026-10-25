@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/localization/app_locale.dart';
 
 /// Circular progress ring displaying budget utilization or metric percentage.
 class ProgressRing extends StatelessWidget {
@@ -34,9 +35,8 @@ class ProgressRing extends StatelessWidget {
                 ? AppColors.warning
                 : AppColors.sage);
 
-    final trackColor = isDark
-        ? AppColors.darkBorder
-        : AppColors.pastelIce.withAlpha(120);
+    final trackColor =
+        isDark ? AppColors.darkBorder : AppColors.pastelIce.withAlpha(120);
 
     return SizedBox(
       width: size,
@@ -66,7 +66,7 @@ class ProgressRing extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    isOver ? 'Over' : 'Used',
+                    context.appLocale.tr(isOver ? 'ring_over' : 'ring_used'),
                     style: TextStyle(
                       fontSize: size * 0.12,
                       fontWeight: FontWeight.w600,

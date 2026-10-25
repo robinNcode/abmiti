@@ -1,5 +1,5 @@
 name: abmiti
-description: "Abmiti - Personal Finance Tracker. A Flutter WebView wrapper for the Abmiti web application."
+description: "Abmiti (আয় ব্যয় মিতি) — native Flutter client for the Abmiti personal finance API."
 publish_to: 'none'
 version: 1.0.0+1
 
