@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../core/config/app_config.dart';
+import '../../core/config/env_switcher_sheet.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_locale.dart';
+import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/curved_navigation_bar.dart';
@@ -24,10 +27,14 @@ class AppShell extends StatefulWidget {
     super.key,
     required this.auth,
     required this.financeRepo,
+    this.config,
+    this.apiClient,
   });
 
   final AuthRepository auth;
   final FinanceRepository financeRepo;
+  final AppConfig? config;
+  final ApiClient? apiClient;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -265,6 +272,19 @@ class _AppShellState extends State<AppShell> {
                       ProfileScreen(auth: widget.auth),
                     ),
                   ),
+                  if (widget.config != null && widget.apiClient != null)
+                    _DrawerItem(
+                      icon: Icons.settings_input_antenna_rounded,
+                      label: 'API Server (${widget.config!.currentEnv.name})',
+                      onTap: () {
+                        Navigator.pop(context);
+                        EnvSwitcherSheet.show(
+                          context,
+                          config: widget.config!,
+                          apiClient: widget.apiClient!,
+                        );
+                      },
+                    ),
                   // In-Drawer Language Switcher
                   Padding(
                     padding:

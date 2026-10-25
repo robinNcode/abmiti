@@ -2,19 +2,48 @@
 
 Flutter client for Abmiti's existing REST API. Authentication, summaries, transactions, categories, budgets, notifications, profile data, subscriptions, and checkout all use the backend contracts; no finance records or business rules are stored in a separate mobile data layer.
 
-## API configuration
+## API configuration & Physical Device Setup
 
-The app reads its API root from the compile-time `API_BASE_URL` value. It defaults to the production API URL used by the web client. Override it for local development:
+The app dynamically resolves its API base URL via **`AppConfig`**, supporting compile-time flags, saved preferences, and in-app switching:
+
+### Developing with a Physical Device
+
+#### 1. Different Router / Isolated Network (USB cable) — Recommended
+If your phone is on a different Wi-Fi router or mobile data while your PC is on Ethernet, connect your phone to the PC via USB with USB debugging enabled, then run:
 
 ```sh
-# Android emulator reaching a development API on the host
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:5000/api/v1
+# Setup port reverse (forwards phone localhost:5000 -> Ubuntu PC:5000)
+./build.sh connect
+# Or manually:
+adb reverse tcp:5000 tcp:5000
 
-# iOS simulator
-flutter run --dart-define=API_BASE_URL=http://localhost:5000/api/v1
+# Run the app:
+flutter run --dart-define=API_ENV=different_router
 ```
 
-The URL must point to the API prefix (normally `/api/v1`), not the website. The server must allow the app's requests through its CORS policy when running as Flutter Web.
+#### 2. Same Router / Local Wi-Fi (LAN IP)
+If both the phone and Ubuntu PC are connected to the same Wi-Fi router / subnet:
+
+```sh
+flutter run --dart-define=API_ENV=same_router --dart-define=LAN_IP=192.168.26.65
+```
+
+#### 3. Production Server
+```sh
+flutter run --dart-define=API_ENV=production
+```
+
+#### 4. Custom Tunnel / URL (Cloudflare Tunnel, Localtunnel, Ngrok)
+```sh
+flutter run --dart-define=API_BASE_URL=https://your-subdomain.trycloudflare.com/api/v1
+```
+
+### In-App Runtime Switcher
+You don't need to rebuild the app to change environments:
+- On the **Login screen**, tap the **API chip** (or the URL at the bottom) to open the **API Environment & Network** modal.
+- Once signed in, open the **Navigation Drawer** and tap **API Server**.
+- Tap **Test Ping** to test live latency against the backend.
+- Tap **Apply URL** to save to secure storage and switch immediately.
 
 ## Implemented API flows
 

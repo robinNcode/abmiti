@@ -6,6 +6,7 @@ const entry_validators_1 = require("./entry.validators");
 const middleware_1 = require("../../shared/middleware");
 const router = (0, express_1.Router)();
 router.use(middleware_1.authenticate);
+router.use(middleware_1.requireUser);
 router.get('/', entry_controller_1.entryController.list);
 router.post('/parse-sms', entry_validators_1.parseSmsValidator, middleware_1.validate, entry_controller_1.entryController.parseSms);
 router.post('/', entry_validators_1.createEntryValidator, middleware_1.validate, entry_controller_1.entryController.create);

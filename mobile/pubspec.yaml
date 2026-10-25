@@ -15,17 +15,15 @@ dependencies:
 
   # WebView
   webview_flutter: ^4.7.0
-  webview_flutter_android: ^4.12.0
-  webview_flutter_wkwebview: ^3.13.0
 
   # Connectivity
-  connectivity_plus: ^7.3.1
+  connectivity_plus: ^7.3.2
 
   # Splash screen & icons (also in dev_dependencies for tooling)
   flutter_launcher_icons: ^0.14.1
 
   # URL launcher for external links
-  url_launcher: ^6.3.0
+  url_launcher: ^6.3.3
 
   # Cupertino icons
   cupertino_icons: ^1.0.8

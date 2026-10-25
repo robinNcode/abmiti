@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
+import '../../core/config/app_config.dart';
+import '../../core/config/env_switcher_sheet.dart';
 import '../../core/constants/app_colors.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key, required this.auth});
+  const AuthScreen({
+    super.key,
+    required this.auth,
+    this.config,
+    this.apiClient,
+  });
+
   final AuthRepository auth;
+  final AppConfig? config;
+  final ApiClient? apiClient;
+
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
@@ -60,18 +71,49 @@ class _AuthScreenState extends State<AuthScreen> {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Container(
-                                    width: 72,
-                                    height: 72,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                        color: AppColors.terra,
-                                        borderRadius:
-                                            BorderRadius.circular(24)),
-                                    child: const Icon(
-                                        Icons.account_balance_wallet_rounded,
-                                        color: Colors.white,
-                                        size: 38)),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                        width: 72,
+                                        height: 72,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                            color: AppColors.terra,
+                                            borderRadius:
+                                                BorderRadius.circular(24)),
+                                        child: const Icon(
+                                            Icons.account_balance_wallet_rounded,
+                                            color: Colors.white,
+                                            size: 38)),
+                                    if (widget.config != null &&
+                                        widget.apiClient != null)
+                                      AnimatedBuilder(
+                                        animation: widget.config!,
+                                        builder: (context, _) => ActionChip(
+                                          avatar: const Icon(
+                                            Icons.settings_input_antenna,
+                                            size: 16,
+                                            color: AppColors.terra,
+                                          ),
+                                          label: Text(
+                                            widget.config!.currentEnv.name,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          onPressed: () =>
+                                              EnvSwitcherSheet.show(
+                                            context,
+                                            config: widget.config!,
+                                            apiClient: widget.apiClient!,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                                 const SizedBox(height: 24),
                                 Text(
                                     _registering
@@ -157,6 +199,45 @@ class _AuthScreenState extends State<AuthScreen> {
                                     child: Text(_registering
                                         ? 'Already have an account? Sign in'
                                         : 'New to Abmiti? Create an account')),
+                                if (widget.config != null &&
+                                    widget.apiClient != null) ...[
+                                  const SizedBox(height: 12),
+                                  Center(
+                                    child: InkWell(
+                                      onTap: () => EnvSwitcherSheet.show(
+                                        context,
+                                        config: widget.config!,
+                                        apiClient: widget.apiClient!,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 6, horizontal: 10),
+                                        child: AnimatedBuilder(
+                                          animation: widget.config!,
+                                          builder: (context, _) => Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(
+                                                  Icons.settings_input_antenna,
+                                                  size: 13,
+                                                  color: Colors.grey),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                'API: ${widget.config!.currentBaseUrl}',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.grey,
+                                                  fontFamily: 'monospace',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ])),
                     )))),
       );

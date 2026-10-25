@@ -15,6 +15,7 @@ const env_1 = require("./config/env");
 const API_V1 = env_1.env.API_PREFIX;
 const registerRoutes = (app) => {
     app.get('/health', (_, res) => res.json({ status: 'ok', service: 'abmiti-api' }));
+    app.get(`${API_V1}/health`, (_, res) => res.json({ status: 'ok', service: 'abmiti-api' }));
     app.use(`${API_V1}/auth`, auth_routes_1.default);
     app.use(`${API_V1}/entries`, entry_routes_1.default);
     app.use(`${API_V1}/categories`, category_routes_1.default);

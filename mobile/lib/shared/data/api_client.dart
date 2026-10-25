@@ -84,8 +84,70 @@ class ApiClient {
       _data(await dio.patch(_apiPath(path), data: body));
   Future<dynamic> delete(String path) async =>
       _data(await dio.delete(_apiPath(path)));
-
   dynamic _data(Response<dynamic> response) => response.data['data'];
+
+  String get currentBaseUrl => dio.options.baseUrl;
+
+  void updateBaseUrl(String newUrl) {
+    dio.options.baseUrl = '${newUrl.replaceAll(RegExp(r'/+$'), '')}/';
+  }
+
+  /// Test connectivity to a specific URL or the current base URL.
+  Future<({bool success, int latencyMs, String message})> testConnection([
+    String? targetUrl,
+  ]) async {
+    final stopwatch = Stopwatch()..start();
+    final effectiveUrl = targetUrl != null && targetUrl.trim().isNotEmpty
+        ? targetUrl.trim()
+        : dio.options.baseUrl;
+    final healthEndpoint =
+        '${effectiveUrl.replaceAll(RegExp(r'/+$'), '')}/health';
+
+    try {
+      final testDio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 4),
+        receiveTimeout: const Duration(seconds: 4),
+      ));
+      final response = await testDio.get(healthEndpoint);
+      stopwatch.stop();
+
+      if (response.statusCode == 200) {
+        return (
+          success: true,
+          latencyMs: stopwatch.elapsedMilliseconds,
+          message: 'Connected successfully (${stopwatch.elapsedMilliseconds}ms)',
+        );
+      }
+      return (
+        success: false,
+        latencyMs: stopwatch.elapsedMilliseconds,
+        message: 'Server responded with HTTP ${response.statusCode}',
+      );
+    } catch (e) {
+      stopwatch.stop();
+      if (e is DioException) {
+        if (e.type == DioExceptionType.connectionTimeout) {
+          return (
+            success: false,
+            latencyMs: stopwatch.elapsedMilliseconds,
+            message: 'Timed out. Verify PC IP or run: adb reverse tcp:5000 tcp:5000',
+          );
+        }
+        if (e.type == DioExceptionType.connectionError) {
+          return (
+            success: false,
+            latencyMs: stopwatch.elapsedMilliseconds,
+            message: 'Connection refused. Is backend running? On diff router, run: adb reverse tcp:5000 tcp:5000',
+          );
+        }
+      }
+      return (
+        success: false,
+        latencyMs: stopwatch.elapsedMilliseconds,
+        message: e.toString(),
+      );
+    }
+  }
 
   static String messageFrom(Object error) {
     if (error is ApiException) return error.message;
@@ -103,3 +165,4 @@ class ApiClient {
     return 'Something went wrong. Please try again.';
   }
 }
+

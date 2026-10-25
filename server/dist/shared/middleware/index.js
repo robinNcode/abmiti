@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requireAdmin = exports.notFoundHandler = exports.rateLimiter = exports.validate = exports.authenticate = void 0;
+exports.requireUser = exports.requireAdmin = exports.notFoundHandler = exports.rateLimiter = exports.validate = exports.authenticate = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const express_validator_1 = require("express-validator");
@@ -81,4 +81,11 @@ const requireAdmin = (req, _res, next) => {
     next();
 };
 exports.requireAdmin = requireAdmin;
+/** Keep the personal-finance API separate from the administration API. */
+const requireUser = (req, _res, next) => {
+    if (req.user?.userType !== 'user')
+        throw new errors_1.ForbiddenError('User account access required');
+    next();
+};
+exports.requireUser = requireUser;
 //# sourceMappingURL=index.js.map

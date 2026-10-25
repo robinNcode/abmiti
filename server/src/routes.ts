@@ -13,6 +13,7 @@ const API_V1 = env.API_PREFIX;
 
 export const registerRoutes = (app: Express): void => {
   app.get('/health', (_, res) => res.json({ status: 'ok', service: 'abmiti-api' }));
+  app.get(`${API_V1}/health`, (_, res) => res.json({ status: 'ok', service: 'abmiti-api' }));
   app.use(`${API_V1}/auth`, authRouter);
   app.use(`${API_V1}/entries`, entryRouter);
   app.use(`${API_V1}/categories`, categoryRouter);

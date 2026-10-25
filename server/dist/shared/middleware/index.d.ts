@@ -12,4 +12,6 @@ export declare const validate: (req: Request, _res: Response, next: NextFunction
 export declare const rateLimiter: import("express-rate-limit").RateLimitRequestHandler;
 export declare const notFoundHandler: (req: Request, res: Response) => void;
 export declare const requireAdmin: (req: Request, _res: Response, next: NextFunction) => void;
+/** Keep the personal-finance API separate from the administration API. */
+export declare const requireUser: (req: Request, _res: Response, next: NextFunction) => void;
 //# sourceMappingURL=index.d.ts.map

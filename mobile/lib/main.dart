@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'core/config/app_config.dart';
 import 'core/constants/app_colors.dart';
 import 'core/localization/app_locale.dart';
 import 'core/theme/app_theme.dart';
@@ -33,7 +34,14 @@ Future<void> main() async {
   );
 
   const storage = FlutterSecureStorage();
-  final api = ApiClient(storage);
+  final config = AppConfig(storage);
+  await config.initialize();
+
+  final api = ApiClient(storage, baseUrl: config.currentBaseUrl);
+  config.addListener(() {
+    api.updateBaseUrl(config.currentBaseUrl);
+  });
+
   final auth = AuthRepository(api, storage);
   final financeRepo = FinanceRepository(api);
   final appLocale = AppLocale(storage);
@@ -42,6 +50,8 @@ Future<void> main() async {
     auth: auth,
     financeRepo: financeRepo,
     appLocale: appLocale,
+    config: config,
+    apiClient: api,
   ));
 }
 
@@ -51,11 +61,15 @@ class AbmitiApp extends StatefulWidget {
     required this.auth,
     required this.financeRepo,
     required this.appLocale,
+    required this.config,
+    required this.apiClient,
   });
 
   final AuthRepository auth;
   final FinanceRepository financeRepo;
   final AppLocale appLocale;
+  final AppConfig config;
+  final ApiClient apiClient;
 
   @override
   State<AbmitiApp> createState() => _AbmitiAppState();
@@ -92,10 +106,16 @@ class _AbmitiAppState extends State<AbmitiApp> {
               : AnimatedBuilder(
                   animation: widget.auth,
                   builder: (context, _) => widget.auth.user == null
-                      ? AuthScreen(auth: widget.auth)
+                      ? AuthScreen(
+                          auth: widget.auth,
+                          config: widget.config,
+                          apiClient: widget.apiClient,
+                        )
                       : AppShell(
                           auth: widget.auth,
                           financeRepo: widget.financeRepo,
+                          config: widget.config,
+                          apiClient: widget.apiClient,
                         ),
                 ),
         ),
@@ -103,3 +123,4 @@ class _AbmitiAppState extends State<AbmitiApp> {
     );
   }
 }
+
