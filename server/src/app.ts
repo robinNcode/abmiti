@@ -19,7 +19,13 @@ import { connectMySQL }   from './infrastructure/database/mysql/connection';
 const app = express();
 
 // ── Security middleware ──────────────────────────────────────
-app.use(helmet());
+app.use(
+  helmet({
+    // Allow uploaded images/assets to be embedded cross-origin
+    // (page served on :5173, static files on :5000 in dev).
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
 app.use(
   cors({
     origin: (origin, callback) => {
