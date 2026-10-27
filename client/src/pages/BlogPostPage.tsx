@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { siteApi } from '@/api/site.api';
 import { getImageUrl } from '@/utils';
-import { ArrowLeft, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Languages } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '@/store/authStore';
 
 interface Post {
   _id?: string; id?: string;
@@ -21,6 +22,8 @@ function estimateReadTime(content: string): number {
 
 export default function BlogPostPage() {
   const { t, i18n } = useTranslation();
+  const token = useAuthStore((s) => s.accessToken);
+  const user = useAuthStore((s) => s.user);
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,11 +58,16 @@ export default function BlogPostPage() {
   if (error || !post) return (
     <div className="min-h-screen bg-paper-mist font-sans">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-terra text-white flex items-center justify-center font-bold text-xl shadow-md">আ</div>
-          {config.logo ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-10 max-w-40 object-contain" /> : <span className="font-display font-bold text-xl tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
-        </Link>
+      <nav className="sticky top-0 z-50 bg-paper/80 backdrop-blur-xl border-b border-paper-mist2/60">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-7xl mx-auto">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-terra text-white flex items-center justify-center font-bold text-lg shadow-md" aria-hidden="true">আ</div>
+            {config.logo ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-9 max-w-36 object-contain" /> : <span className="font-display font-bold text-lg tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
+          </Link>
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-ink/70 hover:text-terra transition-colors px-2 py-1.5">
+            <ArrowLeft size={15} /> {t('Back to Home')}
+          </Link>
+        </div>
       </nav>
       <div className="flex flex-col items-center justify-center py-32 px-6 text-center">
         <div className="w-20 h-20 rounded-2xl bg-terra/10 flex items-center justify-center mb-6">
@@ -77,14 +85,46 @@ export default function BlogPostPage() {
   return (
     <div className="min-h-screen bg-paper-mist font-sans">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-terra text-white flex items-center justify-center font-bold text-xl shadow-md">আ</div>
-          {config.logo ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-10 max-w-40 object-contain" /> : <span className="font-display font-bold text-xl tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
-        </Link>
-        <Link to="/" className="text-ink/60 hover:text-terra font-medium transition-colors flex items-center gap-2 text-sm">
-          <ArrowLeft size={14} /> {t('Back')}
-        </Link>
+      <nav className="sticky top-0 z-50 bg-paper/80 backdrop-blur-xl border-b border-paper-mist2/60">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-7xl mx-auto">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-terra text-white flex items-center justify-center font-bold text-lg shadow-md" aria-hidden="true">
+              আ
+            </div>
+            {config.logo
+              ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-9 max-w-36 object-contain" />
+              : <span className="font-display font-bold text-lg tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/#blog"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-ink/70 hover:text-terra transition-colors px-2 py-1.5"
+            >
+              <ArrowLeft size={15} />
+              {t('Back to Blog')}
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => { const next = i18n.language === 'en' ? 'bn' : 'en'; localStorage.setItem('i18nextLng', next); void i18n.changeLanguage(next); }}
+              className="inline-flex items-center gap-1 text-sm font-medium text-ink/50 hover:text-terra px-2 py-1.5 rounded-lg hover:bg-paper-mist transition-colors"
+              aria-label={t('language')}
+            >
+              <Languages size={15} /> {i18n.language === 'en' ? 'বাংলা' : 'EN'}
+            </button>
+
+            {token ? (
+              <Link to={user?.userType === 'admin' ? '/admin' : '/dashboard'} className="btn-primary text-sm px-4 py-2">
+                {user?.userType === 'admin' ? t('Admin panel') : t('Go to Dashboard')}
+              </Link>
+            ) : (
+              <Link to="/login" className="btn-ghost text-sm px-4 py-2">
+                {t('Login')}
+              </Link>
+            )}
+          </div>
+        </div>
       </nav>
 
       {/* Hero / Header */}
@@ -132,7 +172,19 @@ export default function BlogPostPage() {
             prose-th:bg-paper-mist prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:text-sm prose-th:font-semibold
             prose-td:px-4 prose-td:py-2 prose-td:border-b prose-td:border-paper-mist2
           ">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                img: ({ src, alt, ...props }) => (
+                  <img
+                    src={getImageUrl(src)}
+                    alt={alt}
+                    loading="lazy"
+                    {...props}
+                  />
+                ),
+              }}
+            >
               {post.content}
             </ReactMarkdown>
           </div>

@@ -5,6 +5,7 @@ const router = Router();
 
 // ── Public routes ─────────────────────────────────────────────
 router.get('/public-config', adminController.publicConfig);
+router.get('/public-stats', adminController.publicStats);
 router.post('/contact', adminController.contact);
 router.get('/public-posts', adminController.publicPosts);
 router.get('/public-posts/:slug', adminController.publicPostBySlug);

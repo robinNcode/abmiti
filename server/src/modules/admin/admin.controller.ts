@@ -32,6 +32,7 @@ const verifiedTransaction = async (valId: string, expectedAmount: number, transa
 };
 export const adminController = {
   async publicConfig(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.publicConfig()); } catch (e) { next(e); } },
+  async publicStats(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.publicStats()); } catch (e) { next(e); } },
   async contact(req: Request, res: Response, next: NextFunction) { try { const { name, email, message } = req.body; if (!name?.trim() || !email?.trim() || !message?.trim()) throw new BadRequestError('Name, email and message are required'); sendCreated(res, await adminService.contact({ name: name.trim(), email: email.trim(), message: message.trim() }), 'Message received'); } catch (e) { next(e); } },
   async contacts(req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.contacts(Number(req.query.page || 1), Number(req.query.limit || 50))); } catch (e) { next(e); } },
   async posts(_req: Request, res: Response, next: NextFunction) { try { sendSuccess(res, await adminService.posts()); } catch (e) { next(e); } },

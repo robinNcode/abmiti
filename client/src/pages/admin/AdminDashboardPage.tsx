@@ -5,6 +5,7 @@ import { cx, formatNumber, localizedApiError } from '@/utils';
 import { useTranslation } from 'react-i18next';
 import { formatBDT } from '@/utils';
 import toast from 'react-hot-toast';
+import salesSoftwareImg from '@/assets/images/sales_software.png';
 
 interface Stats {
   totalUsers: number; totalPosts: number; totalContacts: number;
@@ -78,9 +79,17 @@ export default function AdminDashboardPage() {
   return (
     <div className="p-4 md:p-8 max-w-[1400px] mx-auto w-full animate-fade-in">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight">{t('Dashboard')}</h1>
-        <p className="text-sm text-white/35 mt-1">{t('Overview of your platform')}</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 admin-card bg-gradient-to-r from-white/[0.04] to-terra/[0.06] border border-white/[0.08] p-6">
+        <div>
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight">{t('Dashboard')}</h1>
+          <p className="text-sm text-white/40 mt-1">{t('Overview of your platform')}</p>
+        </div>
+        <img
+          src={salesSoftwareImg}
+          alt="Platform Analytics"
+          className="w-36 md:w-48 h-auto object-contain rounded-xl border border-white/[0.06] shadow-lg opacity-90 hover:opacity-100 transition-opacity"
+          loading="lazy"
+        />
       </div>
 
       {/* Stats Grid */}

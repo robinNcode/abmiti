@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import { PageHeader, Spinner, EmptyState, FilterPanel } from '@/components/ui';
-import { formatBDT, formatDate, cx } from '@/utils';
-import { Category, EntryType } from '@/types';
+import { formatBDT, formatDate, cx, sourceBadgeClass, sourceLabel } from '@/utils';
+import { Category, EntryType, PaymentSource } from '@/types';
 
 interface TransactionStatementFilters {
   startDate: string;
@@ -229,13 +229,17 @@ export default function TransactionStatementPage() {
                               {t(item.type)}: {item.note || '—'}
                             </span>
                           </td>
-                          <td className="border border-paper-mist2 px-3 py-2 text-ink/60 text-xs whitespace-nowrap">
-                            <span className={cx(
-                              "inline-block px-2 py-1 rounded text-xs font-medium capitalize",
-                              isCredit ? "bg-sage/10 text-sage" : "bg-red-50 text-red-600"
-                            )}>
-                              {item.source || '—' }
-                            </span>
+                          <td className="border border-paper-mist2 px-3 py-2 text-xs whitespace-nowrap">
+                            {item.source ? (
+                              <span className={cx(
+                                'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                                sourceBadgeClass[item.source as PaymentSource] ?? 'bg-paper-mist text-ink/60'
+                              )}>
+                                {sourceLabel[item.source as PaymentSource] ?? item.source}
+                              </span>
+                            ) : (
+                              <span className="text-ink/30">—</span>
+                            )}
                           </td>
                           <td className="border border-paper-mist2 px-3 py-2 text-right font-semibold text-red-600">
                             {!isCredit && <span>−{formatBDT(item.amount)}</span>}

@@ -56,7 +56,11 @@ void main() {
   testWidgets('offline and loading screens render in Bengali',
       (WidgetTester tester) async {
     final locale = AppLocale();
-    await locale.setLanguage(AppLanguage.bn);
+    // Set the language without awaiting persistence: secure storage has no
+    // platform implementation in widget tests.
+    locale.setLanguage(AppLanguage.bn);
+    await tester.pump();
+    expect(locale.isBengali, isTrue);
 
     await tester.pumpWidget(
       LocaleScope(

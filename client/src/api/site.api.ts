@@ -3,6 +3,7 @@ import { apiClient } from './client';
 export const siteApi = {
   // ── Public ──────────────────────────────────────────────────
   config: () => apiClient.get<{ data: any }>('/public-config').then((r) => r.data.data),
+  publicStats: () => apiClient.get<{ data: { totalUsers: number; activeSubscribers: number } }>('/public-stats').then((r) => r.data.data),
   contact: (data: { name: string; email: string; message: string }) => apiClient.post('/contact', data),
   publicPosts: () => apiClient.get<{ data: any[] }>('/public-posts').then((r) => r.data.data),
   publicPostBySlug: (slug: string) => apiClient.get<{ data: any }>(`/public-posts/${slug}`).then((r) => r.data.data),

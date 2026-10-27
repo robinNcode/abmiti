@@ -94,8 +94,10 @@ export const localizedApiError = (
 
 export const getImageUrl = (path?: string) => {
   if (!path) return '';
-  if (path.startsWith('http')) return path;
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-  const host = baseUrl.replace('/api/v1', '');
-  return `${host}/${path.replace(/^\/+/, '')}`;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1').trim();
+  // Strip trailing slashes, then remove trailing /api/v1 (or /api/v1/)
+  const host = baseUrl.replace(/\/+$/, '').replace(/\/api\/v1\/?$/, '');
+  const cleanPath = path.replace(/^\/+/, '');
+  return `${host}/${cleanPath}`;
 };

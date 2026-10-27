@@ -129,7 +129,7 @@ void main() {
     final fake = _FakeFinanceRepository();
     await pumpBudget(tester, fake);
 
-    await tester.tap(find.byTooltip('Edit estimated income'));
+    await tester.tap(find.byTooltip('Edit Estimated Income'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
