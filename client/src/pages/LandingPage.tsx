@@ -3,7 +3,7 @@ import {
   Download, MessageSquare, ArrowRight, Star, Smartphone,
   Languages, ChevronDown, Play, Pause, TrendingUp, Wallet,
   PieChart, MessageCircle, Globe, ShieldCheck,
-  BarChart3, Receipt, Target, Sparkles, HelpCircle, BookOpen, Send, CreditCard,
+  BarChart3, Receipt, Target, Sparkles, BookOpen, Send, CreditCard,
 } from 'lucide-react';
 import { getImageUrl, localizedApiError, formatNumber, formatBDT } from '@/utils';
 import { useAuthStore } from '@/store/authStore';

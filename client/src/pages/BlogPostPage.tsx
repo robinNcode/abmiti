@@ -132,7 +132,19 @@ export default function BlogPostPage() {
             prose-th:bg-paper-mist prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:text-sm prose-th:font-semibold
             prose-td:px-4 prose-td:py-2 prose-td:border-b prose-td:border-paper-mist2
           ">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                img: ({ src, alt, ...props }) => (
+                  <img
+                    src={getImageUrl(src)}
+                    alt={alt}
+                    loading="lazy"
+                    {...props}
+                  />
+                ),
+              }}
+            >
               {post.content}
             </ReactMarkdown>
           </div>
