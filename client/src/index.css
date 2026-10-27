@@ -107,4 +107,53 @@
   .admin-checkbox {
     @apply w-4 h-4 rounded border-white/[0.2] bg-[#0f1117] checked:bg-terra focus:ring-terra/30 focus:ring-offset-0 focus:ring-1 appearance-none cursor-pointer;
   }
+
+  /* ── Landing Page ─────────────────────────────────────────── */
+  .landing-section {
+    @apply opacity-0 translate-y-8 transition-all duration-700 ease-out;
+  }
+  .landing-section.visible {
+    @apply opacity-100 translate-y-0;
+  }
+
+  .landing-gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-terra via-mustard to-sage;
+  }
+
+  .landing-glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-lift;
+  }
+
+  .demo-step-active {
+    @apply border-terra/30 bg-terra/5;
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+  .faq-answer.open {
+    max-height: 500px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .landing-section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .animate-float,
+  .animate-shimmer,
+  .animate-pulse-dot {
+    animation: none;
+  }
 }

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { siteApi } from '@/api/site.api';
 import { PageHeader, EmptyState, Spinner } from '@/components/ui';
 import { cx, localizedApiError } from '@/utils';
+import supportIllustration from '@/assets/images/3d-casual-life-signing-contract.png';
 
 type PlanId = 'coffee' | 'monthly' | 'annual';
 
@@ -110,14 +111,22 @@ export default function SupportPage() {
       />
 
       <div className="px-4 md:px-8 pb-12 space-y-8 max-w-5xl">
-        <section className="card p-5 md:p-6 flex flex-col sm:flex-row gap-4 sm:items-center">
-          <div className="w-12 h-12 rounded-2xl bg-terra/10 text-terra flex items-center justify-center shrink-0">
-            <HeartHandshake size={22} />
+        <section className="card p-5 md:p-6 flex flex-col sm:flex-row gap-5 items-center justify-between overflow-hidden relative">
+          <div className="flex flex-col sm:flex-row items-center gap-4 flex-1">
+            <div className="w-12 h-12 rounded-2xl bg-terra/10 text-terra flex items-center justify-center shrink-0">
+              <HeartHandshake size={22} />
+            </div>
+            <div>
+              <h2 className="font-display font-bold text-lg text-ink">{t('supportIntroTitle')}</h2>
+              <p className="text-sm text-ink/55 mt-1 leading-relaxed">{t('supportIntroBody')}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-display font-bold text-lg text-ink">{t('supportIntroTitle')}</h2>
-            <p className="text-sm text-ink/55 mt-1 leading-relaxed">{t('supportIntroBody')}</p>
-          </div>
+          <img
+            src={supportIllustration}
+            alt="Support Abmiti"
+            className="w-28 sm:w-32 h-auto object-contain shrink-0 drop-shadow-md hover:scale-105 transition-transform"
+            loading="lazy"
+          />
         </section>
 
         <section>

@@ -11,6 +11,7 @@ import { useMonthStore } from '@/store/monthStore';
 import { BudgetLine } from '@/types';
 import { formatBDT } from '@/utils';
 import { useTranslation } from 'react-i18next';
+import negotiationImg from '@/assets/images/clip-online-business-negotiation.png';
 
 export default function BudgetPage() {
   const [editingLine, setEditingLine] = useState<BudgetLine | null>(null);
@@ -47,10 +48,18 @@ export default function BudgetPage() {
       />
 
       <div className="px-4 md:px-8 space-y-4 md:space-y-6 pb-10">
-        <div className="card p-4 md:p-5 flex flex-col lg:flex-row lg:items-end gap-4">
-          <div className="flex-1">
-            <p className="label">{t('monthlyBudgetLabel')}</p>
-            <p className="font-display text-3xl font-black text-sage mt-1">{formatBDT(budget.totalIncome)}</p>
+        <div className="card p-4 md:p-5 flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
+          <div className="flex items-center gap-4 flex-1">
+            <img
+              src={negotiationImg}
+              alt="Budget Planning"
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-sm shrink-0"
+              loading="lazy"
+            />
+            <div>
+              <p className="label">{t('monthlyBudgetLabel')}</p>
+              <p className="font-display text-3xl font-black text-sage mt-1">{formatBDT(budget.totalIncome)}</p>
+            </div>
           </div>
           <form
             className="flex gap-2"
