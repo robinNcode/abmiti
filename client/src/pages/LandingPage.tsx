@@ -708,25 +708,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══ Final CTA ═══ */}
-      <section ref={ctaRef} className="landing-section py-20 md:py-28">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="bg-gradient-to-br from-ink via-ink to-ink/90 rounded-3xl px-6 py-14 md:px-12 md:py-20 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-terra/10 blur-3xl" aria-hidden="true" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-mustard/10 blur-3xl" aria-hidden="true" />
-            <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold font-display mb-4">{t('landing.cta.title')}</h2>
-              <p className="text-white/55 max-w-xl mx-auto mb-8 text-balance">{t('landing.cta.subtitle')}</p>
-              {!token && (
-                <Link to="/register" className="btn-primary px-8 py-4 text-base rounded-2xl shadow-xl" id="final-cta-register">
-                  {t('landing.cta.button')} <ArrowRight size={18} className="ml-1" />
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ═══ Blog Section ═══ */}
       {posts.length > 0 && (
         <section id="blog" ref={blogRef} className="landing-section py-20 max-w-7xl mx-auto px-4 sm:px-6">
@@ -753,6 +734,25 @@ export default function LandingPage() {
           </div>
         </section>
       )}
+
+      {/* ═══ Final CTA ═══ */}
+      <section ref={ctaRef} className="landing-section py-20 md:py-28">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <div className="bg-gradient-to-br from-ink via-ink to-ink/90 rounded-3xl px-6 py-14 md:px-12 md:py-20 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-terra/10 blur-3xl" aria-hidden="true" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-mustard/10 blur-3xl" aria-hidden="true" />
+            <div className="relative">
+              <h2 className="text-3xl md:text-4xl font-bold font-display mb-4">{t('landing.cta.title')}</h2>
+              <p className="text-white/55 max-w-xl mx-auto mb-8 text-balance">{t('landing.cta.subtitle')}</p>
+              {!token && (
+                <Link to="/register" className="btn-primary px-8 py-4 text-base rounded-2xl shadow-xl" id="final-cta-register">
+                  {t('landing.cta.button')} <ArrowRight size={18} className="ml-1" />
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ═══ Download Section ═══ */}
       <section id="download" ref={downloadRef} className="landing-section py-20 max-w-7xl mx-auto px-4 sm:px-6 text-center">
