@@ -3,7 +3,7 @@ import {
   Download, MessageSquare, ArrowRight, Star, Smartphone,
   Languages, ChevronDown, Play, Pause, TrendingUp, Wallet,
   PieChart, MessageCircle, Globe, ShieldCheck,
-  BarChart3, Receipt, Target,
+  BarChart3, Receipt, Target, Sparkles, HelpCircle, BookOpen, Send, CreditCard,
 } from 'lucide-react';
 import { getImageUrl, localizedApiError, formatNumber, formatBDT } from '@/utils';
 import { useAuthStore } from '@/store/authStore';
@@ -338,13 +338,33 @@ export default function LandingPage() {
               : <span className="font-display font-bold text-lg tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
           </div>
 
-          <div className="hidden md:flex items-center gap-5">
-            <a href="#features" className="text-sm text-ink/60 hover:text-terra font-medium transition-colors">{t('Features')}</a>
-            <a href="#demo" className="text-sm text-ink/60 hover:text-terra font-medium transition-colors">{t('landing.hero.cta.demo')}</a>
-            <a href="#faq" className="text-sm text-ink/60 hover:text-terra font-medium transition-colors">{t('FAQ')}</a>
-            {posts.length > 0 && <a href="#blog" className="text-sm text-ink/60 hover:text-terra font-medium transition-colors">{t('Blog')}</a>}
-            <a href="#contact" className="text-sm text-ink/60 hover:text-terra font-medium transition-colors">{t('Contact')}</a>
-            <a href="#download" className="text-sm text-ink/60 hover:text-terra font-medium transition-colors">{t('Download')}</a>
+          <div className="hidden md:flex items-center gap-4 lg:gap-5">
+            <a href="#features" className="inline-flex items-center gap-1.5 text-sm text-ink/70 hover:text-terra font-medium transition-colors">
+              <Sparkles size={15} className="text-terra/70" />
+              {t('Features')}
+            </a>
+            <a href="#demo" className="inline-flex items-center gap-1.5 text-sm text-ink/70 hover:text-terra font-medium transition-colors">
+              <Play size={14} className="text-terra/70" />
+              {t('landing.hero.cta.demo')}
+            </a>
+            {/* <a href="#faq" className="inline-flex items-center gap-1.5 text-sm text-ink/70 hover:text-terra font-medium transition-colors">
+              <HelpCircle size={15} className="text-terra/70" />
+              {t('FAQ')}
+            </a> */}
+            {posts.length > 0 && (
+              <a href="#blog" className="inline-flex items-center gap-1.5 text-sm text-ink/70 hover:text-terra font-medium transition-colors">
+                <BookOpen size={15} className="text-terra/70" />
+                {t('Blog')}
+              </a>
+            )}
+            <a href="#contact" className="inline-flex items-center gap-1.5 text-sm text-ink/70 hover:text-terra font-medium transition-colors">
+              <Send size={14} className="text-terra/70" />
+              {t('Contact')}
+            </a>
+            <a href="#download" className="inline-flex items-center gap-1.5 text-sm text-ink/70 hover:text-terra font-medium transition-colors">
+              <Download size={15} className="text-terra/70" />
+              {t('Download')}
+            </a>
           </div>
 
           <div className="flex items-center gap-2">
@@ -380,55 +400,63 @@ export default function LandingPage() {
         <div className="absolute top-20 -left-32 w-96 h-96 rounded-full bg-terra/5 blur-3xl pointer-events-none" aria-hidden="true" />
         <div className="absolute bottom-10 -right-32 w-96 h-96 rounded-full bg-sage/5 blur-3xl pointer-events-none" aria-hidden="true" />
 
-        <div className="relative px-4 sm:px-6 pt-16 pb-20 md:pt-24 md:pb-28 max-w-7xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-terra/8 text-terra text-sm font-semibold px-4 py-1.5 rounded-full mb-8 border border-terra/15">
-            <ShieldCheck size={15} />
-            {t('landing.hero.badge')}
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-display text-ink tracking-tight leading-[1.1] max-w-4xl mx-auto text-balance">
-            {config.content?.heroTitle || t('landing.hero.title')}{' '}
-            <span className="landing-gradient-text">{t('landing.hero.titleHighlight')}</span>
-          </h1>
-
-          <p className="mt-6 text-base sm:text-lg md:text-xl text-ink/55 max-w-2xl mx-auto leading-relaxed text-balance">
-            {config.subtitle || config.content?.heroSubtitle || t('landing.hero.subtitle')}
-          </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-            {!token && (
-              <Link to="/register" className="btn-primary w-full sm:w-auto px-8 py-4 text-base rounded-2xl shadow-lift" id="hero-cta-register">
-                {t('landing.hero.cta.start')} <ArrowRight size={18} className="ml-1" />
-              </Link>
-            )}
-            <a href="#demo" className="bg-white border border-paper-mist2 text-ink hover:border-terra hover:text-terra font-semibold px-8 py-4 text-base rounded-2xl w-full sm:w-auto flex items-center justify-center gap-2 transition-all shadow-sm">
-              <Play size={16} /> {t('landing.hero.cta.demo')}
-            </a>
-          </div>
-
-          {/* Social proof */}
-          {stats && stats.totalUsers > 0 && (
-            <div className="mt-10 flex items-center justify-center gap-2 text-sm text-ink/40">
-              <div className="flex -space-x-2">
-                {['🧑‍💼', '👩‍💻', '👨‍🎓', '👩‍🏫'].map((emoji, i) => (
-                  <div key={i} className="w-7 h-7 rounded-full bg-paper-mist border-2 border-paper flex items-center justify-center text-xs" aria-hidden="true">{emoji}</div>
-                ))}
+        <div className="relative px-4 sm:px-6 pt-12 pb-16 md:pt-20 md:pb-24 max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Column: Content */}
+            <div className="lg:col-span-6 text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 bg-terra/8 text-terra text-xs md:text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-terra/15">
+                <ShieldCheck size={15} />
+                {t('landing.hero.badge')}
               </div>
-              <span>{t('landing.hero.trusted')} <strong className="text-ink/70">{formatNumber(stats.totalUsers)}+</strong> {t('landing.hero.users')}</span>
-            </div>
-          )}
 
-          {/* Hero Dashboard Preview */}
-          <div className="mt-12 max-w-5xl mx-auto rounded-3xl border border-paper-mist2/80 bg-white/70 backdrop-blur-xl p-2 sm:p-3 shadow-lift overflow-hidden group">
-            <div className="relative rounded-2xl overflow-hidden border border-paper-mist2">
-              <img
-                src={heroDashboardImg}
-                alt={t('smartFinance')}
-                className="w-full h-auto object-cover rounded-2xl transition-transform duration-500 group-hover:scale-[1.01]"
-                loading="eager"
-              />
-              <div className="absolute inset-0 pointer-events-none rounded-2xl ring-1 ring-inset ring-black/5" />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black font-display text-ink tracking-tight leading-[1.12]">
+                {config.content?.heroTitle || t('landing.hero.title')}{' '}
+                <span className="landing-gradient-text">{t('landing.hero.titleHighlight')}</span>
+              </h1>
+
+              <p className="mt-5 text-base sm:text-lg text-ink/60 leading-relaxed max-w-xl">
+                {config.subtitle || config.content?.heroSubtitle || t('landing.hero.subtitle')}
+              </p>
+
+              {/* CTAs */}
+              <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                {!token && (
+                  <Link to="/register" className="btn-primary px-8 py-3.5 text-base rounded-2xl shadow-lift" id="hero-cta-register">
+                    {t('landing.hero.cta.start')} <ArrowRight size={18} className="ml-1" />
+                  </Link>
+                )}
+                <a href="#demo" className="bg-white border border-paper-mist2 text-ink hover:border-terra hover:text-terra font-semibold px-7 py-3.5 text-base rounded-2xl flex items-center justify-center gap-2 transition-all shadow-sm">
+                  <Play size={16} /> {t('landing.hero.cta.demo')}
+                </a>
+              </div>
+
+              {/* Social proof */}
+              {stats && stats.totalUsers > 0 && (
+                <div className="mt-8 flex items-center gap-3 text-xs md:text-sm text-ink/50 pt-2 border-t border-paper-mist2/60 max-w-md">
+                  <div className="flex -space-x-2 shrink-0">
+                    {['🧑‍💼', '👩‍💻', '👨‍🎓', '👩‍🏫'].map((emoji, i) => (
+                      <div key={i} className="w-7 h-7 rounded-full bg-paper-mist border-2 border-paper flex items-center justify-center text-xs" aria-hidden="true">{emoji}</div>
+                    ))}
+                  </div>
+                  <span>{t('landing.hero.trusted')} <strong className="text-ink/80">{formatNumber(stats.totalUsers)}+</strong> {t('landing.hero.users')}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Right Column: Hero Dashboard Preview Image */}
+            <div className="lg:col-span-6">
+              <div className="relative rounded-3xl border border-paper-mist2/80 bg-white/70 backdrop-blur-xl p-2.5 sm:p-3 shadow-lift overflow-hidden group hover:shadow-2xl transition-all duration-300">
+                <div className="relative rounded-2xl overflow-hidden border border-paper-mist2">
+                  <img
+                    src={heroDashboardImg}
+                    alt={t('smartFinance')}
+                    className="w-full h-auto object-cover rounded-2xl transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="eager"
+                  />
+                  <div className="absolute inset-0 pointer-events-none rounded-2xl ring-1 ring-inset ring-black/5" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -462,32 +490,54 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ Payment Sources ═══ */}
-      <section ref={paymentRef} className="landing-section bg-white border-y border-paper-mist2 py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold font-display text-ink mb-3">{t('landing.payment.title')}</h2>
-          <p className="text-ink/50 mb-10">{t('landing.payment.subtitle')}</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-10">
-            {[
-              { label: 'Cash', icon: '💵', cls: 'bg-paper-mist text-ink/70' },
-              { label: 'Bank', icon: '🏦', cls: 'bg-blue-50 text-blue-600' },
-              { label: 'bKash', icon: '📱', cls: 'bg-pink-50 text-bkash' },
-              { label: 'Nagad', icon: '💚', cls: 'bg-orange-50 text-nagad' },
-              { label: 'Rocket', icon: '🚀', cls: 'bg-purple-50 text-purple-600' },
-              { label: 'Card', icon: '💳', cls: 'bg-paper-mist text-ink/70' },
-            ].map((src) => (
-              <div key={src.label} className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm border border-paper-mist2 ${src.cls} hover:shadow-card transition-shadow`}>
-                <span className="text-lg">{src.icon}</span> {src.label}
+      <section ref={paymentRef} className="landing-section bg-white border-y border-paper-mist2 py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            {/* Left Column: Heading, subtitle, and payment badges */}
+            <div className="lg:col-span-6 text-left">
+              <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 text-xs md:text-sm font-semibold px-4 py-1.5 rounded-full mb-4 border border-blue-100">
+                <CreditCard size={15} />
+                {t('landing.payment.title')}
               </div>
-            ))}
-          </div>
+              <h2 className="text-3xl md:text-4xl font-bold font-display text-ink tracking-tight mb-4">
+                {t('landing.payment.title')}
+              </h2>
+              <p className="text-ink/60 text-base md:text-lg mb-8 leading-relaxed max-w-xl">
+                {t('landing.payment.subtitle')}
+              </p>
 
-          <div className="max-w-4xl mx-auto rounded-2xl border border-paper-mist2 overflow-hidden shadow-card bg-paper-mist/40 p-2 sm:p-3">
-            <img
-              src={paymentDesktopImg}
-              alt={t('landing.payment.title')}
-              className="w-full h-auto object-cover rounded-xl"
-              loading="lazy"
-            />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { label: 'Cash', icon: '💵', cls: 'bg-paper-mist text-ink/70' },
+                  { label: 'Bank', icon: '🏦', cls: 'bg-blue-50 text-blue-600' },
+                  { label: 'bKash', icon: '📱', cls: 'bg-pink-50 text-bkash' },
+                  { label: 'Nagad', icon: '💚', cls: 'bg-orange-50 text-nagad' },
+                  { label: 'Rocket', icon: '🚀', cls: 'bg-purple-50 text-purple-600' },
+                  { label: 'Card', icon: '💳', cls: 'bg-paper-mist text-ink/70' },
+                ].map((src) => (
+                  <div
+                    key={src.label}
+                    className={`inline-flex items-center gap-2.5 px-4 py-3 rounded-xl font-semibold text-sm border border-paper-mist2 ${src.cls} hover:shadow-card hover:-translate-y-0.5 transition-all`}
+                  >
+                    <span className="text-xl">{src.icon}</span> {src.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Payment Illustration */}
+            <div className="lg:col-span-6">
+              <div className="rounded-3xl border border-paper-mist2 overflow-hidden shadow-lift bg-paper-mist/40 p-2.5 sm:p-3 group hover:shadow-2xl transition-all duration-300">
+                <div className="rounded-2xl overflow-hidden border border-paper-mist2">
+                  <img
+                    src={paymentDesktopImg}
+                    alt={t('landing.payment.title')}
+                    className="w-full h-auto object-cover rounded-xl transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -509,8 +559,8 @@ export default function LandingPage() {
                   type="button"
                   onClick={() => { setActiveStep(i); setDemoPlaying(false); }}
                   className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-left transition-all duration-300 border ${activeStep === i
-                      ? 'demo-step-active shadow-sm'
-                      : 'border-transparent hover:bg-paper-mist'
+                    ? 'demo-step-active shadow-sm'
+                    : 'border-transparent hover:bg-paper-mist'
                     }`}
                   aria-current={activeStep === i ? 'step' : undefined}
                 >
@@ -714,14 +764,7 @@ export default function LandingPage() {
         <p className="text-ink/55 max-w-xl mx-auto mb-8">
           {t('Take your financial tracker wherever you go. Download the Android APK directly and start tracking right from your pocket.')}
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="/abmiti-release.apk" download className="btn-primary px-8 py-4 rounded-2xl flex items-center gap-3" id="download-apk">
-            <Download size={20} /> {t('Download APK (Android)')}
-          </a>
-        </div>
-        <p className="mt-4 text-xs text-ink/35">{t('iOS version coming soon via App Store.')}</p>
-
-        <div className="mt-10 max-w-sm mx-auto flex justify-center">
+        <div className="my-8 max-w-sm mx-auto flex justify-center">
           <img
             src={mobileAppImg}
             alt={t('Get Abmiti Mobile')}
@@ -729,6 +772,13 @@ export default function LandingPage() {
             loading="lazy"
           />
         </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="/abmiti-release.apk" download className="btn-primary px-8 py-4 rounded-2xl flex items-center gap-3" id="download-apk">
+            <Download size={20} /> {t('Download APK (Android)')}
+          </a>
+        </div>
+        <p className="mt-4 text-xs text-ink/35">{t('iOS version coming soon via App Store.')}</p>
       </section>
 
       {/* ═══ Contact Section ═══ */}

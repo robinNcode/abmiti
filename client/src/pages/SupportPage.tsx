@@ -6,6 +6,7 @@ import { siteApi } from '@/api/site.api';
 import { PageHeader, EmptyState, Spinner } from '@/components/ui';
 import { cx, localizedApiError } from '@/utils';
 import supportIllustration from '@/assets/images/3d-casual-life-signing-contract.png';
+import coffeeMugImg from '@/assets/images/casual-life-3d-coffee-spilling-out-of-mug.png';
 
 type PlanId = 'coffee' | 'monthly' | 'annual';
 
@@ -154,11 +155,21 @@ export default function SupportPage() {
                       {t('bestValue')}
                     </span>
                   )}
-                  <div className={cx(
-                    'w-11 h-11 rounded-xl flex items-center justify-center mb-4',
-                    plan.highlight ? 'bg-terra/10 text-terra' : 'bg-paper-mist text-ink/60',
-                  )}>
-                    <Icon size={20} />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={cx(
+                      'w-11 h-11 rounded-xl flex items-center justify-center',
+                      plan.highlight ? 'bg-terra/10 text-terra' : 'bg-paper-mist text-ink/60',
+                    )}>
+                      <Icon size={20} />
+                    </div>
+                    {plan.id === 'coffee' && (
+                      <img
+                        src={coffeeMugImg}
+                        alt="Coffee"
+                        className="w-14 h-14 object-contain drop-shadow-md -mt-2 -mr-1 hover:scale-110 transition-transform"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
                   <h3 className="font-display font-bold text-lg text-ink">{t(plan.titleKey)}</h3>
                   <p className="text-sm text-ink/50 mt-1.5 leading-relaxed flex-1">{t(plan.descKey)}</p>
