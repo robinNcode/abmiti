@@ -556,6 +556,24 @@ export const adminService = {
     return rows;
   },
 
+  // ── Public: Landing page stats (no auth) ────────────────────
+  publicStats: async () => {
+    let totalUsers = 0, activeSubscribers = 0;
+    if (env.DB_PROVIDER === 'mongodb') {
+      const mongoose = (await import('mongoose')).default;
+      const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
+      totalUsers = await User.countDocuments();
+      activeSubscribers = await Subscription.countDocuments({ status: 'active', expiresAt: { $gte: new Date() } });
+    } else {
+      const pool = getMySQLPool();
+      const [[u]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM users');
+      totalUsers = u?.c ?? 0;
+      const [[s]] = await pool.query<any[]>('SELECT COUNT(*) as c FROM subscriptions WHERE status=? AND expires_at >= NOW()', ['active']);
+      activeSubscribers = s?.c ?? 0;
+    }
+    return { totalUsers, activeSubscribers };
+  },
+
   // ── Admin: Dashboard stats ────────────────────────────────────
   dashboardStats: async () => {
     let totalUsers = 0, totalPosts = 0, totalContacts = 0, totalPayments = 0, totalRevenue = 0, totalSubscriptions = 0, activeSubscriptions = 0;

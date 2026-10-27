@@ -1,6 +1,7 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import secureDocImg from '@/assets/images/3d-casual-life-secure-document.png';
 
 export default function AuthLayout() {
   const navigate = useNavigate();
@@ -21,6 +22,13 @@ export default function AuthLayout() {
           <p className="text-white/40 text-sm mt-4 font-light leading-relaxed">
             {t('Track your income, expenses and savings — beautifully.')}
           </p>
+          <div className="my-6 flex justify-center">
+            <img
+              src={secureDocImg}
+              alt="Secure Finance"
+              className="w-40 h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-300"
+            />
+          </div>
         </div>
         <div className="space-y-4">
           {[

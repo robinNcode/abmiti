@@ -4,9 +4,10 @@ import { PageHeader, SummaryCard } from '@/components/ui';
 import YearlyTrendChart from '@/components/charts/YearlyTrendChart';
 import CategoryBreakdown from '@/components/charts/CategoryBreakdown';
 import { formatBDT, monthLabel } from '@/utils';
-import { AlertTriangle, Info, FileText, Receipt } from 'lucide-react';
+import { AlertTriangle, Info, FileText, Receipt, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import statsIllustration from '@/assets/images/3d-casual-life-chart-and-statistics-2.png';
 
 export default function AnalyticsPage() {
   const { t } = useTranslation();
@@ -33,6 +34,25 @@ export default function AnalyticsPage() {
       />
 
       <div className="px-4 md:px-8 pb-10 space-y-4 md:space-y-6">
+        {/* Analytics Top Banner with 3D illustration */}
+        <div className="card p-5 md:p-6 bg-gradient-to-r from-white via-white to-amber-50/40 border border-paper-mist2 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden">
+          <div className="flex-1 space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-mustard/15 text-mustard-dark text-xs font-semibold">
+              <TrendingUp size={14} />
+              {t('Smart Analytics')}
+            </div>
+            <h2 className="text-xl md:text-2xl font-display font-bold text-ink">
+              {t('Visualize your spending patterns and track your savings rate with beautiful, easy-to-read charts.')}
+            </h2>
+          </div>
+          <img
+            src={statsIllustration}
+            alt="Financial Analytics"
+            className="w-32 md:w-44 h-auto object-contain shrink-0 drop-shadow-md hover:scale-105 transition-transform"
+            loading="lazy"
+          />
+        </div>
+
         {/* Budget Warnings Section */}
         {warnings.length > 0 && (
           <div className="space-y-3">

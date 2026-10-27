@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMonthlySummary, useEntries, useBudget, useBudgetSummary } from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { SummaryCard, PageHeader, Modal, EmptyState, Spinner } from '@/components/ui';
@@ -122,7 +123,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-3 card p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="font-display font-bold text-base">{t('Recent Entries')}</p>
-              <a href="/entries" className="text-xs text-terra font-semibold hover:underline">{t('View all →')}</a>
+              <Link to="/entries" className="text-xs text-terra font-semibold hover:underline">{t('View all →')}</Link>
             </div>
             {entriesLoading ? (
               <div className="flex justify-center py-8"><Spinner className="text-terra" /></div>
@@ -148,7 +149,7 @@ export default function DashboardPage() {
           <div className="card p-4 md:p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="font-display font-bold text-base">{t('Budget Health')}</p>
-              <a href="/budget" className="text-xs text-terra font-semibold hover:underline">{t('Manage →')}</a>
+              <Link to="/budget" className="text-xs text-terra font-semibold hover:underline">{t('Manage →')}</Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {healthLines.map((line) => (
