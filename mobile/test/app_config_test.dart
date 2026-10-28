@@ -17,50 +17,20 @@ void main() {
       );
     });
 
-    test('parses environment by id', () {
+    test('default URL is configured', () {
       expect(
-        ApiEnvironment.fromId('production'),
-        ApiEnvironment.production,
-      );
-      expect(
-        ApiEnvironment.fromId('local'),
-        ApiEnvironment.local,
-      );
-      // Unknown → defaults to local
-      expect(
-        ApiEnvironment.fromId('unknown_id'),
-        ApiEnvironment.local,
-      );
-      // null → defaults to local
-      expect(
-        ApiEnvironment.fromId(null),
-        ApiEnvironment.local,
-      );
-    });
-
-    test('production env has correct default URL', () {
-      expect(
-        ApiEnvironment.production.defaultUrl,
+        AppConfig.defaultBaseUrl,
         'https://robin.adovasoft.com/abmiti-app/api/v1',
       );
     });
 
-    test('local env has correct default URL', () {
-      expect(
-        ApiEnvironment.local.defaultUrl,
-        'http://127.0.0.1:5000/api/v1',
-      );
-    });
-
-    test('initializes in debug mode (local by default)', () async {
+    test('initializes with default URL', () async {
       FlutterSecureStorage.setMockInitialValues({});
       const storage = FlutterSecureStorage();
       final config = AppConfig(storage);
       await config.initialize();
 
-      // In test / debug mode kReleaseMode is false → local
-      expect(config.currentEnv, ApiEnvironment.local);
-      expect(config.currentBaseUrl, 'http://127.0.0.1:5000/api/v1');
+      expect(config.currentBaseUrl, 'https://robin.adovasoft.com/abmiti-app/api/v1');
     });
 
     test('notifies listeners on initialize', () async {

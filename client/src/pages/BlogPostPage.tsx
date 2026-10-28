@@ -31,7 +31,7 @@ export default function BlogPostPage() {
   const [config, setConfig] = useState<any>({});
 
   useEffect(() => {
-    siteApi.config().then(setConfig).catch(() => {});
+    siteApi.config().then(setConfig).catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -192,8 +192,37 @@ export default function BlogPostPage() {
       </article>
 
       {/* Footer */}
-      <footer className="bg-ink border-t border-white/10 py-8 text-center text-white/40 text-sm">
-        <p>&copy; {new Date().getFullYear()} {config.title || 'Abmiti'}. {t('All rights reserved.')}</p>
+      {/* ═══ Footer ═══ */}
+      <footer className="bg-[#1b1610] border-t border-white/8 py-6 text-center text-white text-xs">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2">
+            {/* Left: Logo / brand identity */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-[#c25528] text-white flex items-center justify-center font-bold text-xs shadow-sm" aria-hidden="true">অ</div>
+              <span className="font-display font-bold text-white/80 tracking-tight">{config.title || 'Abmiti'}</span>
+              <p className="text-white/20">&copy; {new Date().getFullYear()} Abmiti. সর্বস্বত্ব সংরক্ষিত।</p>
+            </div>
+
+            {/* Center: navigation links */}
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 shrink-0">
+              <a href="#features" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Features')}</a>
+              <a href="#faq" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('FAQ')}</a>
+              {posts.length > 0 && <a href="#blog" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Blog')}</a>}
+              <a href="#contact" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Contact')}</a>
+            </div>
+
+            {/* Right: developer credits + social links */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="text-white/25">Developed by</span>
+              <a href="https://github.com/robinncode" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors">
+                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.54-.17.54-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2.01-.27.68 0 1.36.09 2.01.27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38C13.71 14.53 16 11.53 16 8c0-4.42-3.58-8-8-8z" /></svg>
+              </a>
+              <a href="https://www.linkedin.com/in/robinncode/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.38-.02-3.16-1.96-3.16-1.96 0-2.27 1.45-2.27 2.93v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v5.57zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45z" /></svg>
+              </a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

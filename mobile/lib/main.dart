@@ -107,8 +107,6 @@ class _AbmitiAppState extends State<AbmitiApp> {
                   builder: (context, _) => widget.auth.user == null
                       ? AuthScreen(
                           auth: widget.auth,
-                          config: widget.config,
-                          apiClient: widget.apiClient,
                         )
                       : AppShell(
                           auth: widget.auth,

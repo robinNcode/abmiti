@@ -315,6 +315,8 @@ class AppLocale extends ChangeNotifier {
     'auth_create_account': 'Create account',
     'auth_have_account': 'Already have an account? Sign in',
     'auth_no_account': 'New to Abmiti? Create an account',
+    'auth_continue_google': 'Continue with Google',
+    'or_divider': 'OR',
 
     // Common
     'cancel': 'Cancel',
@@ -583,6 +585,8 @@ class AppLocale extends ChangeNotifier {
     'auth_create_account': 'অ্যাকাউন্ট তৈরি করুন',
     'auth_have_account': 'ইতিমধ্যে অ্যাকাউন্ট আছে? সাইন ইন করুন',
     'auth_no_account': 'নতুন অবমিতিতে? অ্যাকাউন্ট তৈরি করুন',
+    'auth_continue_google': 'গুগল দিয়ে চালিয়ে যান',
+    'or_divider': 'অথবা',
 
     // Common
     'cancel': 'বাতিল',
