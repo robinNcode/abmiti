@@ -73,6 +73,7 @@ class AppLocale extends ChangeNotifier {
     'nav_sign_out': 'Sign Out',
 
     // Overview
+    'total_balance': 'Total Balance',
     'net_balance': 'Net Balance',
     'income': 'Income',
     'expenses': 'Expenses',
@@ -227,7 +228,14 @@ class AppLocale extends ChangeNotifier {
     'about_abmiti': 'About Abmiti',
     'about_version': 'v1.1.0 • Made with ❤️ for Bangladesh',
     'sign_out': 'Sign Out',
-    'select_language': 'Select Language / ভাষা নির্বাচন',
+    'theme_setting': 'Theme / থিম',
+    'theme_device': 'Device',
+    'theme_device_desc': 'Match system appearance',
+    'theme_light': 'Light',
+    'theme_light_desc': 'Always use light theme',
+    'theme_dark': 'Dark',
+    'theme_dark_desc': 'Always use dark theme',
+    'select_theme': 'Choose Theme / থিম নির্বাচন',
     'valid_until': 'Valid until: {n}',
     'sign_out_confirm': 'Are you sure you want to sign out from Abmiti?',
 
@@ -341,7 +349,8 @@ class AppLocale extends ChangeNotifier {
     'nav_sign_out': 'লগআউট',
 
     // Overview
-    'net_balance': 'মোট ব্যালেন্স',
+    'total_balance': 'মোট ব্যালেন্স',
+    'net_balance': 'নিট ব্যালেন্স',
     'income': 'আয়',
     'expenses': 'ব্যয়',
     'expense': 'ব্যয়',
@@ -495,7 +504,14 @@ class AppLocale extends ChangeNotifier {
     'about_abmiti': 'অবমিতি সম্পর্কে',
     'about_version': 'ভার্সন ১.১.০ • বাংলাদেশের জন্য ❤️ দিয়ে তৈরি',
     'sign_out': 'লগআউট',
-    'select_language': 'Select Language / ভাষা নির্বাচন',
+    'theme_setting': 'Theme / থিম',
+    'theme_device': 'সিস্টেম (Device)',
+    'theme_device_desc': 'ডিভাইসের থিম অনুযায়ী চলবে',
+    'theme_light': 'লাইট (Light)',
+    'theme_light_desc': 'সর্বদা হালকা থিম ব্যবহৃত হবে',
+    'theme_dark': 'ডার্ক (Dark)',
+    'theme_dark_desc': 'সর্বদা ডার্ক থিম ব্যবহৃত হবে',
+    'select_theme': 'Choose Theme / থিম নির্বাচন',
     'valid_until': 'বৈধ পর্যন্ত: {n}',
     'sign_out_confirm': 'আপনি কি নিশ্চিত যে অবমিতি থেকে লগআউট করতে চান?',
 

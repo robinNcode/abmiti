@@ -711,7 +711,13 @@ export default function LandingPage() {
       {/* ═══ Blog Section ═══ */}
       {posts.length > 0 && (
         <section id="blog" ref={blogRef} className="landing-section py-20 max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold font-display text-ink mb-8">{config.content?.blogTitle || t('From the Abmiti blog')}</h2>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-3xl font-bold font-display text-ink tracking-tight">{config.content?.blogTitle || t('From the Abmiti blog')}</h2>
+              <p className="text-ink/55 mt-2 text-sm">{t('landing.payment.subtitle')}</p>
+            </div>
+            <p className="text-ink/50 text-sm">{t('postCount', { count: posts.length })}</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
             {posts.map((post) => (
               <Link
@@ -725,7 +731,7 @@ export default function LandingPage() {
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="font-bold text-xl text-ink group-hover:text-terra transition-colors">{post.title}</h3>
                   {post.excerpt && <p className="mt-3 text-ink/60 line-clamp-3 flex-1 text-sm">{post.excerpt}</p>}
-                  <span className="mt-4 inline-flex items-center gap-1 text-terra text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="mt-4 inline-flex items-center gap-1 text-terra text-sm font-medium">
                     {t('Read more')} <ArrowRight size={14} />
                   </span>
                 </div>
@@ -783,58 +789,100 @@ export default function LandingPage() {
 
       {/* ═══ Contact Section ═══ */}
       <section id="contact" ref={contactRef} className="landing-section bg-ink text-white py-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <MessageSquare size={40} className="mx-auto text-terra mb-4 opacity-80" />
-            <h2 className="text-3xl font-bold font-display">{config.content?.contactTitle || t("We'd love your feedback")}</h2>
-            <p className="text-white/50 mt-3">
-              {t('Abmiti is actively being improved. If you encounter bugs, have feature requests, or just want to say hi, please reach out!')}
-            </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid gap-10 lg:grid-cols-2 items-start">
+            {/* Left — brand identity */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-terra/90 text-white text-xs md:text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-terra/15">
+                <MessageSquare size={15} />
+                {config.content?.contactTitle || t("We'd love your feedback")}
+              </div>
+              <p className="text-white/55 leading-relaxed mb-8 max-w-md mx-auto lg:mx-0">
+                {t('Abmiti is actively being improved. If you encounter bugs, have feature requests, or just want to say hi, please reach out!')}
+              </p>
+              <div className="space-y-5 text-sm">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#c25528]/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg">📍</span>
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs uppercase tracking-widest font-semibold">{t('Address')}</p>
+                    <p className="text-white/80 font-medium mt-0.5">Bashundhara R.A, Dhaka 1229, Bangladesh</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-terra/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg">✉️</span>
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs uppercase tracking-widest font-semibold">{t('Email')}</p>
+                    <a href="mailto:ogyx.digital@gmail.com" className="text-white/80 font-medium mt-0.5 hover:text-terra transition-colors">
+                      ogyx.digital@gmail.com
+                    </a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-mustard/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg">📱</span>
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs uppercase tracking-widest font-semibold">{t('WhatsApp')}</p>
+                    <a href="https://wa.me/8801700000000" target="_blank" rel="noopener noreferrer" className="text-white/80 font-medium mt-0.5 hover:text-terra transition-colors">
+                      +880 1700 000 000
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — contact / feedback form */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
+              <form className="space-y-4" onSubmit={sendContact}>
+                <div>
+                  <label className="block text-sm font-medium text-white/60 mb-1">{t('Your name')}</label>
+                  <input
+                    type="text"
+                    required
+                    onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
+                    value={contact.name}
+                    onChange={(e) => setContact({ ...contact, name: e.target.value })}
+                    className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
+                    placeholder={t('Your name')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white/60 mb-1">{t('Email')}</label>
+                  <input
+                    type="email"
+                    required
+                    onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
+                    value={contact.email}
+                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                    className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
+                    placeholder={t('you@example.com')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white/60 mb-1">{t('Message')}</label>
+                  <textarea
+                    required
+                    onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
+                    rows={4}
+                    value={contact.message}
+                    onChange={(e) => setContact({ ...contact, message: e.target.value })}
+                    className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
+                    placeholder={t('How can we improve?')}
+                  />
+                </div>
+                <button type="submit" className="w-full bg-terra hover:bg-terra-dark text-white font-bold py-3.5 px-4 rounded-xl transition-colors" id="contact-submit">
+                  {t('Send Feedback')}
+                </button>
+              </form>
+            </div>
           </div>
-          <form className="space-y-4 max-w-md mx-auto" onSubmit={sendContact}>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-1">{t('name')}</label>
-              <input
-                type="text"
-                required
-                onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
-                onInput={(e) => e.currentTarget.setCustomValidity('')}
-                value={contact.name}
-                onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
-                placeholder={t('Your name')}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-1">{t('email')}</label>
-              <input
-                type="email"
-                required
-                onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
-                onInput={(e) => e.currentTarget.setCustomValidity('')}
-                value={contact.email}
-                onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
-                placeholder={t('you@example.com')}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-1">{t('Message')}</label>
-              <textarea
-                required
-                onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
-                onInput={(e) => e.currentTarget.setCustomValidity('')}
-                rows={4}
-                value={contact.message}
-                onChange={(e) => setContact({ ...contact, message: e.target.value })}
-                className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
-                placeholder={t('How can we improve?')}
-              />
-            </div>
-            <button type="submit" className="w-full bg-terra hover:bg-terra-dark text-white font-bold py-3.5 px-4 rounded-xl transition-colors" id="contact-submit">
-              {t('Send Feedback')}
-            </button>
-          </form>
         </div>
       </section>
 

@@ -6,6 +6,7 @@ import 'core/config/app_config.dart';
 import 'core/constants/app_colors.dart';
 import 'core/localization/app_locale.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_notifier.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/shell/app_shell.dart';
 import 'shared/data/api_client.dart';
@@ -43,11 +44,13 @@ Future<void> main() async {
   final auth = AuthRepository(api, storage);
   final financeRepo = FinanceRepository(api);
   final appLocale = AppLocale(storage);
+  final themeNotifier = AppThemeModeNotifier(storage);
 
   runApp(AbmitiApp(
     auth: auth,
     financeRepo: financeRepo,
     appLocale: appLocale,
+    themeNotifier: themeNotifier,
     config: config,
     apiClient: api,
   ));
@@ -60,6 +63,7 @@ class AbmitiApp extends StatefulWidget {
     required this.auth,
     required this.financeRepo,
     required this.appLocale,
+    this.themeNotifier,
     required this.config,
     required this.apiClient,
   });
@@ -67,6 +71,7 @@ class AbmitiApp extends StatefulWidget {
   final AuthRepository auth;
   final FinanceRepository financeRepo;
   final AppLocale appLocale;
+  final AppThemeModeNotifier? themeNotifier;
   final AppConfig config;
   final ApiClient apiClient;
 
@@ -85,36 +90,42 @@ class _AbmitiAppState extends State<AbmitiApp> {
     });
   }
 
+  late final AppThemeModeNotifier _themeNotifier =
+      widget.themeNotifier ?? AppThemeModeNotifier();
+
   @override
   Widget build(BuildContext context) {
-    return LocaleScope(
-      locale: widget.appLocale,
-      child: AnimatedBuilder(
-        animation: widget.appLocale,
-        builder: (context, _) => MaterialApp(
-          title: widget.appLocale.isBengali
-              ? 'অবমিতি — আয় ব্যয় মিতি'
-              : 'Abmiti — Personal Finance',
-          locale: widget.appLocale.locale,
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light(),
-          darkTheme: AppTheme.dark(),
-          themeMode: ThemeMode.system,
-          home: _restoring
-              ? const Scaffold(body: LoadingOverlay())
-              : AnimatedBuilder(
-                  animation: widget.auth,
-                  builder: (context, _) => widget.auth.user == null
-                      ? AuthScreen(
-                          auth: widget.auth,
-                        )
-                      : AppShell(
-                          auth: widget.auth,
-                          financeRepo: widget.financeRepo,
-                          config: widget.config,
-                          apiClient: widget.apiClient,
-                        ),
-                ),
+    return ThemeScope(
+      themeNotifier: _themeNotifier,
+      child: LocaleScope(
+        locale: widget.appLocale,
+        child: AnimatedBuilder(
+          animation: Listenable.merge([widget.appLocale, _themeNotifier]),
+          builder: (context, _) => MaterialApp(
+            title: widget.appLocale.isBengali
+                ? 'অবমিতি — আয় ব্যয় মিতি'
+                : 'Abmiti — Personal Finance',
+            locale: widget.appLocale.locale,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: _themeNotifier.themeMode,
+            home: _restoring
+                ? const Scaffold(body: LoadingOverlay())
+                : AnimatedBuilder(
+                    animation: widget.auth,
+                    builder: (context, _) => widget.auth.user == null
+                        ? AuthScreen(
+                            auth: widget.auth,
+                          )
+                        : AppShell(
+                            auth: widget.auth,
+                            financeRepo: widget.financeRepo,
+                            config: widget.config,
+                            apiClient: widget.apiClient,
+                          ),
+                  ),
+          ),
         ),
       ),
     );

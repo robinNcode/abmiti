@@ -207,7 +207,7 @@ export default function BlogPostPage() {
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 shrink-0">
               <a href="#features" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Features')}</a>
               <a href="#faq" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('FAQ')}</a>
-              {posts.length > 0 && <a href="#blog" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Blog')}</a>}
+              {post?.excerpt && <a href="#blog" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Blog')}</a>}
               <a href="#contact" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Contact')}</a>
             </div>
 
