@@ -8,8 +8,8 @@ void main() {
   group('AppConfig Tests', () {
     test('normalizes URLs removing trailing slashes', () {
       expect(
-        AppConfig.normalizeUrl('http://192.168.26.65:5000/api/v1/'),
-        'http://192.168.26.65:5000/api/v1',
+        AppConfig.normalizeUrl('http://127.0.0.1:5000/api/v1/'),
+        'http://127.0.0.1:5000/api/v1',
       );
       expect(
         AppConfig.normalizeUrl('http://localhost:5000///'),
@@ -17,58 +17,62 @@ void main() {
       );
     });
 
-    test('parses environment by id or name', () {
+    test('parses environment by id', () {
       expect(
         ApiEnvironment.fromId('production'),
         ApiEnvironment.production,
       );
       expect(
-        ApiEnvironment.fromId('same_router_lan'),
-        ApiEnvironment.sameRouterLan,
+        ApiEnvironment.fromId('local'),
+        ApiEnvironment.local,
       );
+      // Unknown → defaults to local
       expect(
-        ApiEnvironment.fromId('different_router_usb'),
-        ApiEnvironment.differentRouterUsb,
+        ApiEnvironment.fromId('unknown_id'),
+        ApiEnvironment.local,
       );
+      // null → defaults to local
       expect(
-        ApiEnvironment.fromId('custom'),
-        ApiEnvironment.custom,
+        ApiEnvironment.fromId(null),
+        ApiEnvironment.local,
       );
     });
 
-    test('initializes with default development environment', () async {
+    test('production env has correct default URL', () {
+      expect(
+        ApiEnvironment.production.defaultUrl,
+        'https://robin.adovasoft.com/abmiti-app/api/v1',
+      );
+    });
+
+    test('local env has correct default URL', () {
+      expect(
+        ApiEnvironment.local.defaultUrl,
+        'http://127.0.0.1:5000/api/v1',
+      );
+    });
+
+    test('initializes in debug mode (local by default)', () async {
       FlutterSecureStorage.setMockInitialValues({});
       const storage = FlutterSecureStorage();
       final config = AppConfig(storage);
       await config.initialize();
 
-      expect(config.currentEnv, ApiEnvironment.differentRouterUsb);
+      // In test / debug mode kReleaseMode is false → local
+      expect(config.currentEnv, ApiEnvironment.local);
       expect(config.currentBaseUrl, 'http://127.0.0.1:5000/api/v1');
     });
 
-    test('switches environment and notifies listeners', () async {
+    test('notifies listeners on initialize', () async {
       FlutterSecureStorage.setMockInitialValues({});
       const storage = FlutterSecureStorage();
       final config = AppConfig(storage);
-      await config.initialize();
 
       var notified = false;
       config.addListener(() => notified = true);
 
-      await config.setEnvironment(ApiEnvironment.production);
+      await config.initialize();
       expect(notified, true);
-      expect(config.currentEnv, ApiEnvironment.production);
-      expect(config.currentBaseUrl, 'https://voltwavebd.com/abmiti/api/v1');
-
-      await config.setEnvironment(
-        ApiEnvironment.custom,
-        customUrl: 'https://mytunnel.trycloudflare.com/api/v1',
-      );
-      expect(config.currentEnv, ApiEnvironment.custom);
-      expect(
-        config.currentBaseUrl,
-        'https://mytunnel.trycloudflare.com/api/v1',
-      );
     });
   });
 }

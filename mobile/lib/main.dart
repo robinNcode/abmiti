@@ -37,10 +37,8 @@ Future<void> main() async {
   final config = AppConfig(storage);
   await config.initialize();
 
+  // URL is fixed after initialize() — release→production, debug→local.
   final api = ApiClient(storage, baseUrl: config.currentBaseUrl);
-  config.addListener(() {
-    api.updateBaseUrl(config.currentBaseUrl);
-  });
 
   final auth = AuthRepository(api, storage);
   final financeRepo = FinanceRepository(api);
@@ -54,6 +52,7 @@ Future<void> main() async {
     apiClient: api,
   ));
 }
+
 
 class AbmitiApp extends StatefulWidget {
   const AbmitiApp({

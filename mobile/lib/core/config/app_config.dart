@@ -1,42 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Predefined API environments for Abmiti development and production.
+/// The two modes the mobile app operates in.
+///
+/// - [production] — used automatically in release builds (APK / physical device).
+///   Points to the live hosted backend.
+/// - [local] — used in debug builds. Points to the local dev server.
+///   Override with `--dart-define=API_BASE_URL=...` for tunnels / different IPs.
 enum ApiEnvironment {
-  /// Different router / cellular / isolated network:
-  /// Uses ADB reverse port forwarding over USB (adb reverse tcp:5000 tcp:5000).
-  /// Any request to 127.0.0.1:5000 on the physical device is forwarded to the PC's port 5000.
-  differentRouterUsb(
-    id: 'different_router_usb',
-    name: 'Different Router (USB / ADB)',
-    description:
-        'PC & Phone on different routers; connected via USB cable (adb reverse)',
-    defaultUrl: 'http://127.0.0.1:5000/api/v1',
-  ),
-
-  /// Same router / same local network:
-  /// Phone and Ubuntu PC connected to the same Wi-Fi or subnet.
-  sameRouterLan(
-    id: 'same_router_lan',
-    name: 'Same Router (LAN IP)',
-    description:
-        'PC & Phone on same Wi-Fi / subnet (PC IP: 192.168.26.65:5000)',
-    defaultUrl: 'http://192.168.26.65:5000/api/v1',
-  ),
-
-  /// Live production cloud server:
+  /// Live production server — always used in release mode.
   production(
     id: 'production',
     name: 'Production',
-    description: 'Live production server (voltwavebd.com)',
-    defaultUrl: 'https://voltwavebd.com/abmiti/api/v1',
+    description: 'Live server — robin.adovasoft.com',
+    defaultUrl: 'https://robin.adovasoft.com/abmiti-app/api/v1',
   ),
 
-  /// Custom URL (Cloudflare tunnel, ngrok, localtunnel, or custom IP):
-  custom(
-    id: 'custom',
-    name: 'Custom URL / Tunnel',
-    description: 'Public HTTPS tunnel (localtunnel / ngrok) or manual URL',
+  /// Local development server — used in debug mode.
+  /// Default: ADB reverse (adb reverse tcp:5000 tcp:5000) so both emulator
+  /// and physical device hit the PC's port 5000 via 127.0.0.1.
+  local(
+    id: 'local',
+    name: 'Local Dev',
+    description: 'Dev server on this machine (127.0.0.1:5000 via ADB or emulator)',
     defaultUrl: 'http://127.0.0.1:5000/api/v1',
   );
 
@@ -53,10 +39,10 @@ enum ApiEnvironment {
   final String defaultUrl;
 
   static ApiEnvironment fromId(String? id) {
-    if (id == null) return ApiEnvironment.differentRouterUsb;
+    if (id == null) return ApiEnvironment.local;
     return ApiEnvironment.values.firstWhere(
-      (e) => e.id == id || e.name.toLowerCase() == id.toLowerCase(),
-      orElse: () => ApiEnvironment.differentRouterUsb,
+      (e) => e.id == id,
+      orElse: () => ApiEnvironment.local,
     );
   }
 }
@@ -64,137 +50,50 @@ enum ApiEnvironment {
 /// Dynamic application configuration manager.
 ///
 /// Priority for resolving active API base URL:
-/// 1. Saved custom URL in secure storage (runtime override by developer)
-/// 2. Compile-time `--dart-define=API_BASE_URL=...`
-/// 3. Compile-time `--dart-define=API_ENV=different_router|same_router|production|custom`
-/// 4. Default: Different router via USB (`http://127.0.0.1:5000/api/v1`) in debug,
-///    or Production (`https://voltwavebd.com/abmiti/api/v1`) in release.
+/// 1. Compile-time `--dart-define=API_BASE_URL=...`  (tunnel / custom IP)
+/// 2. Release mode → production URL automatically
+/// 3. Debug mode   → local URL (127.0.0.1:5000)
+///
+/// The user never needs to switch manually — release = prod, debug = local.
 class AppConfig with ChangeNotifier {
-  AppConfig(this._storage);
+  AppConfig(FlutterSecureStorage storage); // kept for API compat; unused internally
 
-  final FlutterSecureStorage _storage;
-
-  static const String _storageKeyEnv = 'app_config_api_env';
-  static const String _storageKeyUrl = 'app_config_api_url';
-
-  // Compile-time environment defines
+  // Compile-time override: flutter run --dart-define=API_BASE_URL=https://...
   static const String _definedBaseUrl = String.fromEnvironment('API_BASE_URL');
-  static const String _definedEnv = String.fromEnvironment('API_ENV');
-  static const String _definedLanIp = String.fromEnvironment(
-    'LAN_IP',
-    defaultValue: '192.168.26.65',
-  );
 
-  ApiEnvironment _currentEnv = ApiEnvironment.differentRouterUsb;
+  ApiEnvironment _currentEnv = ApiEnvironment.local;
   String _currentBaseUrl = '';
 
   ApiEnvironment get currentEnv => _currentEnv;
   String get currentBaseUrl => _currentBaseUrl;
 
-  /// Default same-router URL incorporating LAN_IP define if provided.
-  static String get defaultSameRouterUrl => 'http://$_definedLanIp:5000/api/v1';
-
-  /// Initial load from storage and compile-time defines.
+  /// Initialise — call once in main() before runApp().
   Future<void> initialize() async {
-    // 1. Check if user saved a preference in secure storage
-    final savedEnvId = await _storage.read(key: _storageKeyEnv);
-    final savedUrl = await _storage.read(key: _storageKeyUrl);
-
-    if (savedUrl != null && savedUrl.trim().isNotEmpty) {
-      _currentBaseUrl = normalizeUrl(savedUrl.trim());
-      _currentEnv = ApiEnvironment.fromId(savedEnvId);
-      notifyListeners();
-      return;
-    }
-
-    // 2. Check compile-time --dart-define=API_BASE_URL
+    // 1. Compile-time override wins (useful for ngrok / LAN IP in debug builds)
     if (_definedBaseUrl.isNotEmpty) {
       _currentBaseUrl = normalizeUrl(_definedBaseUrl);
-      _currentEnv = ApiEnvironment.custom;
+      // Determine env from URL for display purposes
+      _currentEnv = _currentBaseUrl.contains('robin.adovasoft.com')
+          ? ApiEnvironment.production
+          : ApiEnvironment.local;
       notifyListeners();
       return;
     }
 
-    // 3. Check compile-time --dart-define=API_ENV
-    if (_definedEnv.isNotEmpty) {
-      _currentEnv = _parseEnvName(_definedEnv);
-      _currentBaseUrl = _urlForEnv(_currentEnv);
-      notifyListeners();
-      return;
-    }
-
-    // 4. Default by build mode: in release -> production; in debug -> different router (USB)
+    // 2. Release build → always production
     if (kReleaseMode) {
       _currentEnv = ApiEnvironment.production;
       _currentBaseUrl = ApiEnvironment.production.defaultUrl;
     } else {
-      _currentEnv = ApiEnvironment.differentRouterUsb;
-      _currentBaseUrl = ApiEnvironment.differentRouterUsb.defaultUrl;
+      // 3. Debug build → local dev
+      _currentEnv = ApiEnvironment.local;
+      _currentBaseUrl = ApiEnvironment.local.defaultUrl;
     }
 
     notifyListeners();
-  }
-
-  /// Switch environment and optionally save a custom URL.
-  Future<void> setEnvironment(ApiEnvironment env, {String? customUrl}) async {
-    _currentEnv = env;
-    if (env == ApiEnvironment.custom &&
-        customUrl != null &&
-        customUrl.isNotEmpty) {
-      _currentBaseUrl = normalizeUrl(customUrl);
-      await _storage.write(key: _storageKeyUrl, value: _currentBaseUrl);
-    } else {
-      _currentBaseUrl = _urlForEnv(env);
-      await _storage.write(key: _storageKeyUrl, value: _currentBaseUrl);
-    }
-    await _storage.write(key: _storageKeyEnv, value: env.id);
-    notifyListeners();
-  }
-
-  /// Reset to defaults.
-  Future<void> resetToDefaults() async {
-    await _storage.delete(key: _storageKeyEnv);
-    await _storage.delete(key: _storageKeyUrl);
-    await initialize();
-  }
-
-  static String _urlForEnv(ApiEnvironment env) {
-    switch (env) {
-      case ApiEnvironment.differentRouterUsb:
-        return ApiEnvironment.differentRouterUsb.defaultUrl;
-      case ApiEnvironment.sameRouterLan:
-        return defaultSameRouterUrl;
-      case ApiEnvironment.production:
-        return ApiEnvironment.production.defaultUrl;
-      case ApiEnvironment.custom:
-        return ApiEnvironment.custom.defaultUrl;
-    }
-  }
-
-  static ApiEnvironment _parseEnvName(String env) {
-    switch (env.toLowerCase().replaceAll('-', '_')) {
-      case 'prod':
-      case 'production':
-        return ApiEnvironment.production;
-      case 'same_router':
-      case 'same':
-      case 'lan':
-        return ApiEnvironment.sameRouterLan;
-      case 'different_router':
-      case 'diff':
-      case 'usb':
-      case 'adb':
-        return ApiEnvironment.differentRouterUsb;
-      case 'custom':
-      case 'tunnel':
-        return ApiEnvironment.custom;
-      default:
-        return ApiEnvironment.differentRouterUsb;
-    }
   }
 
   /// Ensure URL has no trailing slashes.
-  static String normalizeUrl(String url) {
-    return url.replaceAll(RegExp(r'/+$'), '');
-  }
+  static String normalizeUrl(String url) =>
+      url.replaceAll(RegExp(r'/+$'), '');
 }
