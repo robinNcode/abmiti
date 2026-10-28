@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_locale.dart';
+import '../../core/theme/theme_notifier.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/widgets/glossy_card.dart';
@@ -324,6 +325,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   : null,
                               onTap: () {
                                 context.appLocale.setLanguage(AppLanguage.bn);
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Divider(
+                  height: 1,
+                  color: isDark ? AppColors.darkBorder : AppColors.paperMist,
+                ),
+                _SettingsTile(
+                  icon: Icons.palette_outlined,
+                  title: loc.tr('theme_setting'),
+                  subtitle: () {
+                    final pref = context.appTheme.preference;
+                    switch (pref) {
+                      case AppThemePreference.system:
+                        return loc.tr('theme_device');
+                      case AppThemePreference.dark:
+                        return loc.tr('theme_dark');
+                      case AppThemePreference.light:
+                        return loc.tr('theme_light');
+                    }
+                  }(),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        title: Text(
+                          loc.tr('select_theme'),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              leading: const Icon(Icons.brightness_auto_rounded,
+                                  color: AppColors.terra),
+                              title: Text(loc.tr('theme_device')),
+                              subtitle: Text(loc.tr('theme_device_desc')),
+                              trailing: context.appTheme.preference ==
+                                      AppThemePreference.system
+                                  ? const Icon(Icons.check_circle_rounded,
+                                      color: AppColors.terra)
+                                  : null,
+                              onTap: () {
+                                context.appTheme.setThemePreference(
+                                    AppThemePreference.system);
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                            ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              leading: const Icon(Icons.light_mode_rounded,
+                                  color: AppColors.mustard),
+                              title: Text(loc.tr('theme_light')),
+                              subtitle: Text(loc.tr('theme_light_desc')),
+                              trailing: context.appTheme.preference ==
+                                      AppThemePreference.light
+                                  ? const Icon(Icons.check_circle_rounded,
+                                      color: AppColors.terra)
+                                  : null,
+                              onTap: () {
+                                context.appTheme.setThemePreference(
+                                    AppThemePreference.light);
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                            ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              leading: const Icon(Icons.dark_mode_rounded,
+                                  color: AppColors.sage),
+                              title: Text(loc.tr('theme_dark')),
+                              subtitle: Text(loc.tr('theme_dark_desc')),
+                              trailing: context.appTheme.preference ==
+                                      AppThemePreference.dark
+                                  ? const Icon(Icons.check_circle_rounded,
+                                      color: AppColors.terra)
+                                  : null,
+                              onTap: () {
+                                context.appTheme.setThemePreference(
+                                    AppThemePreference.dark);
                                 Navigator.pop(ctx);
                               },
                             ),

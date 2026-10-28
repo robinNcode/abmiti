@@ -60,6 +60,19 @@ class AuthRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sign in using access and refresh tokens returned from OAuth (e.g. Google Sign-In)
+  Future<void> signInWithTokens(String accessToken, String refreshToken) async {
+    await storage.write(key: 'accessToken', value: accessToken);
+    await storage.write(key: 'refreshToken', value: refreshToken);
+    final profile = Map<String, dynamic>.from(await api.get('/auth/me') as Map);
+    user = profile;
+    if (user?['userType'] == 'admin') {
+      await signOut();
+      throw const ApiException('Admin accounts use the web dashboard.');
+    }
+    notifyListeners();
+  }
+
   Future<void> updateProfile(Map<String, dynamic> values) async {
     user = Map<String, dynamic>.from(
         await api.patch('/auth/me', body: values) as Map);

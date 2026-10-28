@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/config/app_config.dart';
-import '../../core/config/env_switcher_sheet.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
@@ -346,20 +345,6 @@ class _AppShellState extends State<AppShell> {
                       ProfileScreen(auth: widget.auth),
                     ),
                   ),
-                  if (widget.config != null && widget.apiClient != null)
-                    _DrawerItem(
-                      icon: Icons.settings_input_antenna_rounded,
-                      label:
-                          '${loc.tr('api_server')} (${widget.config!.currentEnv.name})',
-                      onTap: () {
-                        Navigator.pop(context);
-                        EnvSwitcherSheet.show(
-                          context,
-                          config: widget.config!,
-                          apiClient: widget.apiClient!,
-                        );
-                      },
-                    ),
                   // In-Drawer Language Switcher
                   Padding(
                     padding:

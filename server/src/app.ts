@@ -42,13 +42,16 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow server-to-server requests (no origin) in development
-      if (!origin && env.NODE_ENV === 'development') return callback(null, true);
+      // Allow requests with no Origin header:
+      // - Server-to-server / curl requests
+      // - Phusion Passenger / Apache internal proxy (strips Origin)
+      // - Same-origin requests from the SPA hosted on the same domain
+      if (!origin) return callback(null, true);
       // Flutter Web uses an ephemeral localhost port in development.
-      if (origin && env.NODE_ENV === 'development' && isLocalDevelopmentOrigin(origin)) {
+      if (env.NODE_ENV === 'development' && isLocalDevelopmentOrigin(origin)) {
         return callback(null, true);
       }
-      if (origin && env.CLIENT_URLS.includes(origin)) return callback(null, true);
+      if (env.CLIENT_URLS.includes(origin)) return callback(null, true);
       callback(new Error(`CORS: origin "${origin}" is not allowed`));
     },
     credentials: true,

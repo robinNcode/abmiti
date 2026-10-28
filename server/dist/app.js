@@ -33,17 +33,24 @@ const isLocalDevelopmentOrigin = (origin) => {
     }
 };
 // ── Security middleware ──────────────────────────────────────
-app.use((0, helmet_1.default)());
+app.use((0, helmet_1.default)({
+    // Allow uploaded images/assets to be embedded cross-origin
+    // (page served on :5173, static files on :5000 in dev).
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
-        // Allow server-to-server requests (no origin) in development
-        if (!origin && env_1.env.NODE_ENV === 'development')
+        // Allow requests with no Origin header:
+        // - Server-to-server / curl requests
+        // - Phusion Passenger / Apache internal proxy (strips Origin)
+        // - Same-origin requests from the SPA hosted on the same domain
+        if (!origin)
             return callback(null, true);
         // Flutter Web uses an ephemeral localhost port in development.
-        if (origin && env_1.env.NODE_ENV === 'development' && isLocalDevelopmentOrigin(origin)) {
+        if (env_1.env.NODE_ENV === 'development' && isLocalDevelopmentOrigin(origin)) {
             return callback(null, true);
         }
-        if (origin && env_1.env.CLIENT_URLS.includes(origin))
+        if (env_1.env.CLIENT_URLS.includes(origin))
             return callback(null, true);
         callback(new Error(`CORS: origin "${origin}" is not allowed`));
     },

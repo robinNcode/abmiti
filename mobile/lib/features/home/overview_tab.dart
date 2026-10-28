@@ -143,89 +143,223 @@ class _OverviewTabState extends State<OverviewTab> {
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
-          // ── Glossy Hero Card ───────────────────────────────────────
-          GlossyCard(
-            gradient: AppColors.heroGradient,
-            borderRadius: 24,
-            padding: const EdgeInsets.all(22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          loc.tr('net_balance'),
-                          style: TextStyle(
-                            color: Colors.white.withAlpha(200),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatCurrency(netBalance),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton.filled(
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withAlpha(45),
-                        foregroundColor: Colors.white,
-                      ),
-                      icon: const Icon(Icons.add_rounded, size: 24),
-                      onPressed: () {
-                        EntryFormModal.show(
-                          context,
-                          financeRepo: widget.financeRepo,
-                          onEntryCreated: _loadData,
-                        );
-                      },
+          // ── Professional Total Balance Dashboard Card ─────────────
+          Builder(
+            builder: (context) {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              final primaryCardColor = isDark
+                  ? AppColors.darkElevated
+                  : Colors.white;
+              final borderStrokeColor = isDark
+                  ? AppColors.darkBorder
+                  : AppColors.paperMist;
+
+              return Container(
+                decoration: BoxDecoration(
+                  color: primaryCardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: borderStrokeColor, width: 1.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withAlpha(50)
+                          : AppColors.ink.withAlpha(12),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(35),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Stack(
                     children: [
-                      _HeroStat(
-                        label: loc.tr('income'),
-                        amount: _formatCurrency(income),
-                        color: AppColors.pastelIce,
-                        icon: Icons.south_west_rounded,
+                      // Subtle brand corner accent glow
+                      Positioned(
+                        top: -40,
+                        right: -40,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                (isDark ? AppColors.terraLight : AppColors.terra)
+                                    .withAlpha(isDark ? 30 : 20),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                      Container(
-                        height: 28,
-                        width: 1,
-                        color: Colors.white.withAlpha(50),
-                      ),
-                      _HeroStat(
-                        label: loc.tr('expenses'),
-                        amount: _formatCurrency(expense),
-                        color: AppColors.pastelPeach,
-                        icon: Icons.north_east_rounded,
+                      Padding(
+                        padding: const EdgeInsets.all(22),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Top Row: Label badge + Quick Add Entry action
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? AppColors.darkSurface
+                                            : AppColors.paperMist.withAlpha(150),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.account_balance_wallet_rounded,
+                                            size: 14,
+                                            color: isDark
+                                                ? AppColors.terraLight
+                                                : AppColors.terra,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            loc.tr('total_balance'),
+                                            style: TextStyle(
+                                              color: isDark
+                                                  ? Colors.white.withAlpha(220)
+                                                  : AppColors.inkLight,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 0.2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () {
+                                      EntryFormModal.show(
+                                        context,
+                                        financeRepo: widget.financeRepo,
+                                        onEntryCreated: _loadData,
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 7),
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? AppColors.terra.withAlpha(50)
+                                            : AppColors.terra.withAlpha(25),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: AppColors.terra.withAlpha(70),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.add_rounded,
+                                            size: 16,
+                                            color: AppColors.terra,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            loc.tr('add_entry'),
+                                            style: const TextStyle(
+                                              color: AppColors.terra,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Balance amount hero display
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                _formatCurrency(netBalance),
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : AppColors.ink,
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.8,
+                                  height: 1.1,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Supporting metrics row: Income & Expense in clean container
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? AppColors.darkSurface
+                                    : AppColors.paper,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isDark
+                                      ? AppColors.darkBorder
+                                      : AppColors.paperMist,
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _FinancialMetricItem(
+                                      label: loc.tr('income'),
+                                      amount: _formatCurrency(income),
+                                      icon: Icons.arrow_downward_rounded,
+                                      accentColor: AppColors.success,
+                                      isDark: isDark,
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 32,
+                                    width: 1,
+                                    color: isDark
+                                        ? AppColors.darkBorder
+                                        : AppColors.paperMist,
+                                  ),
+                                  Expanded(
+                                    child: _FinancialMetricItem(
+                                      label: loc.tr('expenses'),
+                                      amount: _formatCurrency(expense),
+                                      icon: Icons.arrow_upward_rounded,
+                                      accentColor: AppColors.danger,
+                                      isDark: isDark,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
           const SizedBox(height: 20),
 
@@ -462,48 +596,69 @@ class _OverviewTabState extends State<OverviewTab> {
   }
 }
 
-class _HeroStat extends StatelessWidget {
-  const _HeroStat({
+class _FinancialMetricItem extends StatelessWidget {
+  const _FinancialMetricItem({
     required this.label,
     required this.amount,
-    required this.color,
     required this.icon,
+    required this.accentColor,
+    required this.isDark,
   });
 
   final String label;
   final String amount;
-  final Color color;
   final IconData icon;
+  final Color accentColor;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: color),
-        const SizedBox(width: 6),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white.withAlpha(190),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: accentColor.withAlpha(isDark ? 35 : 20),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: accentColor,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: isDark ? AppColors.darkMuted : AppColors.inkLight,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            Text(
-              amount,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
+              const SizedBox(height: 1),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  amount,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.ink,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
   }
 }
+
