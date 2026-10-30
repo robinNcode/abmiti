@@ -14,7 +14,7 @@ import { registerRoutes } from './routes';
 
 // DB connections
 import { connectMongoDB } from './infrastructure/database/mongodb/connection';
-import { connectMySQL }   from './infrastructure/database/mysql/connection';
+import { connectMySQL } from './infrastructure/database/mysql/connection';
 
 const app = express();
 
