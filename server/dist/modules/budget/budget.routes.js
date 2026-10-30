@@ -1,0 +1,27 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const budget_controller_1 = require("./budget.controller");
+const budget_validators_1 = require("./budget.validators");
+const middleware_1 = require("../../shared/middleware");
+const router = (0, express_1.Router)();
+router.use(middleware_1.authenticate);
+router.use(middleware_1.requireUser);
+router.get('/templates', budget_controller_1.budgetController.templates);
+router.post('/from-template/:templateId', budget_validators_1.validateMonthYearQuery, middleware_1.validate, budget_controller_1.budgetController.fromTemplate);
+router.delete('/templates/:id', budget_controller_1.budgetController.deleteTemplate);
+router.get('/', budget_validators_1.validateMonthYearQuery, middleware_1.validate, budget_controller_1.budgetController.getByMonth);
+router.post('/', budget_validators_1.validateBudget, middleware_1.validate, budget_controller_1.budgetController.create);
+router.get('/list/all', budget_controller_1.budgetController.list);
+router.put('/:id', budget_controller_1.budgetController.update);
+router.delete('/:id', budget_controller_1.budgetController.remove);
+router.post('/:id/copy', budget_validators_1.validateCopyQuery, middleware_1.validate, budget_controller_1.budgetController.copy);
+router.post('/:id/save-as-template', budget_controller_1.budgetController.saveAsTemplate);
+router.get('/:id/summary', budget_controller_1.budgetController.summary);
+router.get('/:id/summary/line/:lineId', budget_controller_1.budgetController.lineEntries);
+router.post('/:id/lines', budget_validators_1.validateBudgetLine, middleware_1.validate, budget_controller_1.budgetController.addLine);
+router.put('/:id/lines/:lineId', budget_validators_1.validateBudgetLine, middleware_1.validate, budget_controller_1.budgetController.updateLine);
+router.delete('/:id/lines/:lineId', budget_controller_1.budgetController.removeLine);
+router.patch('/:id/lines/reorder', budget_validators_1.validateReorderLines, middleware_1.validate, budget_controller_1.budgetController.reorderLines);
+exports.default = router;
+//# sourceMappingURL=budget.routes.js.map
