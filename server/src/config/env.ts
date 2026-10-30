@@ -101,7 +101,14 @@ export const env = {
   JWT_REFRESH_EXPIRES_IN: optional('JWT_REFRESH_EXPIRES_IN', '30d'),
 
   // CORS — comma-separated list of allowed origins (no trailing slashes, no paths)
-  CLIENT_URLS: optional('CLIENT_URLS', 'http://localhost:5173,http://localhost:4173')
+  // Keep backward compatibility with the older CLIENT_URL naming used in older deployments.
+  CLIENT_URLS: optional(
+    'CLIENT_URLS',
+    optional(
+      'CLIENT_URL',
+      'http://localhost:5173,http://localhost:4173,http://127.0.0.1:5173,http://127.0.0.1:4173,https://voltwavebd.com,https://www.voltwavebd.com'
+    )
+  )
     .split(',')
     .map((u) => u.trim())
     .filter(Boolean),
