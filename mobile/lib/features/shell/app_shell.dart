@@ -159,7 +159,7 @@ class _AppShellState extends State<AppShell> {
                       size: 14, color: AppColors.terra),
                   const SizedBox(width: 4),
                   Text(
-                    loc.isBengali ? 'বাং' : 'EN',
+                    loc.isBengali ? 'EN' : 'বাং',
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 11,

@@ -5,7 +5,7 @@ import '../../shared/data/api_client.dart';
 import '../../shared/data/finance_repository.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
-import '../../shared/widgets/glossy_card.dart';
+
 import '../../shared/widgets/month_year_picker.dart';
 import '../../shared/widgets/progress_ring.dart';
 import '../../shared/widgets/section_header.dart';
@@ -391,129 +391,322 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 action: _createQuickBudget,
               )
             else ...[
-              // ── Summary Card ───────────────────────────────────────
-              GlossyCard(
-                gradient: LinearGradient(
-                  colors: isDark
-                      ? [AppColors.darkElevated, AppColors.darkSurface]
-                      : [Colors.white, AppColors.paperCard],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: 22,
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                loc.tr('planned_budget'),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark
-                                      ? Colors.white.withAlpha(190)
-                                      : AppColors.inkLight,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _formatCurrency(
-                                    (_budgetSummary?['totalPlanned'] as num?) ??
-                                        (_budget?['totalIncome'] as num?) ??
-                                        0),
-                                style: TextStyle(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : AppColors.ink,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${loc.tr('income')} ${_formatCurrency((_budget?['totalIncome'] as num?) ?? 0)}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark
-                                      ? Colors.white.withAlpha(170)
-                                      : AppColors.inkLight,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _editIncome,
-                          tooltip: loc.tr('edit_estimated_income'),
-                          icon: const Icon(
-                            Icons.edit_outlined,
-                            size: 18,
-                            color: AppColors.sage,
-                          ),
-                        ),
-                        ProgressRing(
-                          percentage: ((_budgetSummary?['totalPlanned']
-                                          as num?) ??
-                                      0) >
-                                  0
-                              ? (((_budgetSummary?['totalActual'] as num?) ??
-                                      0) /
-                                  ((_budgetSummary?['totalPlanned'] as num?) ??
-                                      1))
-                              : 0.0,
-                          size: 74,
-                          strokeWidth: 7,
-                          primaryColor: AppColors.sage,
+              // ── Summary Card (like Overview Tab hero card) ──────────
+              Builder(
+                builder: (context) {
+                  final totalIncome =
+                      (_budget?['totalIncome'] as num?) ?? 0;
+                  final totalPlanned =
+                      (_budgetSummary?['totalPlanned'] as num?) ?? totalIncome;
+                  final totalActual =
+                      (_budgetSummary?['totalActual'] as num?) ?? 0;
+                  final totalVariance =
+                      (_budgetSummary?['totalVariance'] as num?) ??
+                          (totalPlanned - totalActual);
+                  final budgetPercent = totalPlanned > 0
+                      ? (totalActual / totalPlanned).toDouble()
+                      : (totalIncome > 0
+                          ? (totalActual / totalIncome).toDouble()
+                          : 0.0);
+                  final isOverBudget = budgetPercent > 1.0;
+
+                  final primaryCardBorder = isDark
+                      ? AppColors.darkBorder
+                      : const Color(0xFFD4E7DC);
+                  final cardGradient = LinearGradient(
+                    colors: isDark
+                        ? [AppColors.darkElevated, const Color(0xFF1E2822)]
+                        : [Colors.white, const Color(0xFFEFF7F2)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  );
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      gradient: cardGradient,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: primaryCardBorder, width: 1.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDark
+                              ? Colors.black.withAlpha(50)
+                              : AppColors.sage.withAlpha(22),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                                color: isDark
-                                    ? AppColors.darkSurface
-                                    : AppColors.paper,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: isDark
-                                      ? AppColors.darkBorder
-                                      : AppColors.paperMist,
-                                  width: 0.8,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Stack(
+                        children: [
+                          // Subtle sage corner accent glow
+                          Positioned(
+                            top: -40,
+                            right: -40,
+                            child: Container(
+                              width: 140,
+                              height: 140,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: RadialGradient(
+                                  colors: [
+                                    (isDark
+                                            ? AppColors.sageLight
+                                            : AppColors.sage)
+                                        .withAlpha(isDark ? 35 : 22),
+                                    Colors.transparent,
+                                  ],
                                 ),
                               ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _BudgetMiniStat(
-                            label: loc.tr('total_spent'),
-                            amount: _formatCurrency(
-                                (_budgetSummary?['totalActual'] as num?) ?? 0),
-                            color: isDark ? Colors.white : AppColors.ink,
+                            ),
                           ),
-                          Container(
-                            height: 24,
-                            width: 1,
-                            color: isDark ? AppColors.pastelIce : AppColors.ink,
-                          ),
-                          _BudgetMiniStat(
-                            label: loc.tr('remaining'),
-                            amount: _formatCurrency(
-                                (_budgetSummary?['totalVariance'] as num?) ??
-                                    0),
-                            color: AppColors.pastelIce,
+                          Padding(
+                            padding: const EdgeInsets.all(22),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Top Row: Label badge + Quick Edit action
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? AppColors.darkSurface
+                                            : AppColors.sage.withAlpha(22),
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: AppColors.sage
+                                              .withAlpha(isDark ? 60 : 40),
+                                          width: 0.8,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.pie_chart_rounded,
+                                            size: 14,
+                                            color: isDark
+                                                ? AppColors.sageLight
+                                                : AppColors.sage,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            loc.tr('planned_budget'),
+                                            style: TextStyle(
+                                              color: isDark
+                                                  ? Colors.white.withAlpha(220)
+                                                  : AppColors.sageDark,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 0.2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        onTap: _editIncome,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 7),
+                                          decoration: BoxDecoration(
+                                            color: isDark
+                                                ? AppColors.sage.withAlpha(50)
+                                                : AppColors.sage.withAlpha(25),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: AppColors.sage
+                                                  .withAlpha(70),
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.edit_outlined,
+                                                size: 15,
+                                                color: isDark
+                                                    ? AppColors.sageLight
+                                                    : AppColors.sage,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                loc.tr('edit'),
+                                                style: TextStyle(
+                                                  color: isDark
+                                                      ? AppColors.sageLight
+                                                      : AppColors.sage,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Amount & Progress Ring Hero Row
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              _formatCurrency(totalPlanned > 0
+                                                  ? totalPlanned
+                                                  : totalIncome),
+                                              style: TextStyle(
+                                                color: isDark
+                                                    ? Colors.white
+                                                    : AppColors.ink,
+                                                fontSize: 34,
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: -0.8,
+                                                height: 1.1,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons
+                                                    .account_balance_wallet_outlined,
+                                                size: 13,
+                                                color: isDark
+                                                    ? AppColors.darkMuted
+                                                    : AppColors.inkLight
+                                                        .withAlpha(180),
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                '${loc.tr('income')}: ${_formatCurrency(totalIncome)}',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isDark
+                                                      ? AppColors.darkMuted
+                                                      : AppColors.inkLight,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    ProgressRing(
+                                      percentage: budgetPercent,
+                                      size: 74,
+                                      strokeWidth: 7,
+                                      primaryColor: isOverBudget
+                                          ? AppColors.danger
+                                          : (budgetPercent > 0.85
+                                              ? AppColors.warning
+                                              : AppColors.sage),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Supporting metrics row: Total Spent & Remaining
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? AppColors.darkSurface
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? AppColors.darkBorder
+                                          : const Color(0xFFDCECE2),
+                                      width: 0.8,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isDark
+                                            ? Colors.transparent
+                                            : AppColors.sage.withAlpha(12),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: _BudgetMetricItem(
+                                          label: loc.tr('total_spent'),
+                                          amount:
+                                              _formatCurrency(totalActual),
+                                          icon: Icons.arrow_upward_rounded,
+                                          accentColor: isOverBudget
+                                              ? AppColors.danger
+                                              : AppColors.terra,
+                                          isDark: isDark,
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 32,
+                                        width: 1,
+                                        color: isDark
+                                            ? AppColors.darkBorder
+                                            : const Color(0xFFDCECE2),
+                                      ),
+                                      Expanded(
+                                        child: _BudgetMetricItem(
+                                          label: loc.tr('remaining'),
+                                          amount:
+                                              _formatCurrency(totalVariance),
+                                          icon: totalVariance < 0
+                                              ? Icons.warning_amber_rounded
+                                              : Icons.check_circle_outline_rounded,
+                                          accentColor: totalVariance < 0
+                                              ? AppColors.danger
+                                              : AppColors.sage,
+                                          amountColor: totalVariance < 0
+                                              ? AppColors.danger
+                                              : (isDark
+                                                  ? Colors.white
+                                                  : AppColors.ink),
+                                          isDark: isDark,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
               const SizedBox(height: 22),
 
@@ -669,37 +862,70 @@ class _BudgetScreenState extends State<BudgetScreen> {
   }
 }
 
-class _BudgetMiniStat extends StatelessWidget {
-  const _BudgetMiniStat({
+class _BudgetMetricItem extends StatelessWidget {
+  const _BudgetMetricItem({
     required this.label,
     required this.amount,
-    required this.color,
+    required this.icon,
+    required this.accentColor,
+    required this.isDark,
+    this.amountColor,
   });
 
   final String label;
   final String amount;
-  final Color color;
+  final IconData icon;
+  final Color accentColor;
+  final bool isDark;
+  final Color? amountColor;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withAlpha(190),
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: accentColor.withAlpha(isDark ? 35 : 20),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 16,
+            color: accentColor,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          amount,
-          style: TextStyle(
-            color: color,
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: isDark ? AppColors.darkMuted : AppColors.inkLight,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 1),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  amount,
+                  style: TextStyle(
+                    color: amountColor ??
+                        (isDark ? Colors.white : AppColors.ink),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],

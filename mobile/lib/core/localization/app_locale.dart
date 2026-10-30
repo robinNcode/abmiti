@@ -328,6 +328,7 @@ class AppLocale extends ChangeNotifier {
 
     // Common
     'cancel': 'Cancel',
+    'edit': 'Edit',
     'save': 'Save',
     'create': 'Create',
     'delete': 'Delete',
@@ -606,6 +607,7 @@ class AppLocale extends ChangeNotifier {
 
     // Common
     'cancel': 'বাতিল',
+    'edit': 'সম্পাদনা',
     'save': 'সংরক্ষণ',
     'create': 'তৈরি করুন',
     'delete': 'মুছুন',
