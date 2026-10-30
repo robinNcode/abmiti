@@ -4,14 +4,16 @@
 apk/node_modules/
 
 # ignoring build files
-# client/dist/
-# server/dist/
+client/dist/
+server/dist/
 
 # ignoring .env files
 /client/.env
 /client/.env.production
 /server/.env
 /server/.env.production
+# Local configuration
+server/.env_2
 
 # ignoring .DS_Store files
 .DS_Store
