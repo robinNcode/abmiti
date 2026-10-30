@@ -78,6 +78,7 @@ class AppTheme {
         useMaterial3: true,
         brightness: Brightness.light,
         fontFamily: _fontFamily,
+        fontFamilyFallback: const ['Noto Serif Bengali'],
         textTheme: _textTheme(Brightness.light),
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.terra,
@@ -212,6 +213,7 @@ class AppTheme {
         useMaterial3: true,
         brightness: Brightness.dark,
         fontFamily: _fontFamily,
+        fontFamilyFallback: const ['Noto Serif Bengali'],
         textTheme: _textTheme(Brightness.dark),
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.terra,

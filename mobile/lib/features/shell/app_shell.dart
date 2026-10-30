@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
+import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
@@ -6,7 +8,6 @@ import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/data/finance_repository.dart';
-import '../../shared/widgets/curved_navigation_bar.dart';
 import '../analytics/analytics_screen.dart';
 import '../budgets/budget_screen.dart';
 import '../categories/categories_screen.dart';
@@ -449,33 +450,41 @@ class _AppShellState extends State<AppShell> {
         color: isDark ? AppColors.darkSurface : AppColors.paperCard,
         buttonBackgroundColor: AppColors.terra,
         items: [
-          Icon(
-            Icons.dashboard_rounded,
-            size: 22,
-            color: _currentIndex == 0
-                ? Colors.white
-                : (isDark ? Colors.white70 : AppColors.ink),
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.dashboard_rounded,
+              size: 22,
+              color: _currentIndex == 0
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : AppColors.ink),
+            ),
           ),
-          Icon(
-            Icons.receipt_long_rounded,
-            size: 22,
-            color: _currentIndex == 1
-                ? Colors.white
-                : (isDark ? Colors.white70 : AppColors.ink),
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.receipt_long_rounded,
+              size: 22,
+              color: _currentIndex == 1
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : AppColors.ink),
+            ),
           ),
-          Icon(
-            Icons.pie_chart_rounded,
-            size: 22,
-            color: _currentIndex == 2
-                ? Colors.white
-                : (isDark ? Colors.white70 : AppColors.ink),
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.pie_chart_rounded,
+              size: 22,
+              color: _currentIndex == 2
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : AppColors.ink),
+            ),
           ),
-          Icon(
-            Icons.insights_rounded,
-            size: 22,
-            color: _currentIndex == 3
-                ? Colors.white
-                : (isDark ? Colors.white70 : AppColors.ink),
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.insights_rounded,
+              size: 22,
+              color: _currentIndex == 3
+                  ? Colors.white
+                  : (isDark ? Colors.white70 : AppColors.ink),
+            ),
           ),
         ],
         onTap: _onBottomNavTapped,

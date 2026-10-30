@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
@@ -394,7 +393,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
             else ...[
               // ── Summary Card ───────────────────────────────────────
               GlossyCard(
-                gradient: AppColors.heroGradient,
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [AppColors.darkElevated, AppColors.darkSurface]
+                      : [Colors.white, AppColors.paperCard],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: 22,
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -410,7 +415,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 loc.tr('planned_budget'),
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.white.withAlpha(200),
+                                  color: isDark
+                                      ? Colors.white.withAlpha(190)
+                                      : AppColors.inkLight,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -420,10 +427,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                     (_budgetSummary?['totalPlanned'] as num?) ??
                                         (_budget?['totalIncome'] as num?) ??
                                         0),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 30,
                                   fontWeight: FontWeight.w900,
-                                  color: Colors.white,
+                                  color: isDark ? Colors.white : AppColors.ink,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -432,7 +439,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.white.withAlpha(190),
+                                  color: isDark
+                                      ? Colors.white.withAlpha(170)
+                                      : AppColors.inkLight,
                                 ),
                               ),
                             ],
@@ -444,7 +453,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           icon: const Icon(
                             Icons.edit_outlined,
                             size: 18,
-                            color: Colors.white,
+                            color: AppColors.sage,
                           ),
                         ),
                         ProgressRing(
@@ -459,7 +468,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               : 0.0,
                           size: 74,
                           strokeWidth: 7,
-                          primaryColor: Colors.white,
+                          primaryColor: AppColors.sage,
                         ),
                       ],
                     ),
@@ -468,9 +477,17 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.black.withAlpha(35),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
+                                color: isDark
+                                    ? AppColors.darkSurface
+                                    : AppColors.paper,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isDark
+                                      ? AppColors.darkBorder
+                                      : AppColors.paperMist,
+                                  width: 0.8,
+                                ),
+                              ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -478,12 +495,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             label: loc.tr('total_spent'),
                             amount: _formatCurrency(
                                 (_budgetSummary?['totalActual'] as num?) ?? 0),
-                            color: AppColors.pastelPeach,
+                            color: isDark ? Colors.white : AppColors.ink,
                           ),
                           Container(
                             height: 24,
                             width: 1,
-                            color: Colors.white.withAlpha(50),
+                            color: isDark ? AppColors.pastelIce : AppColors.ink,
                           ),
                           _BudgetMiniStat(
                             label: loc.tr('remaining'),

@@ -13,7 +13,7 @@ export default {
       fontFamily: {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
         body:    ['"DM Sans"', 'system-ui', 'sans-serif'],
-        bengali: ['"Noto Sans Bengali"', 'sans-serif'],
+        bengali: ['"Noto Serif Bengali"', 'serif'],
       },
       colors: {
         terra:   { DEFAULT: '#c2552a', light: '#e8855e', dark: '#9a3d1a' },
