@@ -12,7 +12,8 @@ server/dist/
 /client/.env.production
 /server/.env
 /server/.env.production
-/server/.env_2
+# Local configuration
+server/.env_2
 
 # ignoring .DS_Store files
 .DS_Store
