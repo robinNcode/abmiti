@@ -420,20 +420,23 @@ class _AppShellState extends State<AppShell> {
         children: pages,
       ),
 
-      // ── Modern Floating Action Button ──────────────────────────────
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _currentIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                EntryFormModal.show(
-                  context,
-                  financeRepo: widget.financeRepo,
-                  onEntryCreated: () => setState(() {}),
-                );
-              },
-              icon: const Icon(Icons.add_rounded),
-              label: Text(
-                loc.tr('add_entry'),
-                style: const TextStyle(fontWeight: FontWeight.w700),
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FloatingActionButton(
+                onPressed: () {
+                  EntryFormModal.show(
+                    context,
+                    financeRepo: widget.financeRepo,
+                    onEntryCreated: () => setState(() {}),
+                  );
+                },
+                backgroundColor: AppColors.terra,
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shape: const CircleBorder(),
+                child: const Icon(Icons.add_rounded, size: 30),
               ),
             )
           : null,
@@ -441,35 +444,35 @@ class _AppShellState extends State<AppShell> {
       // ── Curved Bottom Navigation Bar ───────────────────────────────
       bottomNavigationBar: CurvedNavigationBar(
         index: _currentIndex,
-        height: 68,
+        height: 58,
         backgroundColor: Colors.transparent,
         color: isDark ? AppColors.darkSurface : AppColors.paperCard,
         buttonBackgroundColor: AppColors.terra,
         items: [
           Icon(
             Icons.dashboard_rounded,
-            size: 26,
+            size: 22,
             color: _currentIndex == 0
                 ? Colors.white
                 : (isDark ? Colors.white70 : AppColors.ink),
           ),
           Icon(
             Icons.receipt_long_rounded,
-            size: 26,
+            size: 22,
             color: _currentIndex == 1
                 ? Colors.white
                 : (isDark ? Colors.white70 : AppColors.ink),
           ),
           Icon(
             Icons.pie_chart_rounded,
-            size: 26,
+            size: 22,
             color: _currentIndex == 2
                 ? Colors.white
                 : (isDark ? Colors.white70 : AppColors.ink),
           ),
           Icon(
             Icons.insights_rounded,
-            size: 26,
+            size: 22,
             color: _currentIndex == 3
                 ? Colors.white
                 : (isDark ? Colors.white70 : AppColors.ink),

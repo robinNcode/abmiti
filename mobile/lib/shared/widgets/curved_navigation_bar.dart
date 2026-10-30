@@ -21,7 +21,7 @@ class CurvedNavigationBar extends StatefulWidget {
     this.onTap,
     this.animationCurve = Curves.easeOutCubic,
     this.animationDuration = const Duration(milliseconds: 300),
-    this.height = 68.0,
+    this.height = 58.0,
   })  : assert(items.length >= 2,
             'CurvedNavigationBar must have at least 2 items'),
         assert(0 <= index && index < items.length, 'Index out of bounds');
@@ -125,8 +125,8 @@ class _CurvedNavigationBarState extends State<CurvedNavigationBar>
             builder: (context, constraints) {
               final totalWidth = constraints.maxWidth;
               final itemWidth = totalWidth / _length;
-              final pillWidth = itemWidth * 0.72 > 56.0 ? 56.0 : itemWidth * 0.72;
-              final pillHeight = 44.0;
+              final pillWidth = (itemWidth * 0.7).clamp(38.0, 50.0);
+              final pillHeight = (widget.height * 0.62).clamp(30.0, 38.0);
               final pillLeft = (_pos * totalWidth) + ((itemWidth - pillWidth) / 2);
 
               return Stack(

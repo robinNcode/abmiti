@@ -1,4 +1,4 @@
-package com.abmiti.app
+package com.robinncode.abmiti
 
 import io.flutter.embedding.android.FlutterActivity
 
