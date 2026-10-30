@@ -711,7 +711,13 @@ export default function LandingPage() {
       {/* ═══ Blog Section ═══ */}
       {posts.length > 0 && (
         <section id="blog" ref={blogRef} className="landing-section py-20 max-w-7xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold font-display text-ink mb-8">{config.content?.blogTitle || t('From the Abmiti blog')}</h2>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-3xl font-bold font-display text-ink tracking-tight">{config.content?.blogTitle || t('From the Abmiti blog')}</h2>
+              <p className="text-ink/55 mt-2 text-sm">{t('landing.payment.subtitle')}</p>
+            </div>
+            <p className="text-ink/50 text-sm">{t('postCount', { count: posts.length })}</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
             {posts.map((post) => (
               <Link
@@ -725,7 +731,7 @@ export default function LandingPage() {
                 <div className="p-6 flex-1 flex flex-col">
                   <h3 className="font-bold text-xl text-ink group-hover:text-terra transition-colors">{post.title}</h3>
                   {post.excerpt && <p className="mt-3 text-ink/60 line-clamp-3 flex-1 text-sm">{post.excerpt}</p>}
-                  <span className="mt-4 inline-flex items-center gap-1 text-terra text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="mt-4 inline-flex items-center gap-1 text-terra text-sm font-medium">
                     {t('Read more')} <ArrowRight size={14} />
                   </span>
                 </div>
@@ -783,79 +789,134 @@ export default function LandingPage() {
 
       {/* ═══ Contact Section ═══ */}
       <section id="contact" ref={contactRef} className="landing-section bg-ink text-white py-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <MessageSquare size={40} className="mx-auto text-terra mb-4 opacity-80" />
-            <h2 className="text-3xl font-bold font-display">{config.content?.contactTitle || t("We'd love your feedback")}</h2>
-            <p className="text-white/50 mt-3">
-              {t('Abmiti is actively being improved. If you encounter bugs, have feature requests, or just want to say hi, please reach out!')}
-            </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid gap-10 lg:grid-cols-2 items-start">
+            {/* Left — brand identity */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-terra/90 text-white text-xs md:text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-terra/15">
+                <MessageSquare size={15} />
+                {config.content?.contactTitle || t("We'd love your feedback")}
+              </div>
+              <p className="text-white/55 leading-relaxed mb-8 max-w-md mx-auto lg:mx-0">
+                {t('Abmiti is actively being improved. If you encounter bugs, have feature requests, or just want to say hi, please reach out!')}
+              </p>
+              <div className="space-y-5 text-sm">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#c25528]/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg">📍</span>
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs uppercase tracking-widest font-semibold">{t('Address')}</p>
+                    <p className="text-white/80 font-medium mt-0.5">Bashundhara R.A, Dhaka 1229, Bangladesh</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-terra/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg">✉️</span>
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs uppercase tracking-widest font-semibold">{t('Email')}</p>
+                    <a href="mailto:ogyx.digital@gmail.com" className="text-white/80 font-medium mt-0.5 hover:text-terra transition-colors">
+                      ogyx.digital@gmail.com
+                    </a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-mustard/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg">📱</span>
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs uppercase tracking-widest font-semibold">{t('WhatsApp')}</p>
+                    <a href="https://wa.me/8801700000000" target="_blank" rel="noopener noreferrer" className="text-white/80 font-medium mt-0.5 hover:text-terra transition-colors">
+                      +880 1700 000 000
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right — contact / feedback form */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
+              <form className="space-y-4" onSubmit={sendContact}>
+                <div>
+                  <label className="block text-sm font-medium text-white/60 mb-1">{t('Your name')}</label>
+                  <input
+                    type="text"
+                    required
+                    onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
+                    value={contact.name}
+                    onChange={(e) => setContact({ ...contact, name: e.target.value })}
+                    className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
+                    placeholder={t('Your name')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white/60 mb-1">{t('Email')}</label>
+                  <input
+                    type="email"
+                    required
+                    onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
+                    value={contact.email}
+                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                    className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
+                    placeholder={t('you@example.com')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-white/60 mb-1">{t('Message')}</label>
+                  <textarea
+                    required
+                    onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
+                    onInput={(e) => e.currentTarget.setCustomValidity('')}
+                    rows={4}
+                    value={contact.message}
+                    onChange={(e) => setContact({ ...contact, message: e.target.value })}
+                    className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
+                    placeholder={t('How can we improve?')}
+                  />
+                </div>
+                <button type="submit" className="w-full bg-terra hover:bg-terra-dark text-white font-bold py-3.5 px-4 rounded-xl transition-colors" id="contact-submit">
+                  {t('Send Feedback')}
+                </button>
+              </form>
+            </div>
           </div>
-          <form className="space-y-4 max-w-md mx-auto" onSubmit={sendContact}>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-1">{t('name')}</label>
-              <input
-                type="text"
-                required
-                onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
-                onInput={(e) => e.currentTarget.setCustomValidity('')}
-                value={contact.name}
-                onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
-                placeholder={t('Your name')}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-1">{t('email')}</label>
-              <input
-                type="email"
-                required
-                onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
-                onInput={(e) => e.currentTarget.setCustomValidity('')}
-                value={contact.email}
-                onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
-                placeholder={t('you@example.com')}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-1">{t('Message')}</label>
-              <textarea
-                required
-                onInvalid={(e) => e.currentTarget.setCustomValidity(t('This field is required'))}
-                onInput={(e) => e.currentTarget.setCustomValidity('')}
-                rows={4}
-                value={contact.message}
-                onChange={(e) => setContact({ ...contact, message: e.target.value })}
-                className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-terra transition-colors placeholder:text-white/25"
-                placeholder={t('How can we improve?')}
-              />
-            </div>
-            <button type="submit" className="w-full bg-terra hover:bg-terra-dark text-white font-bold py-3.5 px-4 rounded-xl transition-colors" id="contact-submit">
-              {t('Send Feedback')}
-            </button>
-          </form>
         </div>
       </section>
 
       {/* ═══ Footer ═══ */}
-      <footer className="bg-ink border-t border-white/10 py-8 text-center text-white/35 text-sm">
-        <div className="max-w-7xl mx-auto px-6 mb-6">
-          <AdSense slotId={import.meta.env.VITE_ADSENSE_FOOTER_SLOT_ID} format="auto" className="my-4" />
-        </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-terra text-white flex items-center justify-center font-bold text-xs" aria-hidden="true">আ</div>
-            <span className="font-display font-bold text-white/60 text-sm">{config.title || 'Abmiti'}</span>
+      <footer className="bg-[#1b1610] border-t border-white/8 py-6 text-center text-white text-xs">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2">
+            {/* Left: Logo / brand identity */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-[#c25528] text-white flex items-center justify-center font-bold text-xs shadow-sm" aria-hidden="true">অ</div>
+              <span className="font-display font-bold text-white/80 tracking-tight">{config.title || 'Abmiti'}</span>
+              <p className="text-white/20">&copy; {new Date().getFullYear()} Abmiti. সর্বস্বত্ব সংরক্ষিত।</p>
+            </div>
+
+            {/* Center: navigation links */}
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 shrink-0">
+              <a href="#features" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Features')}</a>
+              <a href="#faq" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('FAQ')}</a>
+              {posts.length > 0 && <a href="#blog" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Blog')}</a>}
+              <a href="#contact" className="text-xs text-white/35 hover:text-white/70 transition-colors">{t('Contact')}</a>
+            </div>
+
+            {/* Right: developer credits + social links */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="text-white/25">Developed by</span>
+              <a href="https://github.com/robinncode" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors">
+                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.54-.17.54-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2.01-.27.68 0 1.36.09 2.01.27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38C13.71 14.53 16 11.53 16 8c0-4.42-3.58-8-8-8z" /></svg>
+              </a>
+              <a href="https://www.linkedin.com/in/robinncode/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.38-.02-3.16-1.96-3.16-1.96 0-2.27 1.45-2.27 2.93v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v5.57zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45z" /></svg>
+              </a>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-xs">
-            <a href="#features" className="hover:text-white/60 transition-colors">{t('Features')}</a>
-            <a href="#faq" className="hover:text-white/60 transition-colors">{t('FAQ')}</a>
-            {posts.length > 0 && <a href="#blog" className="hover:text-white/60 transition-colors">{t('Blog')}</a>}
-            <a href="#contact" className="hover:text-white/60 transition-colors">{t('Contact')}</a>
-          </div>
         </div>
-        <p>&copy; {new Date().getFullYear()} Abmiti. {t('All rights reserved.')}</p>
       </footer>
     </div>
   );

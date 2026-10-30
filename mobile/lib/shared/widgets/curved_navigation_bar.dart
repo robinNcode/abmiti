@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 
-/// A polished curved bottom navigation bar modeled after `curved_navigation_bar`.
+/// A modern, polished bottom navigation bar for Abmiti.
 ///
 /// Features:
-/// - Smooth animated concave curve cutout beneath the active tab
-/// - Floating circular active button that glides to the selected position
-/// - Fully customizable colors, duration, curves, and height
-/// - Zero external dependencies, pure Flutter CustomPainter & AnimationController
+/// - Clean, balanced layout with subtle sliding indicator pill
+/// - Consistent icon alignment with no broken or awkward vertical displacement
+/// - Native SafeArea adaptation and responsive screen sizing
+/// - Seamless Dark and Light theme styling with border separation
+/// - Retains backward-compatible CurvedNavigationBar class signature and callbacks
 class CurvedNavigationBar extends StatefulWidget {
   const CurvedNavigationBar({
     super.key,
@@ -19,8 +20,8 @@ class CurvedNavigationBar extends StatefulWidget {
     this.backgroundColor = Colors.transparent,
     this.onTap,
     this.animationCurve = Curves.easeOutCubic,
-    this.animationDuration = const Duration(milliseconds: 350),
-    this.height = 70.0,
+    this.animationDuration = const Duration(milliseconds: 300),
+    this.height = 68.0,
   })  : assert(items.length >= 2,
             'CurvedNavigationBar must have at least 2 items'),
         assert(0 <= index && index < items.length, 'Index out of bounds');
@@ -94,167 +95,98 @@ class _CurvedNavigationBarState extends State<CurvedNavigationBar>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buttonBg = widget.buttonBackgroundColor ??
-        (isDark ? AppColors.terraLight : AppColors.terra);
-    final barColor = isDark ? AppColors.darkSurface : widget.color;
+    final navBarBg = isDark ? AppColors.darkSurface : widget.color;
+    final borderTopColor = isDark ? AppColors.darkBorder : AppColors.paperMist;
+    final activePillColor = widget.buttonBackgroundColor ?? AppColors.terra;
 
     return Container(
       color: widget.backgroundColor,
-      height: widget.height,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: <Widget>[
-          // ── Curved Bar Background ──────────────────────────────────
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: CustomPaint(
-              painter: _NavCurvePainter(
-                startingLoc: _pos,
-                itemsLength: _length,
-                color: barColor,
-              ),
-              child: SizedBox(
-                height: widget.height - 12,
+      child: SafeArea(
+        top: false,
+        child: Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: navBarBg,
+            border: Border(
+              top: BorderSide(
+                color: borderTopColor,
+                width: 1.0,
               ),
             ),
-          ),
-
-          // ── Floating Active Circle Button ──────────────────────────
-          Positioned(
-            top: -22,
-            left: _pos * MediaQuery.of(context).size.width +
-                (MediaQuery.of(context).size.width / _length - 56) / 2,
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: buttonBg,
-                shape: BoxShape.circle,
-                gradient: AppColors.heroGradient,
-                boxShadow: [
-                  BoxShadow(
-                    color: (isDark ? Colors.black : AppColors.terra)
-                        .withAlpha(isDark ? 50 : 80),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(isDark ? 35 : 10),
+                blurRadius: 16,
+                offset: const Offset(0, -3),
               ),
-              child: Center(
-                child: widget.items[_endingIndex],
-              ),
-            ),
+            ],
           ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final totalWidth = constraints.maxWidth;
+              final itemWidth = totalWidth / _length;
+              final pillWidth = itemWidth * 0.72 > 56.0 ? 56.0 : itemWidth * 0.72;
+              final pillHeight = 44.0;
+              final pillLeft = (_pos * totalWidth) + ((itemWidth - pillWidth) / 2);
 
-          // ── Bar Items Row ──────────────────────────────────────────
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: SizedBox(
-              height: widget.height - 12,
-              child: Row(
-                children: widget.items.asMap().entries.map((entry) {
-                  final idx = entry.key;
-                  final item = entry.value;
-                  final isCurrent = idx == _endingIndex;
-
-                  return Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => _buttonTapped(idx),
-                      child: Center(
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 200),
-                          opacity: isCurrent ? 0.0 : 0.7,
-                          child: item,
-                        ),
+              return Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  // ── Smooth Animated Sliding Indicator Pill ───
+                  Positioned(
+                    left: pillLeft,
+                    width: pillWidth,
+                    height: pillHeight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: activePillColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: activePillColor.withAlpha(isDark ? 60 : 70),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
+                  ),
+
+                  // ── Nav Bar Items Row ────────────────────────
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: widget.items.asMap().entries.map((entry) {
+                      final idx = entry.key;
+                      final item = entry.value;
+                      final isCurrent = idx == _endingIndex;
+
+                      return Expanded(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _buttonTapped(idx),
+                            splashColor: AppColors.terra.withAlpha(20),
+                            highlightColor: Colors.transparent,
+                            child: Center(
+                              child: AnimatedScale(
+                                scale: isCurrent ? 1.08 : 1.0,
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeOutBack,
+                                child: item,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _NavCurvePainter extends CustomPainter {
-  _NavCurvePainter({
-    required this.startingLoc,
-    required this.itemsLength,
-    required this.color,
-  });
-
-  final double startingLoc;
-  final int itemsLength;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
-    final width = size.width;
-    final itemWidth = width / itemsLength;
-    final center = (startingLoc * width) + (itemWidth / 2);
-
-    const curveWidth = 72.0;
-    const curveDepth = 30.0;
-
-    final left = center - (curveWidth / 2);
-    final right = center + (curveWidth / 2);
-
-    // Start top-left
-    path.moveTo(0, 0);
-
-    // Line to start of the curve cutout
-    if (left > 0) {
-      path.lineTo(left, 0);
-    }
-
-    // Bezier curve cutout dip
-    path.cubicTo(
-      left + (curveWidth * 0.22),
-      0,
-      center - (curveWidth * 0.22),
-      curveDepth,
-      center,
-      curveDepth,
-    );
-    path.cubicTo(
-      center + (curveWidth * 0.22),
-      curveDepth,
-      right - (curveWidth * 0.22),
-      0,
-      right,
-      0,
-    );
-
-    // Line to top-right
-    path.lineTo(width, 0);
-    // Line to bottom-right
-    path.lineTo(width, size.height);
-    // Line to bottom-left
-    path.lineTo(0, size.height);
-    // Close back to top-left
-    path.close();
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(_NavCurvePainter oldDelegate) {
-    return oldDelegate.startingLoc != startingLoc ||
-        oldDelegate.itemsLength != itemsLength ||
-        oldDelegate.color != color;
-  }
-}
