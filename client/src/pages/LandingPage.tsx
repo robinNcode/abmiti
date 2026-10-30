@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 import heroDashboardImg from '@/assets/images/dashboard_inventory.png';
 import paymentDesktopImg from '@/assets/images/payment-desktop.png';
 import mobileAppImg from '@/assets/images/3d-casual-life-notebook-with-sticky-notes-notepad-and-phone.png';
+import enLogo from '@/assets/images/Abmiti_web_navbar_english_logo.png';
+import bnLogo from '@/assets/images/Abmiti_web_navbar_bengali_logo.png';
 
 // ── Scroll-reveal hook ──────────────────────────────────────
 function useScrollReveal() {
@@ -330,12 +332,13 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 bg-paper/80 backdrop-blur-xl border-b border-paper-mist2/60" id="landing-nav">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-terra text-white flex items-center justify-center font-bold text-lg shadow-md" aria-hidden="true">
-              আ
-            </div>
-            {config.logo
-              ? <img src={config.logo} alt={config.title ?? 'Abmiti'} className="max-h-9 max-w-36 object-contain" />
-              : <span className="font-display font-bold text-lg tracking-tight text-ink">{config.title || 'Abmiti'}</span>}
+            {i18n.language === 'bn'
+              ? (
+                <img src={bnLogo} alt="Abmiti" className="h-10 w-auto max-w-[260px] object-contain" />
+              )
+              : (
+                <img src={enLogo} alt="Abmiti" className="h-10 w-auto max-w-[260px] object-contain" />
+              )}
           </div>
 
           <div className="hidden md:flex items-center gap-4 lg:gap-5">

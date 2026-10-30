@@ -1,36 +1,51 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from "react-router-dom";
 import {
-  LayoutDashboard, List, BarChart2, Tag, TrendingUp, Settings, WalletCards,
-  FileText, Shield, LifeBuoy,
-} from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '@/store/authStore';
-import { useMonthStore } from '@/store/monthStore';
-import { monthLabel } from '@/utils';
-import { cx } from '@/utils';
-import TopBar from './TopBar';
+  LayoutDashboard,
+  List,
+  BarChart2,
+  Tag,
+  TrendingUp,
+  Settings,
+  WalletCards,
+  FileText,
+  Shield,
+  LifeBuoy,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useAuthStore } from "@/store/authStore";
+import { useMonthStore } from "@/store/monthStore";
+import { monthLabel } from "@/utils";
+import { cx } from "@/utils";
+import TopBar from "./TopBar";
+import enLogo from "@/assets/images/Abmiti_web_navbar_english_logo.png";
+import bnLogo from "@/assets/images/Abmiti_web_navbar_bengali_logo.png";
 
-type NavItem = { to: string; icon: typeof LayoutDashboard; label: string; end?: boolean };
+type NavItem = {
+  to: string;
+  icon: typeof LayoutDashboard;
+  label: string;
+  end?: boolean;
+};
 
 const OVERVIEW: NavItem[] = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/entries', icon: List, label: 'Entries' },
+  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard", end: true },
+  { to: "/entries", icon: List, label: "Entries" },
 ];
 
 const PLANNING: NavItem[] = [
-  { to: '/budget', icon: WalletCards, label: 'Budget' },
-  { to: '/investments', icon: TrendingUp, label: 'Investments' },
+  { to: "/budget", icon: WalletCards, label: "Budget" },
+  { to: "/investments", icon: TrendingUp, label: "Investments" },
 ];
 
 const INSIGHTS: NavItem[] = [
-  { to: '/categories', icon: Tag, label: 'Categories' },
-  { to: '/analytics', icon: BarChart2, label: 'Analytics' },
-  { to: '/category-report', icon: FileText, label: 'Report' },
+  { to: "/categories", icon: Tag, label: "Categories" },
+  { to: "/analytics", icon: BarChart2, label: "Analytics" },
+  { to: "/category-report", icon: FileText, label: "Report" },
 ];
 
 const MORE: NavItem[] = [
-  { to: '/settings', icon: Settings, label: 'Settings' },
-  { to: '/support', icon: LifeBuoy, label: 'Support' },
+  { to: "/settings", icon: Settings, label: "Settings" },
+  { to: "/support", icon: LifeBuoy, label: "Support" },
 ];
 
 const MOBILE_NAV: NavItem[] = [
@@ -54,12 +69,14 @@ function NavGroup({ title, items }: { title: string; items: NavItem[] }) {
             key={to}
             to={to}
             end={end}
-            className={({ isActive }) => cx(
-              'flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150',
-              isActive
-                ? 'bg-terra text-white shadow-sm'
-                : 'text-ink/60 hover:text-ink hover:bg-paper-mist',
-            )}
+            className={({ isActive }) =>
+              cx(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150",
+                isActive
+                  ? "bg-terra text-white shadow-sm"
+                  : "text-ink/60 hover:text-ink hover:bg-paper-mist",
+              )
+            }
           >
             <Icon size={16} className="shrink-0" />
             <span className="truncate">{t(label)}</span>
@@ -73,31 +90,31 @@ function NavGroup({ title, items }: { title: string; items: NavItem[] }) {
 export default function AppLayout() {
   const { user } = useAuthStore();
   const { month, year, prev, next } = useMonthStore();
-  const { t } = useTranslation();
-  const isAdmin = user?.userType === 'admin';
+  const { t, i18n } = useTranslation();
+  const isAdmin = user?.userType === "admin";
 
   return (
     <div className="flex min-h-screen">
       <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-r border-paper-mist2 bg-white/70 backdrop-blur-sm sticky top-0 h-screen">
         <div className="px-5 pt-6 pb-5 border-b border-paper-mist2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-terra text-white flex items-center justify-center font-display font-bold text-lg shadow-sm">
-              আ
-            </div>
-            <div>
-              <p className="font-display font-black text-lg text-terra tracking-tight leading-none">abmiti</p>
-              <p className="font-bengali text-[11px] text-mustard font-semibold mt-0.5 tracking-wide">আয় • ব্যয় • মিতি</p>
-            </div>
+          <div className="flex items-center gap-2.5 min-w-0">
+            {i18n.language === 'bn'
+              ? (
+                <img src={bnLogo} alt="Abmiti" className="h-10 w-auto max-w-[180px] object-contain shrink-0" />
+              )
+              : (
+                <img src={enLogo} alt="Abmiti" className="h-10 w-auto max-w-[180px] object-contain shrink-0" />
+              )}
           </div>
         </div>
 
         <div className="px-4 py-3.5 border-b border-paper-mist2">
-          <p className="label mb-1.5">{t('Period')}</p>
+          <p className="label mb-1.5">{t("Period")}</p>
           <div className="flex items-center justify-between gap-1">
             <button
               type="button"
               onClick={prev}
-              aria-label={t('Previous month')}
+              aria-label={t("Previous month")}
               className="w-8 h-8 rounded-xl border border-paper-mist2 hover:bg-paper-mist hover:border-terra/30 flex items-center justify-center text-sm text-ink/60 transition-colors"
             >
               ‹
@@ -108,7 +125,7 @@ export default function AppLayout() {
             <button
               type="button"
               onClick={next}
-              aria-label={t('Next month')}
+              aria-label={t("Next month")}
               className="w-8 h-8 rounded-xl border border-paper-mist2 hover:bg-paper-mist hover:border-terra/30 flex items-center justify-center text-sm text-ink/60 transition-colors"
             >
               ›
@@ -119,14 +136,14 @@ export default function AppLayout() {
         <nav className="flex-1 px-3 py-4 overflow-y-auto">
           {isAdmin && (
             <NavGroup
-              title={t('navAdmin')}
-              items={[{ to: '/admin', icon: Shield, label: 'Admin Panel' }]}
+              title={t("navAdmin")}
+              items={[{ to: "/admin", icon: Shield, label: "Admin Panel" }]}
             />
           )}
-          <NavGroup title={t('navOverview')} items={OVERVIEW} />
-          <NavGroup title={t('navPlanning')} items={PLANNING} />
-          <NavGroup title={t('navInsights')} items={INSIGHTS} />
-          <NavGroup title={t('navMore')} items={MORE} />
+          <NavGroup title={t("navOverview")} items={OVERVIEW} />
+          <NavGroup title={t("navPlanning")} items={PLANNING} />
+          <NavGroup title={t("navInsights")} items={INSIGHTS} />
+          <NavGroup title={t("navMore")} items={MORE} />
         </nav>
       </aside>
 
@@ -136,15 +153,29 @@ export default function AppLayout() {
           left={
             <>
               <div className="hidden md:flex items-center gap-2 min-w-0">
-                <span className="text-xs font-semibold text-ink/45 uppercase tracking-wider">abmiti</span>
+                {i18n.language === "bn" ? (
+                  <img
+                    src={bnLogo}
+                    alt="Abmiti"
+                    className="h-7 w-auto max-w-[140px] object-contain shrink-0"
+                  />
+                ) : (
+                  <img
+                    src={enLogo}
+                    alt="Abmiti"
+                    className="h-7 w-auto max-w-[140px] object-contain shrink-0"
+                  />
+                )}
                 <span className="text-xs text-ink/25">•</span>
-                <span className="text-xs text-ink/50 font-medium truncate">{t('smartFinance')}</span>
+                <span className="text-xs text-ink/50 font-medium truncate">
+                  {t("smartFinance")}
+                </span>
               </div>
               <div className="md:hidden flex items-center gap-2">
                 <button
                   type="button"
                   onClick={prev}
-                  aria-label={t('Previous month')}
+                  aria-label={t("Previous month")}
                   className="w-8 h-8 rounded-xl bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors"
                 >
                   ‹
@@ -155,7 +186,7 @@ export default function AppLayout() {
                 <button
                   type="button"
                   onClick={next}
-                  aria-label={t('Next month')}
+                  aria-label={t("Next month")}
                   className="w-8 h-8 rounded-xl bg-paper-mist flex items-center justify-center text-sm hover:bg-paper-mist2 transition-colors"
                 >
                   ›
@@ -173,10 +204,12 @@ export default function AppLayout() {
             key={to}
             to={to}
             end={end}
-            className={({ isActive }) => cx(
-              'flex-1 flex flex-col items-center justify-center py-2 px-1 text-[10px] font-medium transition-colors',
-              isActive ? 'text-terra' : 'text-ink/50',
-            )}
+            className={({ isActive }) =>
+              cx(
+                "flex-1 flex flex-col items-center justify-center py-2 px-1 text-[10px] font-medium transition-colors",
+                isActive ? "text-terra" : "text-ink/50",
+              )
+            }
           >
             <Icon size={20} className="mb-1" />
             <span className="truncate w-full text-center">{t(label)}</span>

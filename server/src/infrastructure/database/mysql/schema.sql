@@ -1,5 +1,6 @@
 -- Abmiti MySQL Schema
 -- Run this once when DB_PROVIDER=mysql
+-- All tables use CHARACTER SET utf8mb4 so emoji (📦 🏠 ⭐) are stored correctly.
 
 CREATE TABLE IF NOT EXISTS users (
   id         VARCHAR(36)   NOT NULL PRIMARY KEY,
@@ -14,14 +15,14 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_users_email (email),
   UNIQUE KEY uq_users_google_id (google_id)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS contact_messages (id VARCHAR(36) PRIMARY KEY, name VARCHAR(120) NOT NULL, email VARCHAR(255) NOT NULL, message TEXT NOT NULL, is_resolved BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
-CREATE TABLE IF NOT EXISTS blog_posts (id VARCHAR(36) PRIMARY KEY, title VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL UNIQUE, excerpt TEXT, content LONGTEXT NOT NULL, published BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);
-CREATE TABLE IF NOT EXISTS site_config (config_key VARCHAR(80) PRIMARY KEY, config_value JSON NOT NULL);
-CREATE TABLE IF NOT EXISTS notifications (id VARCHAR(36) PRIMARY KEY, title VARCHAR(255) NOT NULL, message TEXT NOT NULL, target_user_id VARCHAR(36) NULL, read_by JSON NOT NULL, cleared_by JSON DEFAULT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, INDEX idx_notification_target (target_user_id));
-CREATE TABLE IF NOT EXISTS payments (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, transaction_id VARCHAR(80) NOT NULL UNIQUE, amount DECIMAL(12,2) NOT NULL, plan VARCHAR(30) NOT NULL, status VARCHAR(20) NOT NULL, gateway_data JSON NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP);
-CREATE TABLE IF NOT EXISTS subscriptions (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, transaction_id VARCHAR(80) NOT NULL UNIQUE, plan VARCHAR(30) NOT NULL, starts_at TIMESTAMP NOT NULL, expires_at TIMESTAMP NOT NULL, status VARCHAR(20) NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS contact_messages (id VARCHAR(36) PRIMARY KEY, name VARCHAR(120) NOT NULL, email VARCHAR(255) NOT NULL, message TEXT NOT NULL, is_resolved BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS blog_posts (id VARCHAR(36) PRIMARY KEY, title VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL UNIQUE, excerpt TEXT, content LONGTEXT NOT NULL, published BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS site_config (config_key VARCHAR(80) PRIMARY KEY, config_value JSON NOT NULL) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS notifications (id VARCHAR(36) PRIMARY KEY, title VARCHAR(255) NOT NULL, message TEXT NOT NULL, target_user_id VARCHAR(36) NULL, read_by JSON NOT NULL, cleared_by JSON DEFAULT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, INDEX idx_notification_target (target_user_id)) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS payments (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, transaction_id VARCHAR(80) NOT NULL UNIQUE, amount DECIMAL(12,2) NOT NULL, plan VARCHAR(30) NOT NULL, status VARCHAR(20) NOT NULL, gateway_data JSON NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS subscriptions (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, transaction_id VARCHAR(80) NOT NULL UNIQUE, plan VARCHAR(30) NOT NULL, starts_at TIMESTAMP NOT NULL, expires_at TIMESTAMP NOT NULL, status VARCHAR(20) NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS categories (
   id         VARCHAR(36)  NOT NULL PRIMARY KEY,
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS categories (
   UNIQUE KEY uq_user_category (user_id, name, type),
   INDEX idx_cat_user_type (user_id, type),
   CONSTRAINT fk_categories_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS accounts (
   id             VARCHAR(36)   NOT NULL PRIMARY KEY,
@@ -52,7 +53,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   INDEX idx_accounts_user_type     (user_id, type),
   INDEX idx_accounts_user_active   (user_id, is_active),
   CONSTRAINT fk_accounts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS entries (
   id              VARCHAR(36)   NOT NULL PRIMARY KEY,
@@ -75,7 +76,7 @@ CREATE TABLE IF NOT EXISTS entries (
   CONSTRAINT fk_entries_user     FOREIGN KEY (user_id)     REFERENCES users(id)      ON DELETE CASCADE,
   CONSTRAINT fk_entries_category FOREIGN KEY (category_id) REFERENCES categories(id),
   CONSTRAINT fk_entries_account  FOREIGN KEY (account_id)  REFERENCES accounts(id)   ON DELETE SET NULL
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS budgets (
   id            VARCHAR(36) PRIMARY KEY,
@@ -90,7 +91,7 @@ CREATE TABLE IF NOT EXISTS budgets (
   updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_user_month_year_template (user_id, month, year, is_template),
   CONSTRAINT fk_budgets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS budget_lines (
   id                VARCHAR(36) PRIMARY KEY,
@@ -105,7 +106,7 @@ CREATE TABLE IF NOT EXISTS budget_lines (
   note              TEXT,
   INDEX idx_budget_lines_budget (budget_id),
   CONSTRAINT fk_budget_lines_budget FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS budget_line_categories (
   budget_line_id VARCHAR(36) NOT NULL,
@@ -113,7 +114,7 @@ CREATE TABLE IF NOT EXISTS budget_line_categories (
   PRIMARY KEY (budget_line_id, category_id),
   CONSTRAINT fk_budget_line_categories_line FOREIGN KEY (budget_line_id) REFERENCES budget_lines(id) ON DELETE CASCADE,
   CONSTRAINT fk_budget_line_categories_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS budget_sub_items (
   id              VARCHAR(36) PRIMARY KEY,
@@ -122,4 +123,4 @@ CREATE TABLE IF NOT EXISTS budget_sub_items (
   expected_amount DECIMAL(15,2) NOT NULL,
   note            TEXT,
   CONSTRAINT fk_budget_sub_items_line FOREIGN KEY (budget_line_id) REFERENCES budget_lines(id) ON DELETE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

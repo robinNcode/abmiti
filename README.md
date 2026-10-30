@@ -2,7 +2,7 @@
 
 **Halal-friendly personal finance tracker** for Bangladesh-first money habits: income, expenses, savings, investments, payables, receivables, and monthly budgets — plus SMS parsing for bank / bKash / Nagad, bilingual UI (English + বাংলা), and a Flutter WebView app.
 
-Live web app: [voltwavebd.com/abmiti](https://voltwavebd.com/abmiti/)
+Live web app: [robin.adovasoft.com/abmiti](https://robin.adovasoft.com/abmiti/)
 
 AI coding agents (Cursor, Claude Code, Codex, Gemini / Antigravity, Copilot) should follow **[AGENTS.md](./AGENTS.md)**.
 
@@ -301,7 +301,7 @@ flutter build apk --release
 flutter build appbundle --release
 ```
 
-The WebView loads the hosted SPA (`https://voltwavebd.com/abmiti/…`). Details, signing, and the JS bridge (`window.AbmitiNative.postMessage('HAPTIC')`) are in [mobile/README.md](./mobile/README.md).
+The WebView loads the hosted SPA (`https://robin.adovasoft.com/abmiti/…`). Details, signing, and the JS bridge (`window.AbmitiNative.postMessage('HAPTIC')`) are in [mobile/README.md](./mobile/README.md).
 
 ### Docker
 

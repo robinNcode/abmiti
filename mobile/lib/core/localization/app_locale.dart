@@ -274,7 +274,7 @@ class AppLocale extends ChangeNotifier {
     'env_same_router_lan_desc':
         'PC & Phone on same Wi-Fi / subnet (PC IP: 192.168.26.65:5000)',
     'env_production': 'Production',
-    'env_production_desc': 'Live production server (voltwavebd.com)',
+    'env_production_desc': 'Live production server (robin.adovasoft.com)',
     'env_custom': 'Custom URL / Tunnel',
     'env_custom_desc':
         'Public HTTPS tunnel (localtunnel / ngrok) or manual URL',
@@ -552,7 +552,7 @@ class AppLocale extends ChangeNotifier {
     'env_same_router_lan_desc':
         'পিসি ও ফোন একই ওয়াইফাই/সাবনেটে (পিসি IP: 192.168.26.65:5000)',
     'env_production': 'প্রোডাকশন',
-    'env_production_desc': 'লাইভ প্রোডাকশন সার্ভার (voltwavebd.com)',
+    'env_production_desc': 'লাইভ প্রোডাকশন সার্ভার (robin.adovasoft.com)',
     'env_custom': 'কাস্টম URL / টানেল',
     'env_custom_desc':
         'পাবলিক HTTPS টানেল (localtunnel / ngrok) বা ম্যানুয়াল URL',

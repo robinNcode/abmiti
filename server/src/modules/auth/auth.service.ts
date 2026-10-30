@@ -25,7 +25,6 @@ export const authService = {
   signTokensForUser,
 
   async register(dto: RegisterDto): Promise<{ user: IUser; tokens: AuthTokens }> {
-    console.log(dto);
     const exists = await container.userRepo.findByEmail(dto.email);
     if (exists) throw new ConflictError('Email already registered');
     const user = await container.userRepo.create({ name: dto.name, email: dto.email, password: dto.password });
@@ -34,7 +33,6 @@ export const authService = {
 
   async login(dto: LoginDto): Promise<{ user: IUser; tokens: AuthTokens }> {
     const user = await container.userRepo.findByEmail(dto.email, true);
-    
     if (!user || !(await user.comparePassword(dto.password))) {
       throw new UnauthorizedError('Invalid email or password');
     }

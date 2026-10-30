@@ -28,7 +28,7 @@ class WebViewScreen extends StatefulWidget {
 }
 
 class _WebViewScreenState extends State<WebViewScreen> {
-  static const String _initialUrl = 'https://voltwavebd.com/abmiti/login/';
+  static const String _initialUrl = 'https://robin.adovasoft.com/abmiti/login/';
   static const String _userAgent =
       'Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 (KHTML, like Gecko) '
       'Chrome/120.0.0.0 Mobile Safari/537.36 AbmitiApp/1.0';
@@ -98,8 +98,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
     final uri = Uri.tryParse(request.url);
     if (uri == null) return NavigationDecision.navigate;
 
-    // Allow all voltwavebd.com traffic inside the WebView
-    final isInternal = uri.host.contains('voltwavebd.com');
+    // Allow all robin.adovasoft.com traffic inside the WebView
+    final isInternal = uri.host.contains('robin.adovasoft.com');
     if (!isInternal) {
       // Open external links in the system browser
       launchUrl(uri, mode: LaunchMode.externalApplication);
