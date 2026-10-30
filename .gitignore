@@ -4,8 +4,8 @@
 apk/node_modules/
 
 # ignoring build files
-client/dist/
-server/dist/
+# client/dist/
+# server/dist/
 
 # ignoring .env files
 /client/.env
