@@ -11,7 +11,22 @@ import {
 import { AppError } from '../../shared/utils/errors';
 
 export const defaultBudgetLines: IBudgetLineInput[] = [
-  { name: 'Living Cost', icon: '🏠', color: '#4A7C59', allocationMethod: 'percentage', allocationValue: 50, order: 0, note: 'Family expenses: rent, food, utilities, education' },
+  {
+    name: 'Living Cost',
+    icon: '🏠',
+    color: '#4A7C59',
+    allocationMethod: 'percentage',
+    allocationValue: 50,
+    order: 0,
+    note: 'Family expenses: rent, food, utilities, education',
+    subItems: [
+      { name: 'Home Rent', expectedAmount: 0 },
+      { name: 'Electricity Bill', expectedAmount: 0 },
+      { name: 'Gas Bill', expectedAmount: 0 },
+      { name: 'College Fee', expectedAmount: 0 },
+      { name: 'Groceries', expectedAmount: 0 },
+    ],
+  },
   { name: 'Investment', icon: '📈', color: '#2563EB', allocationMethod: 'percentage', allocationValue: 25, order: 1, note: 'Land, gold, business, skill development' },
   { name: 'Wife Expenses', icon: '💝', color: '#DB2777', allocationMethod: 'percentage', allocationValue: 10, order: 2, note: 'Spouse allowance and personal needs' },
   { name: 'Fun / Entertainment', icon: '🎉', color: '#D4973E', allocationMethod: 'percentage', allocationValue: 5, order: 3, note: 'Leisure, dining out, travel' },

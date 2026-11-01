@@ -8,6 +8,7 @@ import BudgetLineForm from '@/components/budget/BudgetLineForm';
 import BudgetMonthNavigator from '@/components/budget/BudgetMonthNavigator';
 import BudgetOverview from '@/components/budget/BudgetOverview';
 import BudgetTemplateSelector from '@/components/budget/BudgetTemplateSelector';
+import ExpenseForm from '@/components/entry/ExpenseForm';
 import {
   useBudget,
   useBudgetAnalysis,
@@ -26,6 +27,7 @@ import negotiationImg from '@/assets/images/clip-online-business-negotiation.png
 export default function BudgetPage() {
   const [editingLine, setEditingLine] = useState<BudgetLine | null>(null);
   const [lineModalOpen, setLineModalOpen] = useState(false);
+  const [entryModalLine, setEntryModalLine] = useState<BudgetLine | null>(null);
   const [incomeDraft, setIncomeDraft] = useState('');
   const [drilldownModal, setDrilldownModal] = useState<{ open: boolean; lineId?: string; title: string }>({
     open: false,
@@ -149,6 +151,7 @@ export default function BudgetPage() {
               line={line}
               summary={summaryByLine.get(line._id)}
               computedLine={analysisByLine.get(line._id)}
+              onAddEntry={() => setEntryModalLine(line)}
               onEdit={() => { setEditingLine(line); setLineModalOpen(true); }}
               onDelete={() => mutations.removeLine.mutate({ id: budget._id, lineId: line._id })}
               onViewEntries={() =>
@@ -173,6 +176,18 @@ export default function BudgetPage() {
             else mutations.addLine.mutate({ id: budget._id, line: { ...line, order: budget.lines.length } });
             setLineModalOpen(false);
           }}
+        />
+      </Modal>
+
+      <Modal
+        open={Boolean(entryModalLine)}
+        onClose={() => setEntryModalLine(null)}
+        title={t('Add Expense under {{line}}', { line: entryModalLine?.name })}
+      >
+        <ExpenseForm
+          onSuccess={() => setEntryModalLine(null)}
+          type="expense"
+          initialBudgetLineId={entryModalLine?._id}
         />
       </Modal>
 

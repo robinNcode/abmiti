@@ -1,4 +1,4 @@
-import { Edit2, ListFilter, Trash2 } from 'lucide-react';
+import { Edit2, ListFilter, Plus, Trash2 } from 'lucide-react';
 import { BudgetLine, BudgetLineSummary, ComputedLineSummary } from '@/types';
 import { formatBDT } from '@/utils';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,7 @@ export default function BudgetLineCard({
   onEdit,
   onDelete,
   onViewEntries,
+  onAddEntry,
 }: {
   line: BudgetLine;
   summary?: BudgetLineSummary;
@@ -23,6 +24,7 @@ export default function BudgetLineCard({
   onEdit: () => void;
   onDelete: () => void;
   onViewEntries?: () => void;
+  onAddEntry?: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -48,6 +50,16 @@ export default function BudgetLineCard({
           </div>
         </div>
         <div className="flex gap-1 shrink-0">
+          {onAddEntry && (
+            <button
+              onClick={onAddEntry}
+              className="w-8 h-8 rounded-lg hover:bg-sage/15 text-sage flex items-center justify-center font-bold"
+              aria-label={t('Add expense under this line')}
+              title={t('Add expense under this line')}
+            >
+              <Plus size={16} />
+            </button>
+          )}
           {onViewEntries && (
             <button
               onClick={onViewEntries}

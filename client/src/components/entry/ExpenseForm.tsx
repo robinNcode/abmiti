@@ -1,26 +1,56 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useCreateEntry, useCategories, useAccounts, useCreateCategory } from '@/hooks';
+import {
+  useCreateEntry,
+  useCategories,
+  useAccounts,
+  useCreateCategory,
+  useBudget,
+  useBudgetMutations,
+} from '@/hooks';
 import { PaymentSource, EntryType } from '@/types';
 import { Spinner, Modal } from '@/components/ui';
-import { sourceLabel, cx, categoryTypeForEntry } from '@/utils';
+import { sourceLabel, cx, categoryTypeForEntry, formatBDT } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
-interface Props { 
-  onSuccess?: () => void; 
+interface Props {
+  onSuccess?: () => void;
   type?: EntryType;
+  initialBudgetLineId?: string;
+  initialAmount?: string | number;
+  initialNote?: string;
+  initialCategoryId?: string;
 }
 
-export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
+export default function ExpenseForm({
+  onSuccess,
+  type = 'expense',
+  initialBudgetLineId,
+  initialAmount,
+  initialNote,
+  initialCategoryId,
+}: Props) {
   const { t } = useTranslation();
   const [showAddCat, setShowAddCat] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatIcon, setNewCatIcon] = useState('🏷️');
   const [newCatColor, setNewCatColor] = useState('#BF6046');
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
+  const { data: budget } = useBudget();
+  const budgetMutations = useBudgetMutations();
+
+  const [selectedLineId, setSelectedLineId] = useState<string | null>(
+    initialBudgetLineId ?? null,
+  );
 
   const { register, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues: {
-      amount: '', note: '', categoryId: '', sector: '', accountId: '',
+      amount: initialAmount !== undefined ? String(initialAmount) : '',
+      note: initialNote ?? '',
+      categoryId: initialCategoryId ?? '',
+      sector: '',
+      accountId: '',
       source: 'cash' as PaymentSource,
       date: new Date().toISOString().split('T')[0],
     },
@@ -32,6 +62,35 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
   const { data: categories = [] } = useCategories(categoryType);
   const { data: accounts = [] } = useAccounts();
   const selectedCat = watch('categoryId');
+
+  const selectedLine = useMemo(() => {
+    if (!budget?.lines || !selectedLineId) return null;
+    return budget.lines.find((l) => l._id === selectedLineId) || null;
+  }, [budget?.lines, selectedLineId]);
+
+  useEffect(() => {
+    if (initialBudgetLineId) {
+      setSelectedLineId(initialBudgetLineId);
+    }
+  }, [initialBudgetLineId]);
+
+  // When selectedLine changes, auto-select its first linked category if not yet set
+  useEffect(() => {
+    if (selectedLine && selectedLine.linkedCategoryIds.length > 0) {
+      if (!watch('categoryId') || !selectedLine.linkedCategoryIds.includes(watch('categoryId'))) {
+        setValue('categoryId', selectedLine.linkedCategoryIds[0]);
+      }
+    }
+  }, [selectedLine, setValue, watch]);
+
+  const displayCategories = useMemo(() => {
+    if (!selectedLine || showAllCategories || selectedLine.linkedCategoryIds.length === 0) {
+      return categories;
+    }
+    const linkedSet = new Set(selectedLine.linkedCategoryIds);
+    const filtered = categories.filter((c) => linkedSet.has(c._id));
+    return filtered.length > 0 ? filtered : categories;
+  }, [categories, selectedLine, showAllCategories]);
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +104,21 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
         type: categoryType,
       });
       setValue('categoryId', newCat._id);
+
+      // Auto-link newly created category to selected budget line if active
+      if (budget && selectedLine) {
+        const currentLinked = selectedLine.linkedCategoryIds ?? [];
+        if (!currentLinked.includes(newCat._id)) {
+          budgetMutations.updateLine.mutate({
+            id: budget._id,
+            lineId: selectedLine._id,
+            line: {
+              linkedCategoryIds: [...currentLinked, newCat._id],
+            },
+          });
+        }
+      }
+
       setShowAddCat(false);
       setNewCatName('');
     } catch (err) {
@@ -53,18 +127,37 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
   };
 
   const onSubmit = handleSubmit(async (data) => {
+    const chosenCatId = data.categoryId || categories[0]?._id;
+
+    // If a budget line is selected but has no linked categories yet, link this category
+    if (budget && selectedLine && chosenCatId) {
+      const currentLinked = selectedLine.linkedCategoryIds ?? [];
+      if (!currentLinked.includes(chosenCatId)) {
+        budgetMutations.updateLine.mutate({
+          id: budget._id,
+          lineId: selectedLine._id,
+          line: {
+            linkedCategoryIds: [...currentLinked, chosenCatId],
+          },
+        });
+      }
+    }
+
     await createEntry.mutateAsync({
       type,
       amount: parseFloat(data.amount),
       note: data.note,
-      categoryId: data.categoryId || categories[0]?._id,
+      categoryId: chosenCatId,
       sector: data.sector,
       source: data.source,
       date: data.date,
       accountId: data.accountId,
     });
     reset({
-      amount: '', note: '', categoryId: '', accountId: '',
+      amount: '',
+      note: '',
+      categoryId: '',
+      accountId: '',
       source: 'cash',
       date: new Date().toISOString().split('T')[0],
     });
@@ -73,11 +166,103 @@ export default function ExpenseForm({ onSuccess, type = 'expense' }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
+      {/* Budget Line Selector & Sub-items (for expense type) */}
+      {budget && budget.lines.length > 0 && type === 'expense' && (
+        <div className="space-y-2 pb-2.5 border-b border-paper-mist">
+          <div className="flex items-center justify-between">
+            <label className="label mb-0">{t('Budget Line')}</label>
+            {selectedLine && (
+              <span className="text-xs font-semibold text-sage">
+                {selectedLine.icon} {selectedLine.name}
+              </span>
+            )}
+          </div>
+
+          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            <button
+              type="button"
+              onClick={() => setSelectedLineId(null)}
+              className={cx(
+                'px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border',
+                !selectedLineId
+                  ? 'bg-ink text-white border-ink'
+                  : 'border-paper-mist2 bg-paper-mist text-ink/60 hover:text-ink',
+              )}
+            >
+              {t('All')}
+            </button>
+            {budget.lines
+              .filter((l) => l.isActive)
+              .map((l) => (
+                <button
+                  key={l._id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLineId(l._id);
+                    if (l.linkedCategoryIds.length > 0) {
+                      setValue('categoryId', l.linkedCategoryIds[0]);
+                    }
+                  }}
+                  className={cx(
+                    'px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 border',
+                    selectedLineId === l._id
+                      ? 'bg-terra text-white border-terra shadow-sm'
+                      : 'border-paper-mist2 bg-paper-mist text-ink/70 hover:border-terra/30',
+                  )}
+                >
+                  <span>{l.icon}</span>
+                  <span>{l.name}</span>
+                </button>
+              ))}
+          </div>
+
+          {/* Quick Sub-items row */}
+          {selectedLine && (selectedLine.subItems?.length ?? 0) > 0 && (
+            <div className="pt-1">
+              <p className="text-[10px] font-semibold text-ink/40 uppercase tracking-wider mb-1">
+                {t('Budget Sub-items')}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedLine.subItems.map((sub) => (
+                  <button
+                    key={sub.name}
+                    type="button"
+                    onClick={() => {
+                      setValue('note', sub.name);
+                      if (sub.expectedAmount > 0) {
+                        setValue('amount', String(sub.expectedAmount));
+                      }
+                    }}
+                    className="text-xs px-2.5 py-1 rounded-md bg-paper-mist2/60 hover:bg-paper-mist2 text-ink/80 hover:text-ink font-medium border border-paper-mist2 transition-all flex items-center gap-1"
+                  >
+                    <span>{sub.name}</span>
+                    {sub.expectedAmount > 0 && (
+                      <span className="text-[10px] text-ink/50">({formatBDT(sub.expectedAmount)})</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Category grid */}
       <div>
-        <label className="label">{t('category')}</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="label mb-0">{t('category')}</label>
+          {selectedLine && selectedLine.linkedCategoryIds.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowAllCategories((v) => !v)}
+              className="text-[11px] text-terra font-semibold hover:underline"
+            >
+              {showAllCategories ? t('Show line categories') : t('Show all categories')}
+            </button>
+          )}
+        </div>
         <div className="grid grid-cols-4 gap-1.5">
-          {categories.map((cat) => (
+          {displayCategories.map((cat) => (
             <button key={cat._id} type="button"
               onClick={() => setValue('categoryId', cat._id)}
               className={cx(
