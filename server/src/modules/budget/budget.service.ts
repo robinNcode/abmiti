@@ -33,6 +33,16 @@ const lineCategoryIds = (lines: IBudgetLine[]): string[] => (
   lines.flatMap((line) => line.linkedCategoryIds.map((id) => id.toString()))
 );
 
+import {
+  computeBudgetAnalysis,
+  calculateForecast,
+  BudgetAnalysisResult,
+  ForecastResult,
+  HistoricalMonthData,
+  UpcomingMonthPlan,
+  BudgetLineInputData,
+} from './budget-math';
+
 const assertUniqueLinkedCategories = (lines: Array<{ linkedCategoryIds?: Array<{ toString(): string }> }>): void => {
   const seen = new Set<string>();
   for (const line of lines) {
@@ -41,6 +51,15 @@ const assertUniqueLinkedCategories = (lines: Array<{ linkedCategoryIds?: Array<{
       if (seen.has(key)) throw new AppError('A category can be linked to only one budget line', 400);
       seen.add(key);
     }
+  }
+};
+
+const assertValidPercentages = (lines: Array<{ allocationMethod?: string; allocationValue?: number }>): void => {
+  const pctSum = lines
+    .filter((l) => l.allocationMethod === 'percentage')
+    .reduce((sum, l) => sum + (Number(l.allocationValue) || 0), 0);
+  if (pctSum > 100.001) {
+    throw new AppError('Total percentage allocation cannot exceed 100%', 400);
   }
 };
 
@@ -53,6 +72,7 @@ export const budgetService = {
 
   async create(userId: string, data: IBudgetInput) {
     assertUniqueLinkedCategories(data.lines ?? []);
+    if (data.lines) assertValidPercentages(data.lines);
     return sortLines(await container.budgetRepo.create(userId, data));
   },
 
@@ -74,7 +94,10 @@ export const budgetService = {
   },
 
   async update(userId: string, id: string, data: Partial<IBudgetInput>) {
-    if (data.lines) assertUniqueLinkedCategories(data.lines);
+    if (data.lines) {
+      assertUniqueLinkedCategories(data.lines);
+      assertValidPercentages(data.lines);
+    }
     return ensureBudget(await container.budgetRepo.update(id, userId, data));
   },
 
@@ -112,6 +135,7 @@ export const budgetService = {
   async addLine(userId: string, budgetId: string, line: IBudgetLineInput) {
     const current = ensureBudget(await container.budgetRepo.findById(budgetId, userId));
     assertUniqueLinkedCategories([...current.lines, line]);
+    assertValidPercentages([...current.lines, line]);
     return ensureBudget(await container.budgetRepo.addLine(budgetId, userId, line));
   },
 
@@ -121,6 +145,7 @@ export const budgetService = {
       item._id.toString() === lineId ? { ...item, ...line } : item
     ));
     assertUniqueLinkedCategories(merged);
+    assertValidPercentages(merged);
     return ensureBudget(await container.budgetRepo.updateLine(budgetId, lineId, userId, line));
   },
 
@@ -224,6 +249,156 @@ export const budgetService = {
       line.linkedCategoryIds.map((id) => id.toString()),
       start,
       end,
+    );
+  },
+
+  async analysis(userId: string, id: string): Promise<BudgetAnalysisResult> {
+    const budget = ensureBudget(await container.budgetRepo.findById(id, userId));
+    const start = new Date(budget.year, budget.month - 1, 1);
+    const end = new Date(budget.year, budget.month, 0, 23, 59, 59);
+
+    const aggregates = await container.budgetRepo.getAggregatesForMonth(userId, start, end);
+
+    const linesInput: BudgetLineInputData[] = budget.lines
+      .filter((l) => l.isActive)
+      .map((l) => ({
+        id: l._id.toString(),
+        name: l.name,
+        icon: l.icon,
+        color: l.color,
+        allocationMethod: l.allocationMethod,
+        allocationValue: l.allocationValue,
+        linkedCategoryIds: (l.linkedCategoryIds ?? []).map((c) => c.toString()),
+      }));
+
+    const entriesInput = aggregates.categorySpends.map((cs, idx) => ({
+      id: `agg-${idx}`,
+      amount: cs.amount,
+      type: 'expense',
+      categoryId: cs.categoryId,
+      date: start,
+    }));
+
+    return computeBudgetAnalysis(linesInput, entriesInput, budget.totalIncome, aggregates.actualIncome);
+  },
+
+  async forecast(userId: string, id: string): Promise<ForecastResult> {
+    const budget = ensureBudget(await container.budgetRepo.findById(id, userId));
+
+    const history: HistoricalMonthData[] = [];
+    for (let i = 3; i >= 1; i--) {
+      let pastMonth = budget.month - i;
+      let pastYear = budget.year;
+      while (pastMonth < 1) {
+        pastMonth += 12;
+        pastYear -= 1;
+      }
+      const pStart = new Date(pastYear, pastMonth - 1, 1);
+      const pEnd = new Date(pastYear, pastMonth, 0, 23, 59, 59);
+
+      const pastAgg = await container.budgetRepo.getAggregatesForMonth(userId, pStart, pEnd);
+      const pastBudget = await container.budgetRepo.findByMonth(userId, pastMonth, pastYear, false);
+
+      const lineSpends = new Map<string, number>();
+      if (pastBudget) {
+        pastBudget.lines.forEach((line) => {
+          const catSet = new Set(line.linkedCategoryIds.map((c) => c.toString()));
+          const spend = pastAgg.categorySpends
+            .filter((cs) => catSet.has(cs.categoryId))
+            .reduce((s, cs) => s + cs.amount, 0);
+          lineSpends.set(line._id.toString(), spend);
+          lineSpends.set(line.name, spend);
+        });
+      }
+
+      history.push({
+        month: pastMonth,
+        year: pastYear,
+        actualIncome: pastAgg.actualIncome,
+        lineSpends,
+        totalSpend: pastAgg.totalOutflow,
+      });
+    }
+
+    const openPayables = await container.payableRepo.findMany(userId, 'open');
+
+    const upcoming: UpcomingMonthPlan[] = [];
+    for (let i = 0; i < 3; i++) {
+      let upMonth = budget.month + i;
+      let upYear = budget.year;
+      while (upMonth > 12) {
+        upMonth -= 12;
+        upYear += 1;
+      }
+
+      const committedPayables = openPayables
+        .filter((p) => {
+          if (!p.dueDate) return i === 0;
+          const d = new Date(p.dueDate);
+          return d.getMonth() + 1 === upMonth && d.getFullYear() === upYear;
+        })
+        .reduce((sum, p) => sum + (p.remaining ?? (p.principal - p.paidAmount)), 0);
+
+      upcoming.push({
+        month: upMonth,
+        year: upYear,
+        budgetTotalIncome: i === 0 ? budget.totalIncome : 0,
+        lines: budget.lines.map((l) => ({
+          id: l._id.toString(),
+          name: l.name,
+          icon: l.icon,
+          color: l.color,
+          allocationMethod: l.allocationMethod,
+          allocationValue: l.allocationValue,
+          linkedCategoryIds: l.linkedCategoryIds.map((c) => c.toString()),
+        })),
+        committedPayables,
+      });
+    }
+
+    return calculateForecast(history, upcoming);
+  },
+
+  async drilldown(
+    userId: string,
+    id: string,
+    lineId?: string,
+    page = 1,
+    limit = 20,
+  ) {
+    const budget = ensureBudget(await container.budgetRepo.findById(id, userId));
+    const start = new Date(budget.year, budget.month - 1, 1);
+    const end = new Date(budget.year, budget.month, 0, 23, 59, 59);
+
+    if (lineId === 'unbudgeted' || !lineId) {
+      const mappedCategoryIds = budget.lines.flatMap((l) =>
+        l.linkedCategoryIds.map((c) => c.toString()),
+      );
+      return container.budgetRepo.findLineEntriesPaginated(
+        userId,
+        {
+          start,
+          end,
+          isUnbudgeted: true,
+          unmappedCategoryIds: mappedCategoryIds,
+        },
+        page,
+        limit,
+      );
+    }
+
+    const line = budget.lines.find((l) => l._id.toString() === lineId);
+    if (!line) throw new AppError('Budget line not found', 404);
+
+    return container.budgetRepo.findLineEntriesPaginated(
+      userId,
+      {
+        start,
+        end,
+        categoryIds: line.linkedCategoryIds.map((c) => c.toString()),
+      },
+      page,
+      limit,
     );
   },
 };

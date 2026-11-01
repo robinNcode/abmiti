@@ -144,6 +144,27 @@ export interface IBudgetRepository {
     start: Date,
     end: Date,
   ): Promise<IEntry[]>;
+  getAggregatesForMonth(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<{
+    actualIncome: number;
+    categorySpends: { categoryId: string; amount: number }[];
+    totalOutflow: number;
+  }>;
+  findLineEntriesPaginated(
+    userId: string,
+    filters: {
+      start: Date;
+      end: Date;
+      categoryIds?: string[];
+      unmappedCategoryIds?: string[];
+      isUnbudgeted?: boolean;
+    },
+    page: number,
+    limit: number,
+  ): Promise<{ data: IEntry[]; total: number; page: number; totalPages: number }>;
 }
 
 // ── Payable Repository (Phase 1) ──────────────────────────────

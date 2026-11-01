@@ -9,6 +9,9 @@ import { localizedApiError } from '@/utils';
 export const budgetKeys = {
   month: (month: number, year: number) => ['budget', month, year],
   summary: (id?: string) => ['budget-summary', id],
+  analysis: (id?: string) => ['budget-analysis', id],
+  forecast: (id?: string) => ['budget-forecast', id],
+  drilldown: (id?: string, params?: object) => ['budget-drilldown', id, params],
   templates: ['budget-templates'],
 };
 
@@ -27,6 +30,27 @@ export const useBudgetSummary = (budgetId?: string) =>
     enabled: Boolean(budgetId),
   });
 
+export const useBudgetAnalysis = (budgetId?: string) =>
+  useQuery({
+    queryKey: budgetKeys.analysis(budgetId),
+    queryFn: () => budgetApi.analysis(budgetId as string),
+    enabled: Boolean(budgetId),
+  });
+
+export const useBudgetForecast = (budgetId?: string) =>
+  useQuery({
+    queryKey: budgetKeys.forecast(budgetId),
+    queryFn: () => budgetApi.forecast(budgetId as string),
+    enabled: Boolean(budgetId),
+  });
+
+export const useBudgetDrilldown = (budgetId?: string, params?: { lineId?: string; page?: number; limit?: number }) =>
+  useQuery({
+    queryKey: budgetKeys.drilldown(budgetId, params),
+    queryFn: () => budgetApi.drilldown(budgetId as string, params),
+    enabled: Boolean(budgetId),
+  });
+
 export const useBudgetTemplates = () =>
   useQuery({
     queryKey: budgetKeys.templates,
@@ -40,7 +64,13 @@ export const useBudgetMutations = () => {
   const refresh = (budgetId?: string) => {
     qc.invalidateQueries({ queryKey: budgetKeys.month(month, year) });
     qc.invalidateQueries({ queryKey: ['budget-summary'] });
-    if (budgetId) qc.invalidateQueries({ queryKey: budgetKeys.summary(budgetId) });
+    qc.invalidateQueries({ queryKey: ['budget-analysis'] });
+    qc.invalidateQueries({ queryKey: ['budget-forecast'] });
+    if (budgetId) {
+      qc.invalidateQueries({ queryKey: budgetKeys.summary(budgetId) });
+      qc.invalidateQueries({ queryKey: budgetKeys.analysis(budgetId) });
+      qc.invalidateQueries({ queryKey: budgetKeys.forecast(budgetId) });
+    }
   };
 
   return {

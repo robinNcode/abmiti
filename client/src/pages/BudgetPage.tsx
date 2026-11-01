@@ -1,12 +1,22 @@
 import { useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Modal, PageHeader, Spinner } from '@/components/ui';
+import BudgetDrilldownModal from '@/components/budget/BudgetDrilldownModal';
+import BudgetForecastCard from '@/components/budget/BudgetForecastCard';
 import BudgetLineCard from '@/components/budget/BudgetLineCard';
 import BudgetLineForm from '@/components/budget/BudgetLineForm';
 import BudgetMonthNavigator from '@/components/budget/BudgetMonthNavigator';
 import BudgetOverview from '@/components/budget/BudgetOverview';
 import BudgetTemplateSelector from '@/components/budget/BudgetTemplateSelector';
-import { useBudget, useBudgetMutations, useBudgetSummary, useBudgetTemplates, useCategories } from '@/hooks';
+import {
+  useBudget,
+  useBudgetAnalysis,
+  useBudgetForecast,
+  useBudgetMutations,
+  useBudgetSummary,
+  useBudgetTemplates,
+  useCategories,
+} from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { BudgetLine } from '@/types';
 import { formatBDT } from '@/utils';
@@ -17,9 +27,16 @@ export default function BudgetPage() {
   const [editingLine, setEditingLine] = useState<BudgetLine | null>(null);
   const [lineModalOpen, setLineModalOpen] = useState(false);
   const [incomeDraft, setIncomeDraft] = useState('');
+  const [drilldownModal, setDrilldownModal] = useState<{ open: boolean; lineId?: string; title: string }>({
+    open: false,
+    title: '',
+  });
+
   const { month, year } = useMonthStore();
   const { data: budget, isLoading } = useBudget();
   const { data: summary } = useBudgetSummary(budget?._id);
+  const { data: analysis } = useBudgetAnalysis(budget?._id);
+  const { data: forecast } = useBudgetForecast(budget?._id);
   const { data: templates = [] } = useBudgetTemplates();
   const { data: categories = [] } = useCategories('expense');
   const mutations = useBudgetMutations();
@@ -32,6 +49,7 @@ export default function BudgetPage() {
   ), [budget?.lines]);
 
   const summaryByLine = useMemo(() => new Map(summary?.lines.map((line) => [line.lineId, line])), [summary?.lines]);
+  const analysisByLine = useMemo(() => new Map(analysis?.lines.map((line) => [line.id, line])), [analysis?.lines]);
 
   if (isLoading) {
     return <div className="min-h-full flex items-center justify-center"><Spinner className="text-terra" /></div>;
@@ -92,7 +110,19 @@ export default function BudgetPage() {
           onApply={(templateId) => mutations.fromTemplate.mutate({ templateId, month, year })}
         />
 
-        <BudgetOverview summary={summary} />
+        <BudgetOverview
+          summary={summary}
+          analysis={analysis}
+          onDrilldownUnbudgeted={() =>
+            setDrilldownModal({
+              open: true,
+              lineId: 'unbudgeted',
+              title: t('Unbudgeted Outflows'),
+            })
+          }
+        />
+
+        <BudgetForecastCard forecast={forecast} />
 
         <div className="flex items-center justify-between">
           <h2 className="font-display font-bold text-lg">{t('budgetLines')}</h2>
@@ -118,8 +148,16 @@ export default function BudgetPage() {
               key={line._id}
               line={line}
               summary={summaryByLine.get(line._id)}
+              computedLine={analysisByLine.get(line._id)}
               onEdit={() => { setEditingLine(line); setLineModalOpen(true); }}
               onDelete={() => mutations.removeLine.mutate({ id: budget._id, lineId: line._id })}
+              onViewEntries={() =>
+                setDrilldownModal({
+                  open: true,
+                  lineId: line._id,
+                  title: line.name,
+                })
+              }
             />
           ))}
         </div>
@@ -137,6 +175,14 @@ export default function BudgetPage() {
           }}
         />
       </Modal>
+
+      <BudgetDrilldownModal
+        open={drilldownModal.open}
+        onClose={() => setDrilldownModal({ open: false, title: '' })}
+        budgetId={budget._id}
+        lineId={drilldownModal.lineId}
+        title={drilldownModal.title}
+      />
     </div>
   );
 }

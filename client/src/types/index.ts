@@ -81,6 +81,72 @@ export interface BudgetSummary {
   lines: BudgetLineSummary[];
 }
 
+export type LineStatus = 'ok' | 'warn' | 'over';
+
+export interface ComputedLineSummary {
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+  allocationMethod: AllocationMethod;
+  allocationValue: number;
+  linkedCategoryIds: string[];
+  allocated: number;
+  spent: number;
+  remaining: number;
+  pctUsed: number;
+  status: LineStatus;
+}
+
+export interface BudgetAnalysisResult {
+  plannedIncome: number;
+  actualIncome: number;
+  incomeVariance: number;
+  totalAllocated: number;
+  unallocated: number;
+  totalSpent: number;
+  unbudgetedSpent: number;
+  netCashFlow: number;
+  savingsRate: number | null;
+  lines: ComputedLineSummary[];
+  unbudgetedEntriesCount: number;
+}
+
+export type ForecastWarningCode =
+  | 'LINE_OVER_ALLOCATION'
+  | 'NET_NEGATIVE'
+  | 'PAYABLE_DUE_EXCEEDS_BUFFER';
+
+export interface ForecastWarning {
+  code: ForecastWarningCode;
+  lineId?: string;
+  lineName?: string;
+  amount?: number;
+  message: string;
+}
+
+export interface MonthForecast {
+  month: number;
+  year: number;
+  projectedIncome: number;
+  projectedSpend: number;
+  committedPayables: number;
+  projectedNet: number;
+  warnings: ForecastWarning[];
+}
+
+export interface ForecastResult {
+  insufficientHistory: boolean;
+  months: MonthForecast[];
+}
+
+export interface PaginatedEntries {
+  data: Entry[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 export interface Category {
   _id: string;
   name: string;
