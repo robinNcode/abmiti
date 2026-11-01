@@ -10,6 +10,7 @@ const entrySchema = new Schema<IEntry>(
     category:      { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     source:        { type: String, enum: ['bank','bkash','nagad','cash','card','other'], default: 'cash' },
     account:       { type: Schema.Types.ObjectId, ref: 'Account' }, // For savings entries
+    payable:       { type: Schema.Types.ObjectId, ref: 'Payable' }, // Phase 1 payable link
     sector:        { type: String, trim: true, maxlength: 120, default: '' },
     date:          { type: Date, required: true, default: Date.now },
     parsedFromSms: { type: Boolean, default: false },

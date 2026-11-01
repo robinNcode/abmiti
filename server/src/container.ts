@@ -7,6 +7,7 @@ import { MongoEntryRepository }    from './infrastructure/repositories/mongodb/e
 import { MongoAccountRepository }  from './infrastructure/repositories/mongodb/account.mongo.repo';
 import { MongoSummaryRepository }  from './infrastructure/repositories/mongodb/summary.mongo.repo';
 import { MongoBudgetRepository }   from './infrastructure/repositories/mongodb/budget.mongo.repo';
+import { MongoPayableRepository }  from './infrastructure/repositories/mongodb/payable.mongo.repo';
 
 // MySQL repositories
 import { MySQLUserRepository }     from './infrastructure/repositories/mysql/user.mysql.repo';
@@ -15,6 +16,7 @@ import { MySQLEntryRepository }    from './infrastructure/repositories/mysql/ent
 import { MySQLAccountRepository }  from './infrastructure/repositories/mysql/account.mysql.repo';
 import { MySQLSummaryRepository }  from './infrastructure/repositories/mysql/summary.mysql.repo';
 import { MySQLBudgetRepository }   from './infrastructure/repositories/mysql/budget.mysql.repo';
+import { MySQLPayableRepository }  from './infrastructure/repositories/mysql/payable.mysql.repo';
 
 // Repository interfaces
 import {
@@ -24,6 +26,7 @@ import {
   IAccountRepository,
   ISummaryRepository,
   IBudgetRepository,
+  IPayableRepository,
 } from './shared/types/repositories';
 
 export interface AppContainer {
@@ -33,6 +36,7 @@ export interface AppContainer {
   accountRepo:  IAccountRepository;
   summaryRepo:  ISummaryRepository;
   budgetRepo:   IBudgetRepository;
+  payableRepo:  IPayableRepository;
 }
 
 function buildContainer(): AppContainer {
@@ -44,6 +48,7 @@ function buildContainer(): AppContainer {
       accountRepo:  new MySQLAccountRepository(),
       summaryRepo:  new MySQLSummaryRepository(),
       budgetRepo:   new MySQLBudgetRepository(),
+      payableRepo:  new MySQLPayableRepository(),
     };
   }
   // default: mongodb
@@ -54,6 +59,7 @@ function buildContainer(): AppContainer {
     accountRepo:  new MongoAccountRepository(),
     summaryRepo:  new MongoSummaryRepository(),
     budgetRepo:   new MongoBudgetRepository(),
+    payableRepo:  new MongoPayableRepository(),
   };
 }
 

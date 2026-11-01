@@ -10,6 +10,7 @@ import {
   FileText,
   Shield,
   LifeBuoy,
+  CreditCard,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
@@ -34,6 +35,7 @@ const OVERVIEW: NavItem[] = [
 
 const PLANNING: NavItem[] = [
   { to: "/budget", icon: WalletCards, label: "Budget" },
+  { to: "/payables", icon: CreditCard, label: "Payables" },
   { to: "/investments", icon: TrendingUp, label: "Investments" },
 ];
 

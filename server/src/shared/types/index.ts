@@ -47,6 +47,7 @@ export interface IEntry extends Document {
   category: Types.ObjectId;
   source: PaymentSource;
   account?: Types.ObjectId; // For savings entries
+  payable?: Types.ObjectId; // Link to payables (Phase 1)
   sector?: string;
   date: Date;
   parsedFromSms: boolean;
@@ -233,3 +234,48 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+// ── Payable domain (Phase 1) ─────────────────────────────────
+export type PayableKind   = 'borrowed_cash' | 'unpaid_expense';
+export type PayableStatus = 'open' | 'settled' | 'cancelled';
+
+export interface IPayable {
+  _id: string;
+  userId: string;
+  counterparty: string;
+  principal: number;
+  paidAmount: number;
+  remaining: number;          // derived: principal - paidAmount
+  kind: PayableKind;
+  categoryId?: string | null;
+  accountId?: string | null;
+  dueDate?: Date | null;
+  note?: string;
+  status: PayableStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IPayableInput {
+  counterparty: string;
+  principal: number;
+  kind: PayableKind;
+  categoryId?: string;
+  accountId?: string;
+  dueDate?: string;
+  note?: string;
+}
+
+export interface IPayablePaymentInput {
+  amount: number;
+  date?: string;
+  accountId?: string;
+  source?: string;
+  note?: string;
+}
+
+export interface INetPosition {
+  liquid: number;
+  receivableOpen: number;
+  payableOpen: number;
+  netPosition: number;
+}

@@ -1,6 +1,7 @@
 import {
   IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput, IBudget, IBudgetInput, IBudgetLineInput,
   IEntryFilters, IPaginationOptions, IPaginatedResult, EntryType,
+  IPayable, IPayableInput, INetPosition,
 } from './index';
 
 // ── User Repository ─────────────────────────────────────────
@@ -143,4 +144,18 @@ export interface IBudgetRepository {
     start: Date,
     end: Date,
   ): Promise<IEntry[]>;
+}
+
+// ── Payable Repository (Phase 1) ──────────────────────────────
+export interface IPayableRepository {
+  create(userId: string, data: IPayableInput): Promise<IPayable>;
+  findById(userId: string, id: string): Promise<IPayable | null>;
+  findMany(userId: string, status?: string): Promise<IPayable[]>;
+  update(userId: string, id: string, data: Partial<Pick<IPayableInput, 'counterparty' | 'note' | 'dueDate'>>): Promise<IPayable | null>;
+  /** Atomically increment paid_amount and set status. Returns updated payable. */
+  applyPayment(userId: string, id: string, amount: number, newStatus: 'open' | 'settled'): Promise<IPayable | null>;
+  /** Atomically decrement paid_amount and reopen if settled. Returns updated payable. */
+  reversePayment(userId: string, id: string, amount: number): Promise<IPayable | null>;
+  cancel(userId: string, id: string): Promise<IPayable | null>;
+  getNetPosition(userId: string): Promise<INetPosition>;
 }

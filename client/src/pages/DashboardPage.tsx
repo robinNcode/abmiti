@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMonthlySummary, useEntries, useBudget, useBudgetSummary } from '@/hooks';
+import { useMonthlySummary, useEntries, useBudget, useBudgetSummary, useNetPosition } from '@/hooks';
 import { useMonthStore } from '@/store/monthStore';
 import { SummaryCard, PageHeader, Modal, EmptyState, Spinner } from '@/components/ui';
 import SmsEntryForm from '@/components/entry/SmsEntryForm';
@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const { data: recentRes, isLoading: entriesLoading } = useEntries({ month, year, limit: 8 });
   const { data: budget } = useBudget();
   const { data: budgetSummary } = useBudgetSummary(budget?._id);
+  const { data: netPos } = useNetPosition();
   const recent = recentRes?.data ?? [];
   const healthLines = [...(budgetSummary?.lines ?? [])]
     .sort((a, b) => b.usedPercent - a.usedPercent)
@@ -41,19 +42,44 @@ export default function DashboardPage() {
 
       <div className="px-4 md:px-8 space-y-4 md:space-y-6 pb-10">
         {/* Summary cards */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {summary && summary.budget > 0 && (
-            <div className="card p-6 border-2 border-sage bg-sage/5 col-span-2 md:col-span-1">
+            <div className="card p-6 border-2 border-sage bg-sage/5">
               <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">{t('Remaining Budget')}</p>
-              <p className="font-display text-4xl font-black text-sage mt-3 tracking-tight">{formatBDT(summary.remainingBudget)}</p>
+              <p className="font-display text-3xl font-black text-sage mt-3 tracking-tight">{formatBDT(summary.remainingBudget)}</p>
               <p className="text-xs text-ink/40 mt-2">{summary.budgetUsed}% {t('of budget used')}</p>
             </div>
           )}
           {summary && summary.income > 0 && (
-            <div className="card p-6 border-2 border-blue-500 bg-blue-50/50 col-span-2 md:col-span-1">
+            <div className="card p-6 border-2 border-blue-500 bg-blue-50/50">
               <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">{t('Savings')}</p>
-              <p className="font-display text-4xl font-black text-blue-600 mt-3 tracking-tight">{formatBDTSigned(summary.savings)}</p>
+              <p className="font-display text-3xl font-black text-blue-600 mt-3 tracking-tight">{formatBDTSigned(summary.savings)}</p>
               <p className="text-xs text-ink/40 mt-2">{summary.savingsRate}% {t('savings rate')}</p>
+            </div>
+          )}
+          {netPos && (
+            <div className="card p-6 border-2 border-mustard/30 bg-mustard/5 relative group">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink/60">
+                  {t('Net Savings (Net Position)')}
+                </p>
+                <div
+                  className="cursor-help text-xs bg-paper-mist px-1.5 py-0.5 rounded text-ink/50"
+                  title={`${t('Formula')}: ৳${formatBDT(netPos.liquid)} (${t('Liquid')}) + ৳${formatBDT(netPos.receivableOpen)} (${t('Receivables')}) - ৳${formatBDT(netPos.payableOpen)} (${t('Payables')})`}
+                >
+                  ⓘ
+                </div>
+              </div>
+              <p className={`font-display text-3xl font-black mt-3 tracking-tight ${netPos.netPosition >= 0 ? 'text-ink' : 'text-terra'}`}>
+                {formatBDTSigned(netPos.netPosition)}
+              </p>
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-ink/50 mt-2">
+                <span>{t('Liquid')}: {formatBDT(netPos.liquid)}</span>
+                <span>•</span>
+                <span>{t('Receivables')}: {formatBDT(netPos.receivableOpen)}</span>
+                <span>•</span>
+                <span>{t('Payables')}: {formatBDT(netPos.payableOpen)}</span>
+              </div>
             </div>
           )}
         </div>

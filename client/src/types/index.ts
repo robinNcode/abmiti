@@ -101,6 +101,7 @@ export interface Entry {
   sector?: string;
   date: string;
   parsedFromSms: boolean;
+  payableId?: string | null;
   createdAt: string;
 }
 
@@ -202,3 +203,60 @@ export interface Account {
   balance: number;
   isActive: boolean;
 }
+
+export type PayableKind = 'borrowed_cash' | 'unpaid_expense';
+export type PayableStatus = 'open' | 'settled' | 'cancelled';
+
+export interface IPayable {
+  _id: string;
+  id?: string;
+  user: string;
+  counterparty: string;
+  principal: number;
+  paidAmount: number;
+  remaining: number;
+  kind: PayableKind;
+  categoryId?: string | null;
+  accountId?: string | null;
+  dueDate?: string | null;
+  note?: string;
+  status: PayableStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IPayableWithPayments extends IPayable {
+  payments: Entry[];
+}
+
+export interface CreatePayableDto {
+  counterparty: string;
+  principal: number;
+  kind: PayableKind;
+  categoryId?: string | null;
+  accountId?: string | null;
+  dueDate?: string | null;
+  note?: string;
+}
+
+export interface PayPayableDto {
+  amount: number;
+  date?: string;
+  accountId?: string;
+  source: PaymentSource;
+  note?: string;
+}
+
+export interface PatchPayableDto {
+  counterparty?: string;
+  dueDate?: string | null;
+  note?: string;
+}
+
+export interface INetPosition {
+  liquid: number;
+  receivableOpen: number;
+  payableOpen: number;
+  netPosition: number;
+}
+
