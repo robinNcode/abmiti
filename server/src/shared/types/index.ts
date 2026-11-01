@@ -48,6 +48,7 @@ export interface IEntry extends Document {
   source: PaymentSource;
   account?: Types.ObjectId; // For savings entries
   payable?: Types.ObjectId; // Link to payables (Phase 1)
+  receivable?: Types.ObjectId; // Link to receivables
   sector?: string;
   date: Date;
   parsedFromSms: boolean;
@@ -279,3 +280,43 @@ export interface INetPosition {
   payableOpen: number;
   netPosition: number;
 }
+
+// ── Receivable domain ────────────────────────────────────────
+export type ReceivableKind   = 'lent_cash' | 'unpaid_income';
+export type ReceivableStatus = 'open' | 'settled' | 'cancelled';
+
+export interface IReceivable {
+  _id: string;
+  userId: string;
+  counterparty: string;
+  principal: number;
+  receivedAmount: number;
+  remaining: number;          // derived: principal - receivedAmount
+  kind: ReceivableKind;
+  categoryId?: string | null;
+  accountId?: string | null;
+  dueDate?: Date | null;
+  note?: string;
+  status: ReceivableStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IReceivableInput {
+  counterparty: string;
+  principal: number;
+  kind: ReceivableKind;
+  categoryId?: string;
+  accountId?: string;
+  dueDate?: string;
+  note?: string;
+}
+
+export interface IReceivableCollectInput {
+  amount: number;
+  date?: string;
+  accountId?: string;
+  source?: string;
+  note?: string;
+}
+

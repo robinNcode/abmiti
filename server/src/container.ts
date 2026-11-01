@@ -27,6 +27,7 @@ import {
   ISummaryRepository,
   IBudgetRepository,
   IPayableRepository,
+  IReceivableRepository,
 } from './shared/types/repositories';
 
 export interface AppContainer {
@@ -37,6 +38,7 @@ export interface AppContainer {
   summaryRepo:  ISummaryRepository;
   budgetRepo:   IBudgetRepository;
   payableRepo:  IPayableRepository;
+  receivableRepo: IReceivableRepository;
 }
 
 function buildContainer(): AppContainer {
@@ -49,6 +51,7 @@ function buildContainer(): AppContainer {
       summaryRepo:  new MySQLSummaryRepository(),
       budgetRepo:   new MySQLBudgetRepository(),
       payableRepo:  new MySQLPayableRepository(),
+      receivableRepo: new MySQLReceivableRepository(),
     };
   }
   // default: mongodb
@@ -60,6 +63,7 @@ function buildContainer(): AppContainer {
     summaryRepo:  new MongoSummaryRepository(),
     budgetRepo:   new MongoBudgetRepository(),
     payableRepo:  new MongoPayableRepository(),
+    receivableRepo: new MongoReceivableRepository(),
   };
 }
 

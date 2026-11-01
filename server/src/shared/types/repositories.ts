@@ -2,6 +2,7 @@ import {
   IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput, IBudget, IBudgetInput, IBudgetLineInput,
   IEntryFilters, IPaginationOptions, IPaginatedResult, EntryType,
   IPayable, IPayableInput, INetPosition,
+  IReceivable, IReceivableInput,
 } from './index';
 
 // ── User Repository ─────────────────────────────────────────
@@ -180,3 +181,17 @@ export interface IPayableRepository {
   cancel(userId: string, id: string): Promise<IPayable | null>;
   getNetPosition(userId: string): Promise<INetPosition>;
 }
+
+// ── Receivable Repository ─────────────────────────────────────
+export interface IReceivableRepository {
+  create(userId: string, data: IReceivableInput): Promise<IReceivable>;
+  findById(userId: string, id: string): Promise<IReceivable | null>;
+  findMany(userId: string, status?: string): Promise<IReceivable[]>;
+  update(userId: string, id: string, data: Partial<Pick<IReceivableInput, 'counterparty' | 'note' | 'dueDate'>>): Promise<IReceivable | null>;
+  /** Atomically increment received_amount and set status. Returns updated receivable. */
+  applyCollection(userId: string, id: string, amount: number, newStatus: 'open' | 'settled'): Promise<IReceivable | null>;
+  /** Atomically decrement received_amount and reopen if settled. Returns updated receivable. */
+  reverseCollection(userId: string, id: string, amount: number): Promise<IReceivable | null>;
+  cancel(userId: string, id: string): Promise<IReceivable | null>;
+}
+
