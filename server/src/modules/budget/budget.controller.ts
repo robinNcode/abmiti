@@ -108,4 +108,25 @@ export const budgetController = {
       sendSuccess(res, await budgetService.lineEntries(req.user!.userId, req.params.id, req.params.lineId));
     } catch (err) { next(err); }
   },
+
+  async analysis(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      sendSuccess(res, await budgetService.analysis(req.user!.userId, req.params.id));
+    } catch (err) { next(err); }
+  },
+
+  async forecast(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      sendSuccess(res, await budgetService.forecast(req.user!.userId, req.params.id));
+    } catch (err) { next(err); }
+  },
+
+  async drilldown(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const page = req.query.page ? Number(req.query.page) : 1;
+      const limit = req.query.limit ? Number(req.query.limit) : 20;
+      const lineId = req.query.lineId ? String(req.query.lineId) : undefined;
+      sendSuccess(res, await budgetService.drilldown(req.user!.userId, req.params.id, lineId, page, limit));
+    } catch (err) { next(err); }
+  },
 };

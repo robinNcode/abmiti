@@ -10,6 +10,7 @@ type EntryRow = {
   id: string; user_id: string; type: string; amount: number | string; note: string;
   category_id: string; source: string; account_id: string | null; sector: string;
   date: Date | string; parsed_from_sms: number; raw_sms: string | null;
+  payable_id?: string | null; receivable_id?: string | null;
   created_at: Date; updated_at: Date;
   // joined fields
   cat_name?: string; cat_icon?: string; cat_color?: string;
@@ -34,6 +35,8 @@ const toIEntry = (row: EntryRow): IEntry => ({
         provider: row.acc_provider, balance: Number(row.acc_balance ?? 0),
       } as any
     : (row.account_id as any) ?? undefined,
+  payable:       row.payable_id as any,
+  receivable:    row.receivable_id as any,
   sector:        row.sector,
   date:          new Date(row.date),
   parsedFromSms: Boolean(row.parsed_from_sms),
@@ -113,8 +116,8 @@ export class MySQLEntryRepository implements IEntryRepository {
 
     await this.pool.execute(
       `INSERT INTO entries
-         (id, user_id, type, amount, note, category_id, source, account_id, sector, date, parsed_from_sms, raw_sms)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, user_id, type, amount, note, category_id, source, account_id, sector, date, parsed_from_sms, raw_sms, payable_id, receivable_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         String(d.user),
@@ -128,6 +131,8 @@ export class MySQLEntryRepository implements IEntryRepository {
         dateStr,
         d.parsedFromSms ? 1 : 0,
         d.rawSms ?? null,
+        d.payable ? String(d.payable) : null,
+        d.receivable ? String(d.receivable) : null,
       ],
     );
     return (await this.findById(id, String(d.user)))!;

@@ -23,12 +23,16 @@ class OverviewTab extends StatefulWidget {
     required this.auth,
     required this.onNavigateToLedger,
     required this.onNavigateToBudgets,
+    this.onNavigateToPayables,
+    this.onNavigateToReceivables,
   });
 
   final FinanceRepository financeRepo;
   final AuthRepository auth;
   final VoidCallback onNavigateToLedger;
   final VoidCallback onNavigateToBudgets;
+  final VoidCallback? onNavigateToPayables;
+  final VoidCallback? onNavigateToReceivables;
 
   @override
   State<OverviewTab> createState() => _OverviewTabState();
@@ -42,6 +46,7 @@ class _OverviewTabState extends State<OverviewTab> {
   List<Map<String, dynamic>> _categories = [];
   List<Map<String, dynamic>> _recentEntries = [];
   Map<String, dynamic>? _budgetSummary;
+  Map<String, dynamic>? _netPosition;
 
   final DateTime _currentDate = DateTime.now();
 
@@ -66,12 +71,14 @@ class _OverviewTabState extends State<OverviewTab> {
           widget.financeRepo.fetchCategoryBreakdown(month, year);
       final entriesFuture = widget.financeRepo.fetchEntries(limit: 5);
       final budgetFuture = widget.financeRepo.fetchBudget(month, year);
+      final netPosFuture = widget.financeRepo.fetchNetPosition();
 
       final results = await Future.wait([
         summaryFuture,
         categoriesFuture,
         entriesFuture,
         budgetFuture,
+        netPosFuture,
       ]);
 
       final budget = results[3] as Map<String, dynamic>?;
@@ -92,6 +99,7 @@ class _OverviewTabState extends State<OverviewTab> {
                   .toList()
               : [];
           _budgetSummary = budgetSum;
+          _netPosition = results[4] as Map<String, dynamic>?;
           _loading = false;
         });
       }
@@ -107,6 +115,14 @@ class _OverviewTabState extends State<OverviewTab> {
 
   String _formatCurrency(num value) {
     return '৳${value.toStringAsFixed(0)}';
+  }
+
+  void _openQuickEntry(String note) {
+    EntryFormModal.show(
+      context,
+      financeRepo: widget.financeRepo,
+      onEntryCreated: _loadData,
+    );
   }
 
   @override
@@ -143,6 +159,125 @@ class _OverviewTabState extends State<OverviewTab> {
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         children: [
+          // ── Net Position Card (Mirroring Web UI/UX) ───────────────
+          if (_netPosition != null && _netPosition!.isNotEmpty) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkElevated
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.mustard.withAlpha(
+                      Theme.of(context).brightness == Brightness.dark ? 80 : 120),
+                  width: 1.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.mustard.withAlpha(12),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        loc.tr('net_position'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white70
+                              : AppColors.inkLight,
+                        ),
+                      ),
+                      Tooltip(
+                        message:
+                            'Formula: Liquid + Receivables - Payables',
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkSurface
+                                : AppColors.paperMist,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.info_outline_rounded,
+                            size: 14,
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white60
+                                : AppColors.inkLight,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _formatCurrency((_netPosition!['netPosition'] as num?) ?? 0),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: ((_netPosition!['netPosition'] as num?) ?? 0) >= 0
+                          ? (Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : AppColors.ink)
+                          : AppColors.terra,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 6,
+                    children: [
+                      Text(
+                        '${loc.tr('liquid')}: ${_formatCurrency((_netPosition!['liquid'] as num?) ?? 0)}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white60
+                              : AppColors.inkLight,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: widget.onNavigateToReceivables,
+                        child: Text(
+                          '${loc.tr('receivables')}: ${_formatCurrency((_netPosition!['receivableOpen'] as num?) ?? 0)}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.sage,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: widget.onNavigateToPayables,
+                        child: Text(
+                          '${loc.tr('payables')}: ${_formatCurrency((_netPosition!['payableOpen'] as num?) ?? 0)}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.terra,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
           // ── Professional Total Balance Dashboard Card ─────────────
           Builder(
             builder: (context) {
@@ -499,6 +634,44 @@ class _OverviewTabState extends State<OverviewTab> {
             const SizedBox(height: 24),
           ],
 
+          // ── Quick Expenses ─────────────────────────────────────────
+          SectionHeader(
+            title: loc.tr('quick_expenses'),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _QuickExpenseChip(
+                  icon: '🏠',
+                  label: 'Home Rent',
+                  onTap: () => _openQuickEntry('Home Rent'),
+                ),
+                _QuickExpenseChip(
+                  icon: '⚡',
+                  label: 'Electricity Bill',
+                  onTap: () => _openQuickEntry('Electricity Bill'),
+                ),
+                _QuickExpenseChip(
+                  icon: '🔥',
+                  label: 'Gas Bill',
+                  onTap: () => _openQuickEntry('Gas Bill'),
+                ),
+                _QuickExpenseChip(
+                  icon: '🛒',
+                  label: 'Groceries',
+                  onTap: () => _openQuickEntry('Groceries'),
+                ),
+                _QuickExpenseChip(
+                  icon: '🎓',
+                  label: 'College Fee',
+                  onTap: () => _openQuickEntry('College Fee'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
           // ── Recent Activity ────────────────────────────────────────
           SectionHeader(
             title: loc.tr('recent_transactions'),
@@ -658,6 +831,54 @@ class _FinancialMetricItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _QuickExpenseChip extends StatelessWidget {
+  const _QuickExpenseChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final String icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkElevated : AppColors.paperCard,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : AppColors.paperMist,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(icon, style: const TextStyle(fontSize: 14)),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

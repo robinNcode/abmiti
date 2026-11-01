@@ -241,13 +241,13 @@ export class MySQLBudgetRepository implements IBudgetRepository {
     const [rows] = await this.pool.query<(RowDataPacket & { id: string; amount: string; category_id: string })[]>(
       `SELECT id, user_id, type, amount, note, category_id, source, account_id, sector, date, parsed_from_sms, created_at, updated_at
        FROM entries
-       WHERE user_id = ? AND type = 'expense' AND category_id IN (?) AND date BETWEEN ? AND ?`,
+       WHERE user_id = ? AND type IN ('expense','savings','investment') AND category_id IN (?) AND date BETWEEN ? AND ?`,
       [userId, categoryIds, start, end],
     );
     return rows.map((row) => ({
       _id: row.id,
       user: row.user_id,
-      type: 'expense',
+      type: row.type,
       amount: Number(row.amount),
       note: row.note,
       category: row.category_id,
@@ -260,4 +260,97 @@ export class MySQLBudgetRepository implements IBudgetRepository {
       updatedAt: row.updated_at,
     } as unknown as IEntry));
   }
+
+  async getAggregatesForMonth(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<{ actualIncome: number; categorySpends: { categoryId: string; amount: number }[]; totalOutflow: number }> {
+    // Income
+    const [incRows] = await this.pool.query<RowDataPacket[]>(
+      `SELECT COALESCE(SUM(amount), 0) AS total FROM entries WHERE user_id = ? AND type = 'income' AND date BETWEEN ? AND ?`,
+      [userId, start, end],
+    );
+    const actualIncome = Number(incRows[0]?.total ?? 0);
+
+    // Category-level outflow aggregation (expense + savings + investment)
+    const [catRows] = await this.pool.query<RowDataPacket[]>(
+      `SELECT category_id AS categoryId, SUM(amount) AS amount
+       FROM entries
+       WHERE user_id = ? AND type IN ('expense','savings','investment') AND date BETWEEN ? AND ?
+       GROUP BY category_id`,
+      [userId, start, end],
+    );
+    const categorySpends = catRows.map((r) => ({ categoryId: r.categoryId as string, amount: Number(r.amount) }));
+
+    const [outRows] = await this.pool.query<RowDataPacket[]>(
+      `SELECT COALESCE(SUM(amount), 0) AS total FROM entries WHERE user_id = ? AND type IN ('expense','savings','investment') AND date BETWEEN ? AND ?`,
+      [userId, start, end],
+    );
+    const totalOutflow = Number(outRows[0]?.total ?? 0);
+
+    return { actualIncome, categorySpends, totalOutflow };
+  }
+
+  async findLineEntriesPaginated(
+    userId: string,
+    filters: {
+      start: Date;
+      end: Date;
+      categoryIds?: string[];
+      unmappedCategoryIds?: string[];
+      isUnbudgeted?: boolean;
+    },
+    page: number,
+    limit: number,
+  ): Promise<{ data: IEntry[]; total: number; page: number; totalPages: number }> {
+    const params: unknown[] = [userId];
+    let where = `user_id = ? AND type IN ('expense','savings','investment') AND date BETWEEN ? AND ?`;
+    params.push(filters.start, filters.end);
+
+    if (filters.isUnbudgeted && filters.unmappedCategoryIds?.length) {
+      // Unbudgeted = entries whose category is NOT in any mapped set
+      where += ` AND category_id NOT IN (?)`;
+      params.push(filters.unmappedCategoryIds);
+    } else if (filters.categoryIds?.length) {
+      where += ` AND category_id IN (?)`;
+      params.push(filters.categoryIds);
+    }
+
+    const [countRows] = await this.pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as cnt FROM entries WHERE ${where}`,
+      params,
+    );
+    const total = Number(countRows[0].cnt);
+    const totalPages = Math.ceil(total / limit);
+    const offset = (page - 1) * limit;
+
+    const [rows] = await this.pool.query<RowDataPacket[]>(
+      `SELECT e.*, c.name as category_name, c.icon as category_icon, c.color as category_color
+       FROM entries e
+       LEFT JOIN categories c ON c.id = e.category_id
+       WHERE e.${where}
+       ORDER BY e.date DESC, e.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset],
+    );
+
+    const data = rows.map((row) => ({
+      _id: row.id,
+      user: row.user_id,
+      type: row.type,
+      amount: Number(row.amount),
+      note: row.note,
+      category: { _id: row.category_id, name: row.category_name, icon: row.category_icon, color: row.category_color },
+      source: row.source,
+      account: row.account_id,
+      sector: row.sector,
+      date: row.date,
+      parsedFromSms: Boolean(row.parsed_from_sms),
+      createdAt: row.created_at,
+    } as unknown as IEntry));
+
+    return { data, total, page, totalPages };
+  }
 }
+

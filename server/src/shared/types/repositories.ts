@@ -1,6 +1,8 @@
 import {
   IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput, IBudget, IBudgetInput, IBudgetLineInput,
   IEntryFilters, IPaginationOptions, IPaginatedResult, EntryType,
+  IPayable, IPayableInput, INetPosition,
+  IReceivable, IReceivableInput,
 } from './index';
 
 // ── User Repository ─────────────────────────────────────────
@@ -143,4 +145,53 @@ export interface IBudgetRepository {
     start: Date,
     end: Date,
   ): Promise<IEntry[]>;
+  getAggregatesForMonth(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<{
+    actualIncome: number;
+    categorySpends: { categoryId: string; amount: number }[];
+    totalOutflow: number;
+  }>;
+  findLineEntriesPaginated(
+    userId: string,
+    filters: {
+      start: Date;
+      end: Date;
+      categoryIds?: string[];
+      unmappedCategoryIds?: string[];
+      isUnbudgeted?: boolean;
+    },
+    page: number,
+    limit: number,
+  ): Promise<{ data: IEntry[]; total: number; page: number; totalPages: number }>;
 }
+
+// ── Payable Repository (Phase 1) ──────────────────────────────
+export interface IPayableRepository {
+  create(userId: string, data: IPayableInput): Promise<IPayable>;
+  findById(userId: string, id: string): Promise<IPayable | null>;
+  findMany(userId: string, status?: string): Promise<IPayable[]>;
+  update(userId: string, id: string, data: Partial<Pick<IPayableInput, 'counterparty' | 'note' | 'dueDate'>>): Promise<IPayable | null>;
+  /** Atomically increment paid_amount and set status. Returns updated payable. */
+  applyPayment(userId: string, id: string, amount: number, newStatus: 'open' | 'settled'): Promise<IPayable | null>;
+  /** Atomically decrement paid_amount and reopen if settled. Returns updated payable. */
+  reversePayment(userId: string, id: string, amount: number): Promise<IPayable | null>;
+  cancel(userId: string, id: string): Promise<IPayable | null>;
+  getNetPosition(userId: string): Promise<INetPosition>;
+}
+
+// ── Receivable Repository ─────────────────────────────────────
+export interface IReceivableRepository {
+  create(userId: string, data: IReceivableInput): Promise<IReceivable>;
+  findById(userId: string, id: string): Promise<IReceivable | null>;
+  findMany(userId: string, status?: string): Promise<IReceivable[]>;
+  update(userId: string, id: string, data: Partial<Pick<IReceivableInput, 'counterparty' | 'note' | 'dueDate'>>): Promise<IReceivable | null>;
+  /** Atomically increment received_amount and set status. Returns updated receivable. */
+  applyCollection(userId: string, id: string, amount: number, newStatus: 'open' | 'settled'): Promise<IReceivable | null>;
+  /** Atomically decrement received_amount and reopen if settled. Returns updated receivable. */
+  reverseCollection(userId: string, id: string, amount: number): Promise<IReceivable | null>;
+  cancel(userId: string, id: string): Promise<IReceivable | null>;
+}
+

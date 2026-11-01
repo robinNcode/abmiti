@@ -28,6 +28,9 @@ router.post('/:id/save-as-template', budgetController.saveAsTemplate);
 
 router.get('/:id/summary', budgetController.summary);
 router.get('/:id/summary/line/:lineId', budgetController.lineEntries);
+router.get('/:id/analysis', budgetController.analysis);
+router.get('/:id/forecast', budgetController.forecast);
+router.get('/:id/drilldown', budgetController.drilldown);
 router.post('/:id/lines', validateBudgetLine, validate, budgetController.addLine);
 router.put('/:id/lines/:lineId', validateBudgetLine, validate, budgetController.updateLine);
 router.delete('/:id/lines/:lineId', budgetController.removeLine);

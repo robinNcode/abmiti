@@ -1,5 +1,14 @@
 import { apiClient } from './client';
-import { BudgetLineInput, BudgetSummary, Entry, IBudget, IBudgetInput } from '@/types';
+import {
+  BudgetAnalysisResult,
+  BudgetLineInput,
+  BudgetSummary,
+  Entry,
+  ForecastResult,
+  IBudget,
+  IBudgetInput,
+  PaginatedEntries,
+} from '@/types';
 
 export const budgetApi = {
   getByMonth: (month: number, year: number) =>
@@ -44,4 +53,13 @@ export const budgetApi = {
 
   lineEntries: (id: string, lineId: string) =>
     apiClient.get<{ data: Entry[] }>(`/budgets/${id}/summary/line/${lineId}`).then((r) => r.data.data),
+
+  analysis: (id: string) =>
+    apiClient.get<{ data: BudgetAnalysisResult }>(`/budgets/${id}/analysis`).then((r) => r.data.data),
+
+  forecast: (id: string) =>
+    apiClient.get<{ data: ForecastResult }>(`/budgets/${id}/forecast`).then((r) => r.data.data),
+
+  drilldown: (id: string, params?: { lineId?: string; page?: number; limit?: number }) =>
+    apiClient.get<{ data: PaginatedEntries }>(`/budgets/${id}/drilldown`, { params }).then((r) => r.data.data),
 };

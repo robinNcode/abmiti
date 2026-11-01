@@ -15,7 +15,9 @@ import '../home/activity_tab.dart';
 import '../home/entry_form.dart';
 import '../home/overview_tab.dart';
 import '../notifications/notifications_screen.dart';
+import '../payables/payables_screen.dart';
 import '../profile/profile_screen.dart';
+import '../receivables/receivables_screen.dart';
 import '../reports/reports_screen.dart';
 
 /// AppShell provides the core navigation experience:
@@ -107,6 +109,18 @@ class _AppShellState extends State<AppShell> {
         auth: widget.auth,
         onNavigateToLedger: () => setState(() => _currentIndex = 1),
         onNavigateToBudgets: () => setState(() => _currentIndex = 2),
+        onNavigateToPayables: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PayablesScreen(financeRepo: widget.financeRepo),
+          ),
+        ),
+        onNavigateToReceivables: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ReceivablesScreen(financeRepo: widget.financeRepo),
+          ),
+        ),
       ),
       ActivityTab(financeRepo: widget.financeRepo),
       BudgetScreen(financeRepo: widget.financeRepo),
@@ -311,6 +325,20 @@ class _AppShellState extends State<AppShell> {
                       Navigator.pop(context);
                       setState(() => _currentIndex = 2);
                     },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.call_received_rounded,
+                    label: loc.tr('nav_receivables'),
+                    onTap: () => _navigateToDrawerDestination(
+                      ReceivablesScreen(financeRepo: widget.financeRepo),
+                    ),
+                  ),
+                  _DrawerItem(
+                    icon: Icons.credit_card_rounded,
+                    label: loc.tr('nav_payables'),
+                    onTap: () => _navigateToDrawerDestination(
+                      PayablesScreen(financeRepo: widget.financeRepo),
+                    ),
                   ),
                   _DrawerItem(
                     icon: Icons.insights_rounded,

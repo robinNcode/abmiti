@@ -104,9 +104,74 @@ export class MongoBudgetRepository implements IBudgetRepository {
     if (!categoryIds.length) return [];
     return Entry.find({
       user: userId,
-      type: 'expense',
+      type: { $in: ['expense', 'savings', 'investment'] },
       category: { $in: categoryIds.map((id) => new Types.ObjectId(id)) },
       date: { $gte: start, $lte: end },
     }).populate('category', 'name icon color');
   }
+
+  async getAggregatesForMonth(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<{ actualIncome: number; categorySpends: { categoryId: string; amount: number }[]; totalOutflow: number }> {
+    const uid = new Types.ObjectId(userId);
+
+    const [incomeAgg] = await Entry.aggregate([
+      { $match: { user: uid, type: 'income', date: { $gte: start, $lte: end } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    const actualIncome = incomeAgg?.total ?? 0;
+
+    const catAgg = await Entry.aggregate([
+      { $match: { user: uid, type: { $in: ['expense', 'savings', 'investment'] }, date: { $gte: start, $lte: end } } },
+      { $group: { _id: '$category', amount: { $sum: '$amount' } } },
+    ]);
+    const categorySpends = catAgg.map((r: { _id: Types.ObjectId; amount: number }) => ({
+      categoryId: r._id.toString(),
+      amount: r.amount,
+    }));
+
+    const totalOutflow = categorySpends.reduce((s: number, c: { amount: number }) => s + c.amount, 0);
+
+    return { actualIncome, categorySpends, totalOutflow };
+  }
+
+  async findLineEntriesPaginated(
+    userId: string,
+    filters: {
+      start: Date;
+      end: Date;
+      categoryIds?: string[];
+      unmappedCategoryIds?: string[];
+      isUnbudgeted?: boolean;
+    },
+    page: number,
+    limit: number,
+  ): Promise<{ data: IEntry[]; total: number; page: number; totalPages: number }> {
+    const query: Record<string, unknown> = {
+      user: userId,
+      type: { $in: ['expense', 'savings', 'investment'] },
+      date: { $gte: filters.start, $lte: filters.end },
+    };
+
+    if (filters.isUnbudgeted && filters.unmappedCategoryIds?.length) {
+      query.category = { $nin: filters.unmappedCategoryIds.map((id) => new Types.ObjectId(id)) };
+    } else if (filters.categoryIds?.length) {
+      query.category = { $in: filters.categoryIds.map((id) => new Types.ObjectId(id)) };
+    }
+
+    const total = await Entry.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+    const skip = (page - 1) * limit;
+
+    const data = await Entry.find(query)
+      .populate('category', 'name icon color')
+      .sort({ date: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return { data: data as unknown as IEntry[], total, page, totalPages };
+  }
 }
+

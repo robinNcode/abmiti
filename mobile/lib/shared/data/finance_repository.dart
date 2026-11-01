@@ -272,4 +272,171 @@ class FinanceRepository {
   Future<void> deleteEntry(String id) async {
     await _apiClient.client.delete('/entries/$id');
   }
+
+  // ── Net Position ───────────────────────────────────────────
+
+  Future<Map<String, dynamic>> fetchNetPosition() async {
+    final response = await _apiClient.client.get('/summary/net-position');
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  // ── Accounts ───────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> fetchAccounts() async {
+    final response = await _apiClient.client.get('/accounts');
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is List) {
+      return (data['data'] as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    }
+    return [];
+  }
+
+  // ── Payables ───────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> fetchPayables({String? status}) async {
+    final queryParams = <String, dynamic>{};
+    if (status != null && status.isNotEmpty) {
+      queryParams['status'] = status;
+    }
+    final response = await _apiClient.client.get(
+      '/payables',
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is List) {
+      return (data['data'] as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> fetchPayableDetail(String id) async {
+    final response = await _apiClient.client.get('/payables/$id');
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> createPayable(Map<String, dynamic> payload) async {
+    final response = await _apiClient.client.post('/payables', data: payload);
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> payPayable(
+      String id, Map<String, dynamic> payload) async {
+    final response =
+        await _apiClient.client.post('/payables/$id/payments', data: payload);
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<void> cancelPayable(String id) async {
+    await _apiClient.client.post('/payables/$id/cancel');
+  }
+
+  // ── Receivables ────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> fetchReceivables({String? status}) async {
+    final queryParams = <String, dynamic>{};
+    if (status != null && status.isNotEmpty) {
+      queryParams['status'] = status;
+    }
+    final response = await _apiClient.client.get(
+      '/receivables',
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      final inner = data['data'];
+      if (inner is List) {
+        return inner.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+      }
+      if (inner is Map<String, dynamic> && inner['data'] is List) {
+        return (inner['data'] as List)
+            .map((item) => Map<String, dynamic>.from(item as Map))
+            .toList();
+      }
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> fetchReceivableDetail(String id) async {
+    final response = await _apiClient.client.get('/receivables/$id');
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> createReceivable(
+      Map<String, dynamic> payload) async {
+    final response = await _apiClient.client.post('/receivables', data: payload);
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<Map<String, dynamic>> collectReceivable(
+      String id, Map<String, dynamic> payload) async {
+    final response =
+        await _apiClient.client.post('/receivables/$id/collect', data: payload);
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
+
+  Future<void> cancelReceivable(String id) async {
+    await _apiClient.client.post('/receivables/$id/cancel');
+  }
+
+  Future<void> deleteReceivable(String id) async {
+    await _apiClient.client.delete('/receivables/$id');
+  }
+
+  // ── Budget Templates ───────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> fetchBudgetTemplates() async {
+    final response = await _apiClient.client.get('/budgets/templates');
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is List) {
+      return (data['data'] as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> applyBudgetTemplate(
+      String templateId, int month, int year) async {
+    final response = await _apiClient.client.post(
+      '/budgets/from-template',
+      data: {'templateId': templateId, 'month': month, 'year': year},
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
+  }
 }
