@@ -326,3 +326,53 @@ export interface INetPosition {
   netPosition: number;
 }
 
+export type ReceivableKind = 'lent_cash' | 'unpaid_income';
+export type ReceivableStatus = 'open' | 'settled' | 'cancelled';
+
+export interface IReceivable {
+  _id: string;
+  id?: string;
+  user?: string;
+  userId?: string;
+  counterparty: string;
+  principal: number;
+  receivedAmount: number;
+  remaining: number;
+  kind: ReceivableKind;
+  categoryId?: string | null;
+  accountId?: string | null;
+  dueDate?: string | null;
+  note?: string;
+  status: ReceivableStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IReceivableWithPayments extends IReceivable {
+  payments: Entry[];
+}
+
+export interface CreateReceivableDto {
+  counterparty: string;
+  principal: number;
+  kind: ReceivableKind;
+  categoryId?: string | null;
+  accountId?: string | null;
+  dueDate?: string | null;
+  note?: string;
+}
+
+export interface CollectReceivableDto {
+  amount: number;
+  date?: string;
+  accountId?: string;
+  source?: PaymentSource;
+  note?: string;
+}
+
+export interface PatchReceivableDto {
+  counterparty?: string;
+  dueDate?: string | null;
+  note?: string;
+}
+

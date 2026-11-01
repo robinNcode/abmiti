@@ -8,6 +8,7 @@ import { MongoAccountRepository }  from './infrastructure/repositories/mongodb/a
 import { MongoSummaryRepository }  from './infrastructure/repositories/mongodb/summary.mongo.repo';
 import { MongoBudgetRepository }   from './infrastructure/repositories/mongodb/budget.mongo.repo';
 import { MongoPayableRepository }  from './infrastructure/repositories/mongodb/payable.mongo.repo';
+import { MongoReceivableRepository } from './infrastructure/repositories/mongodb/receivable.mongo.repo';
 
 // MySQL repositories
 import { MySQLUserRepository }     from './infrastructure/repositories/mysql/user.mysql.repo';
@@ -17,6 +18,7 @@ import { MySQLAccountRepository }  from './infrastructure/repositories/mysql/acc
 import { MySQLSummaryRepository }  from './infrastructure/repositories/mysql/summary.mysql.repo';
 import { MySQLBudgetRepository }   from './infrastructure/repositories/mysql/budget.mysql.repo';
 import { MySQLPayableRepository }  from './infrastructure/repositories/mysql/payable.mysql.repo';
+import { MySQLReceivableRepository } from './infrastructure/repositories/mysql/receivable.mysql.repo';
 
 // Repository interfaces
 import {

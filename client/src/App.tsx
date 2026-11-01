@@ -21,6 +21,7 @@ import AnalyticsPage  from '@/pages/AnalyticsPage';
 import LandingPage    from '@/pages/LandingPage';
 import BudgetPage     from '@/pages/BudgetPage';
 import PayablesPage   from '@/pages/PayablesPage';
+import ReceivablesPage from '@/pages/ReceivablesPage';
 import CategoryReportPage from '@/pages/CategoryReportPage';
 import TransactionStatementPage from '@/pages/TransactionStatementPage';
 import ProfilePage from '@/pages/ProfilePage';
@@ -147,6 +148,7 @@ export default function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/budget" element={<BudgetPage />} />
           <Route path="/payables" element={<PayablesPage />} />
+          <Route path="/receivables" element={<ReceivablesPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category-report" element={<CategoryReportPage />} />
           <Route path="/transaction-statement" element={<TransactionStatementPage />} />

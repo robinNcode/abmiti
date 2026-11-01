@@ -186,3 +186,4 @@ export const useDeleteAccount = () => {
 export * from './useBudget';
 export * from './budget.hooks';
 export * from './payables.hooks';
+export * from './receivables.hooks';

@@ -6,11 +6,12 @@ import {
   Tag,
   TrendingUp,
   Settings,
-  WalletCards,
   FileText,
   Shield,
   LifeBuoy,
   CreditCard,
+  ArrowDownLeft,
+  PieChart
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/store/authStore";
@@ -34,9 +35,10 @@ const OVERVIEW: NavItem[] = [
 ];
 
 const PLANNING: NavItem[] = [
-  { to: "/budget", icon: WalletCards, label: "Budget" },
+  { to: "/receivables", icon: ArrowDownLeft, label: "Receivables" },
   { to: "/payables", icon: CreditCard, label: "Payables" },
   { to: "/investments", icon: TrendingUp, label: "Investments" },
+  { to: "/budget", icon: PieChart, label: "Budget" },
 ];
 
 const INSIGHTS: NavItem[] = [
