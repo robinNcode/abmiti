@@ -42,7 +42,7 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
   final _nameController = TextEditingController();
   String _type = 'expense';
   String _selectedColor = '#C2552A';
-  String _selectedIcon = 'tag';
+  String _selectedIcon = '🏷️';
   bool _submitting = false;
   String? _error;
 
@@ -59,15 +59,19 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
     '#E53E3E'
   ];
 
-  static const List<Map<String, dynamic>> _iconOptions = [
-    {'name': 'tag', 'icon': Icons.local_offer_rounded},
-    {'name': 'cart', 'icon': Icons.shopping_cart_rounded},
-    {'name': 'food', 'icon': Icons.restaurant_rounded},
-    {'name': 'home', 'icon': Icons.home_rounded},
-    {'name': 'car', 'icon': Icons.directions_car_rounded},
-    {'name': 'medical', 'icon': Icons.medical_services_rounded},
-    {'name': 'work', 'icon': Icons.work_rounded},
-    {'name': 'gift', 'icon': Icons.card_giftcard_rounded},
+  static const List<String> _emojiOptions = [
+    '🏷️',
+    '🛒',
+    '🍔',
+    '🏠',
+    '🚗',
+    '🏥',
+    '💼',
+    '🎁',
+    '🎓',
+    '✈️',
+    '💰',
+    '📈',
   ];
 
   @override
@@ -78,8 +82,33 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
       _nameController.text = c['name']?.toString() ?? '';
       _type = c['type']?.toString() ?? 'expense';
       _selectedColor = c['color']?.toString() ?? '#C2552A';
-      _selectedIcon = c['icon']?.toString() ?? 'tag';
+      _selectedIcon = _normalizeIconValue(c['icon']?.toString());
     }
+  }
+
+  String _normalizeIconValue(String? value) {
+    final safeValue = (value ?? '').trim();
+    if (safeValue.isEmpty) return '🏷️';
+    if (RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(safeValue)) {
+      return safeValue;
+    }
+
+    const mapping = {
+      'tag': '🏷️',
+      'cart': '🛒',
+      'food': '🍔',
+      'home': '🏠',
+      'car': '🚗',
+      'medical': '🏥',
+      'work': '💼',
+      'gift': '🎁',
+      'education': '🎓',
+      'travel': '✈️',
+      'money': '💰',
+      'chart': '📈',
+    };
+
+    return mapping[safeValue] ?? '🏷️';
   }
 
   @override
@@ -229,7 +258,7 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
             ),
             const SizedBox(height: 16),
 
-            // Icon Selector
+            // Emoji Selector
             Text(
               loc.tr('icon'),
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
@@ -238,14 +267,13 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _iconOptions.map((opt) {
-                final isSelected = _selectedIcon == opt['name'];
+              children: _emojiOptions.map((emoji) {
+                final isSelected = _selectedIcon == emoji;
                 return ChoiceChip(
-                  label: Icon(opt['icon'] as IconData, size: 18),
+                  label: Text(emoji, style: const TextStyle(fontSize: 18)),
                   selected: isSelected,
-                  selectedColor: AppColors.terra,
-                  onSelected: (_) =>
-                      setState(() => _selectedIcon = opt['name'] as String),
+                  selectedColor: AppColors.terra.withAlpha(36),
+                  onSelected: (_) => setState(() => _selectedIcon = emoji),
                 );
               }).toList(),
             ),

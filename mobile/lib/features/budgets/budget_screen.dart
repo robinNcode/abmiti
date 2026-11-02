@@ -25,6 +25,17 @@ class BudgetScreen extends StatefulWidget {
   State<BudgetScreen> createState() => _BudgetScreenState();
 }
 
+double _budgetNumberValue(dynamic value, {double fallback = 0}) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.trim()) ?? fallback;
+  return fallback;
+}
+
+String _budgetStringValue(dynamic value, {String fallback = ''}) {
+  if (value == null) return fallback;
+  return value.toString();
+}
+
 class _BudgetScreenState extends State<BudgetScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _loading = true;
@@ -304,14 +315,37 @@ class _BudgetScreenState extends State<BudgetScreen> {
     final budgetId = _budget!['_id'].toString();
     final editing = line != null;
 
+    final categories = await widget.financeRepo.fetchCategories();
     final nameController =
-        TextEditingController(text: line?['name']?.toString() ?? '');
+        TextEditingController(text: _budgetStringValue(line?['name']));
+    final iconController =
+        TextEditingController(text: _budgetStringValue(line?['icon'], fallback: '📦'));
+    final colorController = TextEditingController(
+      text: _budgetStringValue(line?['color'], fallback: '#4A7C59'),
+    );
+    final noteController =
+        TextEditingController(text: _budgetStringValue(line?['note']));
     final valueController = TextEditingController(
       text: line == null
           ? ''
-          : _formatAllocationValue((line['allocationValue'] as num?) ?? 0),
+          : _formatAllocationValue(_budgetNumberValue(line['allocationValue'])),
     );
-    String method = line?['allocationMethod']?.toString() ?? 'fixed';
+    String method = _budgetStringValue(line?['allocationMethod'], fallback: 'fixed');
+    bool isActive = line == null
+        ? true
+        : (line['isActive'] is bool
+            ? line['isActive'] as bool
+            : line['isActive'] == 1 || line['isActive'] == 'true');
+    final selectedCategoryIds = <String>{
+      ...((line?['linkedCategoryIds'] as List?) ?? []).map((item) => item.toString()),
+    };
+    final subItems = <Map<String, dynamic>>[
+      ...((line?['subItems'] as List?) ?? []).map((item) => {
+        'name': _budgetStringValue(item['name']),
+        'expectedAmount': _budgetNumberValue(item['expectedAmount']),
+        'note': _budgetStringValue(item['note']),
+      }),
+    ];
 
     final result = await showDialog<bool>(
       context: context,
@@ -325,13 +359,29 @@ class _BudgetScreenState extends State<BudgetScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: loc.tr('line_name'),
-                    hintText: loc.tr('line_name_hint'),
-                  ),
-                  autofocus: true,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: loc.tr('line_name'),
+                          hintText: loc.tr('line_name_hint'),
+                        ),
+                        autofocus: true,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: iconController,
+                        decoration: const InputDecoration(
+                          labelText: 'Icon',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
@@ -351,6 +401,80 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   },
                 ),
                 const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: colorController,
+                        decoration: const InputDecoration(
+                          labelText: 'Color',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: _parseColor(colorController.text),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade400),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: isActive,
+                  title: Text(loc.tr('active')),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => isActive = value);
+                    }
+                  },
+                ),
+                if (categories.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Linked expense categories',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: categories.map((category) {
+                      final categoryId = category['_id']?.toString() ??
+                          category['id']?.toString() ?? '';
+                      final label = '${category['icon'] ?? '📦'} ${category['name'] ?? 'Category'}';
+                      final selected = selectedCategoryIds.contains(categoryId);
+                      return FilterChip(
+                        selected: selected,
+                        label: Text(label),
+                        onSelected: (value) {
+                          setDialogState(() {
+                            if (value) {
+                              selectedCategoryIds.add(categoryId);
+                            } else {
+                              selectedCategoryIds.remove(categoryId);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                TextField(
+                  controller: noteController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Note',
+                    hintText: 'Optional line note',
+                  ),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: valueController,
                   keyboardType:
@@ -363,6 +487,72 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     suffixText: method == 'percentage' ? '%' : null,
                   ),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Sub-items',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => setDialogState(() {
+                        subItems.add({
+                          'name': '',
+                          'expectedAmount': 0.0,
+                          'note': '',
+                        });
+                      }),
+                      icon: const Icon(Icons.add),
+                      label: Text(loc.tr('add')),
+                    ),
+                  ],
+                ),
+                ...subItems.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: const InputDecoration(labelText: 'Name'),
+                            controller: TextEditingController(
+                              text: _budgetStringValue(item['name']),
+                            ),
+                            onChanged: (value) =>
+                                setDialogState(() => item['name'] = value),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 110,
+                          child: TextField(
+                            controller: TextEditingController(
+                              text: _formatAllocationValue(
+                                _budgetNumberValue(item['expectedAmount']),
+                              ),
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: const InputDecoration(labelText: 'Amt'),
+                            onChanged: (value) => setDialogState(() {
+                              item['expectedAmount'] =
+                                  double.tryParse(value) ?? 0;
+                            }),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => setDialogState(() => subItems.removeAt(index)),
+                          icon: const Icon(Icons.delete_outline),
+                          color: AppColors.danger,
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -389,8 +579,23 @@ class _BudgetScreenState extends State<BudgetScreen> {
     try {
       final payload = {
         'name': name,
+        'icon': iconController.text.trim().isNotEmpty ? iconController.text.trim() : '📦',
+        'color': _normalizeColor(colorController.text),
         'allocationMethod': method,
         'allocationValue': val,
+        'linkedCategoryIds': selectedCategoryIds.toList(),
+        'subItems': subItems
+            .where((item) => (_budgetStringValue(item['name']).trim().isNotEmpty))
+            .map((item) => {
+                'name': _budgetStringValue(item['name']).trim(),
+                'expectedAmount': _budgetNumberValue(item['expectedAmount']),
+                if (_budgetStringValue(item['note']).trim().isNotEmpty)
+                  'note': _budgetStringValue(item['note']).trim(),
+              })
+            .toList(),
+        'order': 0,
+        'isActive': isActive,
+        if (noteController.text.trim().isNotEmpty) 'note': noteController.text.trim(),
       };
 
       if (editing) {
@@ -402,7 +607,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
       } else {
         await widget.financeRepo.addBudgetLine(
           budgetId,
-          {...payload, 'order': 0},
+          payload,
         );
       }
       _loadBudget();
@@ -437,6 +642,24 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return value == value.roundToDouble()
         ? value.toStringAsFixed(0)
         : value.toStringAsFixed(2);
+  }
+
+  Color _parseColor(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return AppColors.sage;
+    final normalized = trimmed.startsWith('#') ? trimmed : '#$trimmed';
+    try {
+      return Color(int.parse(normalized.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return AppColors.sage;
+    }
+  }
+
+  String _normalizeColor(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return '#4A7C59';
+    final normalized = trimmed.startsWith('#') ? trimmed : '#$trimmed';
+    return normalized.length == 7 ? normalized : '#4A7C59';
   }
 
   Future<void> _deleteLine(String lineId) async {

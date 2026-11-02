@@ -68,6 +68,12 @@ class _FakeFinanceRepository extends FinanceRepository {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> fetchCategories({String? type}) async => [
+    {'_id': 'cat1', 'name': 'Food', 'icon': '🍽️'},
+    {'_id': 'cat2', 'name': 'Transport', 'icon': '🚗'},
+  ];
+
+  @override
   Future<List<Map<String, dynamic>>> fetchBudgetTemplates() async =>
       List<Map<String, dynamic>>.from(budgetTemplates);
 
@@ -219,6 +225,22 @@ void main() {
     expect(fake.updatedLineId, 'l1');
     expect(fake.updatedLinePayload?['name'], 'Groceries');
     expect(fake.updatedLinePayload?['allocationValue'], 15000);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows the full budget line editor with icon, color, and notes',
+      (tester) async {
+    final fake = _FakeFinanceRepository();
+    await pumpBudget(tester, fake);
+
+    await tester.tap(find.text('+ Add line'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text('Add Budget Line'), findsOneWidget);
+    expect(find.text('Icon'), findsOneWidget);
+    expect(find.text('Color'), findsOneWidget);
+    expect(find.text('Note'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
