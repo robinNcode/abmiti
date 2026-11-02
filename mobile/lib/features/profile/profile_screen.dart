@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,6 +33,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _initiatingPayment = false;
   bool _smsParserEnabled = false;
   bool _smsParserBusy = false;
+  bool get _supportsSmsParser => !kIsWeb && Platform.isAndroid;
+
+  Future<void> _editProfile() async {
+    final user = widget.auth.currentUser ?? {};
+    final nameController = TextEditingController(text: user['name']?.toString() ?? '');
+    final emojiController = TextEditingController(text: user['avatar']?.toString() ?? '');
+    final values = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.appLocale.tr('profile_title')),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          TextField(controller: nameController, maxLength: 80, decoration: const InputDecoration(labelText: 'Name')),
+          TextField(controller: emojiController, maxLength: 8, decoration: const InputDecoration(labelText: 'Emoji', hintText: '🙂')),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(context.appLocale.tr('cancel'))),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, {'name': nameController.text.trim(), 'avatar': emojiController.text.trim()}), child: Text(context.appLocale.tr('save'))),
+        ],
+      ),
+    );
+    nameController.dispose();
+    emojiController.dispose();
+    if (values == null || !mounted) return;
+    if (values['name']!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name cannot be empty.')));
+      return;
+    }
+    try {
+      await widget.auth.updateProfile(values);
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiClient.messageFrom(error))));
+    }
+  }
 
   @override
   void initState() {
@@ -41,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadSmsParserStatus() async {
-    if (!Platform.isAndroid) return;
+    if (!_supportsSmsParser) return;
     try {
       final status = await SmsParserService.instance.getStatus();
       if (mounted) {
@@ -186,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = widget.auth.currentUser;
     final name = user?['name']?.toString() ?? loc.tr('default_user_name');
     final email = user?['email']?.toString() ?? '';
-    final userEmoji = user?['emoji']?.toString() ?? '👤';
+    final userEmoji = user?['avatar']?.toString() ?? user?['emoji']?.toString() ?? '👤';
     final avatarText = RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true)
             .hasMatch(userEmoji)
         ? userEmoji
@@ -275,6 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
+                IconButton(tooltip: 'Edit profile', onPressed: _editProfile, icon: const Icon(Icons.edit_rounded)),
               ],
             ),
           ),
@@ -348,7 +383,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Column(
               children: [
-                if (Platform.isAndroid) ...[
+                if (_supportsSmsParser) ...[
                   ListTile(
                     leading: const Icon(
                       Icons.sms_outlined,
