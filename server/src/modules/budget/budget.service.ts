@@ -112,6 +112,21 @@ const assertValidPercentages = (lines: Array<{ allocationMethod?: string; alloca
   }
 };
 
+const isTemplateDuplicateError = (error: unknown): boolean => {
+  if (typeof error !== 'object' || error === null) return false;
+  const dbError = error as {
+    code?: unknown;
+    message?: unknown;
+    keyPattern?: Record<string, unknown>;
+  };
+  if (dbError.code === 'ER_DUP_ENTRY') {
+    return typeof dbError.message === 'string' && dbError.message.includes('uq_user_month_year_template');
+  }
+  const keyPattern = dbError.keyPattern;
+  if (dbError.code !== 11000 || !keyPattern) return false;
+  return ['user', 'month', 'year', 'isTemplate'].every((key) => key in keyPattern);
+};
+
 export const budgetService = {
   resolvePlannedAmount(line: Pick<IBudgetLine, 'allocationMethod' | 'allocationValue'>, totalIncome: number): number {
     return line.allocationMethod === 'percentage'
@@ -212,26 +227,36 @@ export const budgetService = {
 
   async saveAsTemplate(userId: string, id: string, templateName?: string) {
     const source = ensureBudget(await container.budgetRepo.findById(id, userId));
-    return this.create(userId, {
-      month: source.month,
-      year: source.year,
-      totalIncome: source.totalIncome,
-      isTemplate: true,
-      templateName: templateName ?? source.templateName ?? `${source.month}/${source.year} Budget`,
-      notes: source.notes,
-      lines: source.lines.map((line) => ({
-        name: line.name,
-        icon: line.icon,
-        color: line.color,
-        allocationMethod: line.allocationMethod,
-        allocationValue: line.allocationValue,
-        linkedCategoryIds: line.linkedCategoryIds.map((catId) => catId.toString()),
-        subItems: line.subItems,
-        order: line.order,
-        isActive: line.isActive,
-        note: line.note,
-      })),
-    });
+    const existingTemplate = await container.budgetRepo.findByMonth(userId, source.month, source.year, true);
+    if (existingTemplate) throw new AppError('A template already exists for this month.', 409);
+
+    try {
+      return await this.create(userId, {
+        month: source.month,
+        year: source.year,
+        totalIncome: source.totalIncome,
+        isTemplate: true,
+        templateName: templateName ?? source.templateName ?? `${source.month}/${source.year} Budget`,
+        notes: source.notes,
+        lines: source.lines.map((line) => ({
+          name: line.name,
+          icon: line.icon,
+          color: line.color,
+          allocationMethod: line.allocationMethod,
+          allocationValue: line.allocationValue,
+          linkedCategoryIds: line.linkedCategoryIds.map((catId) => catId.toString()),
+          subItems: line.subItems,
+          order: line.order,
+          isActive: line.isActive,
+          note: line.note,
+        })),
+      });
+    } catch (error) {
+      if (isTemplateDuplicateError(error)) {
+        throw new AppError('A template already exists for this month.', 409);
+      }
+      throw error;
+    }
   },
 
   async fromTemplate(userId: string, templateId: string, month: number, year: number) {

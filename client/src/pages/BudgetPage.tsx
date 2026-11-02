@@ -39,7 +39,7 @@ export default function BudgetPage() {
   const { data: summary } = useBudgetSummary(budget?._id);
   const { data: analysis } = useBudgetAnalysis(budget?._id);
   const { data: forecast } = useBudgetForecast(budget?._id);
-  const { data: templates = [] } = useBudgetTemplates();
+  const { data: templates = [], isLoading: templatesLoading } = useBudgetTemplates();
   const { data: categories = [] } = useCategories('expense');
   const mutations = useBudgetMutations();
   const { t } = useTranslation();
@@ -52,6 +52,8 @@ export default function BudgetPage() {
 
   const summaryByLine = useMemo(() => new Map(summary?.lines.map((line) => [line.lineId, line])), [summary?.lines]);
   const analysisByLine = useMemo(() => new Map(analysis?.lines.map((line) => [line.id, line])), [analysis?.lines]);
+  const templateForMonth = templates.some((template) => template.month === month && template.year === year);
+  const hasBudgetLines = budget?.lines.length > 0;
 
   if (isLoading) {
     return <div className="min-h-full flex items-center justify-center"><Spinner className="text-terra" /></div>;
@@ -130,10 +132,15 @@ export default function BudgetPage() {
           <h2 className="font-display font-bold text-lg">{t('budgetLines')}</h2>
           <div className="flex gap-2">
             <button
-              className="btn-ghost text-sm"
+              className="btn-ghost text-sm disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={templatesLoading || templateForMonth || !hasBudgetLines || mutations.saveAsTemplate.isPending}
               onClick={() => mutations.saveAsTemplate.mutate({ id: budget._id, templateName: `${month}/${year} Budget` })}
             >
-              {t('Save template')}
+              {templateForMonth
+                ? t('Template saved')
+                : hasBudgetLines
+                  ? t('Save template')
+                  : t('Add budget lines before saving a template')}
             </button>
             <button
               className="btn-primary text-sm flex items-center gap-2"
