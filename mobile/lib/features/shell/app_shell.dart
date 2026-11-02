@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 
 import '../../shared/widgets/curved_navigation_bar.dart';
 
+import '../../shared/widgets/curved_navigation_bar.dart';
+
 import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_locale.dart';
@@ -625,10 +627,34 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       bottomNavigationBar: CurvedNavigationBar(
         index: _currentIndex,
         height: 72,
+        height: 72,
         backgroundColor: Colors.transparent,
         color: isDark ? AppColors.darkSurface : AppColors.paperCard,
         buttonBackgroundColor: AppColors.terra,
         items: [
+          _NavItem(
+            icon: Icons.dashboard_rounded,
+            label: loc.tr('nav_overview'),
+            active: _currentIndex == 0,
+            isDark: isDark,
+          ),
+          _NavItem(
+            icon: Icons.receipt_long_rounded,
+            label: loc.tr('nav_activity'),
+            active: _currentIndex == 1,
+            isDark: isDark,
+          ),
+          _NavItem(
+            icon: Icons.pie_chart_rounded,
+            label: loc.tr('nav_budgets'),
+            active: _currentIndex == 2,
+            isDark: isDark,
+          ),
+          _NavItem(
+            icon: Icons.insights_rounded,
+            label: loc.tr('nav_analytics'),
+            active: _currentIndex == 3,
+            isDark: isDark,
           _NavItem(
             icon: Icons.dashboard_rounded,
             label: loc.tr('nav_overview'),
@@ -676,23 +702,22 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foreground = active ? Colors.white : (isDark ? Colors.white70 : AppColors.ink);
-    final labelColor = active ? AppColors.terra : (isDark ? Colors.white70 : AppColors.inkLight);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20, color: foreground),
-          const SizedBox(height: 4),
+          Icon(icon, size: 21, color: foreground),
+          const SizedBox(height: 3),
           Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: labelColor,
+              color: foreground,
               fontSize: 10,
-              fontWeight: active ? FontWeight.w800 : FontWeight.w500,
+              fontWeight: active ? FontWeight.w800 : FontWeight.w600,
             ),
           ),
         ],

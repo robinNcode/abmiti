@@ -220,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = widget.auth.currentUser;
     final name = user?['name']?.toString() ?? loc.tr('default_user_name');
     final email = user?['email']?.toString() ?? '';
-    final userEmoji = user?['avatar']?.toString() ?? user?['emoji']?.toString() ?? '👤';
+    final userEmoji = user?['emoji']?.toString() ?? '👤';
     final avatarText = RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true)
             .hasMatch(userEmoji)
         ? userEmoji
@@ -249,6 +249,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   radius: 32,
                   backgroundColor: AppColors.terra,
                   child: Text(
+                    avatarText,
+                    style: TextStyle(
+                      fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,
                     avatarText,
                     style: TextStyle(
                       fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,

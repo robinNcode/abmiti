@@ -19,7 +19,7 @@ class AppConfig with ChangeNotifier {
   // ──────────────────────────────────────────────────────────────────────
 
   static const String defaultBaseUrl =
-      'http://127.0.0.1:5000/api/v1';
+      'https://robin.adovasoft.com/abmiti-app/api/v1';
 
   // Compile-time override: flutter run --dart-define=API_BASE_URL=...
   static const String _definedBaseUrl = String.fromEnvironment('API_BASE_URL');
