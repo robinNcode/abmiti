@@ -809,6 +809,10 @@ const extraEn = {
   'Tap a monthly expense to log it — it leaves the shortcuts once logged this month': 'Tap a monthly expense to log it — it leaves the shortcuts once logged this month',
   'All monthly expenses are logged for this month': 'All monthly expenses are logged for this month',
   'logged this month': 'logged this month',
+  'Edit entry': 'Edit entry',
+  'Save changes': 'Save changes',
+  'Entry updated': 'Entry updated ✓',
+  'Failed to update entry': 'Failed to update entry',
 };
 
 const extraBn: Record<string, string> = {
@@ -1613,6 +1617,10 @@ const extraBn: Record<string, string> = {
   'Tap a monthly expense to log it — it leaves the shortcuts once logged this month': 'খরচ যোগ করতে ট্যাপ করুন — এই মাসে যোগ হলে শর্টকাট থেকে সরে যাবে',
   'All monthly expenses are logged for this month': 'এই মাসের সব মাসিক খরচ যোগ করা হয়েছে',
   'logged this month': 'এই মাসে যোগ হয়েছে',
+  'Edit entry': 'এন্ট্রি সম্পাদনা করুন',
+  'Save changes': 'পরিবর্তন সংরক্ষণ করুন',
+  'Entry updated': 'এন্ট্রি হালনাগাদ হয়েছে ✓',
+  'Failed to update entry': 'এন্ট্রি হালনাগাদ করা যায়নি',
 };
 
 const resources = {

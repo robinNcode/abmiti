@@ -44,6 +44,23 @@ export const useCreateEntry = () => {
   });
 };
 
+export const useUpdateEntry = () => {
+  const qc = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: Partial<CreateEntryDto> }) => entriesApi.update(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['entries'] });
+      qc.invalidateQueries({ queryKey: ['summary'] });
+      qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
+      qc.invalidateQueries({ queryKey: ['yearly'] });
+      qc.invalidateQueries({ queryKey: ['quick-expenses'] });
+      toast.success(t('Entry updated'));
+    },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to update entry')),
+  });
+};
+
 export const useDeleteEntry = () => {
   const qc = useQueryClient();
   const { t } = useTranslation();
