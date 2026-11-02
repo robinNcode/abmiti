@@ -162,14 +162,14 @@ export default function AdminBlogPage() {
 
       {/* Edit/Create Modal */}
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !saving && setEditing(null)} />
-          <div className="relative bg-[#1a1d27] border border-white/[0.08] rounded-2xl w-full max-w-4xl shadow-2xl animate-fade-up max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] sticky top-0 bg-[#1a1d27] z-10">
-              <h2 className="font-display font-bold text-lg text-white/80">{editing._id || editing.id ? t('Edit Post') : t('Create Post')}</h2>
-              <button onClick={() => !saving && setEditing(null)} className="admin-icon-btn" aria-label={t('Close')}><X size={16} /></button>
+          <div className="relative bg-[#1a1d27] border border-white/[0.08] rounded-2xl w-full max-w-4xl shadow-2xl animate-fade-up flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-white/[0.06] shrink-0">
+              <h2 className="font-display font-bold text-lg text-white/80 truncate">{editing._id || editing.id ? t('Edit Post') : t('Create Post')}</h2>
+              <button onClick={() => !saving && setEditing(null)} className="admin-icon-btn shrink-0" aria-label={t('Close')}><X size={16} /></button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4">
               <div>
                 <label className="admin-label">{t('Title')} <span className="text-terra-light">*</span></label>
                 <input className="admin-input w-full" value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} placeholder={t('Post title')} />
@@ -210,7 +210,7 @@ export default function AdminBlogPage() {
                 <label htmlFor="published" className="text-sm text-white/50 cursor-pointer select-none">{t('Publish this post')}</label>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end gap-3 sticky bottom-0 bg-[#1a1d27]">
+            <div className="px-4 sm:px-6 py-4 border-t border-white/[0.06] flex justify-end gap-3 shrink-0">
               <button onClick={() => setEditing(null)} disabled={saving} className="admin-btn-ghost">{t('Cancel')}</button>
               <button onClick={handleSave} disabled={saving} className="admin-btn-primary">
                 {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save size={14} /> {t('Save')}</>}

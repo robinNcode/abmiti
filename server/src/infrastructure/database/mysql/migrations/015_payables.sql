@@ -21,10 +21,23 @@ CREATE TABLE IF NOT EXISTS payables (
   CONSTRAINT fk_payables_account  FOREIGN KEY (account_id)  REFERENCES accounts(id)    ON DELETE SET NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-ALTER TABLE entries
-  ADD COLUMN IF NOT EXISTS payable_id VARCHAR(36) DEFAULT NULL,
-  ADD INDEX IF NOT EXISTS idx_entries_payable (payable_id),
-  ADD CONSTRAINT fk_entries_payable FOREIGN KEY (payable_id) REFERENCES payables(id) ON DELETE RESTRICT;
+SET @has_payable_id = (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'entries' AND column_name = 'payable_id');
+SET @stmt = IF(@has_payable_id = 0, 'ALTER TABLE entries ADD COLUMN payable_id VARCHAR(36) DEFAULT NULL', 'SELECT 1');
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has_payable_idx = (SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'entries' AND index_name = 'idx_entries_payable');
+SET @stmt = IF(@has_payable_idx = 0, 'ALTER TABLE entries ADD INDEX idx_entries_payable (payable_id)', 'SELECT 1');
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @has_payable_fk = (SELECT COUNT(*) FROM information_schema.table_constraints WHERE table_schema = DATABASE() AND table_name = 'entries' AND constraint_name = 'fk_entries_payable' AND constraint_type = 'FOREIGN KEY');
+SET @stmt = IF(@has_payable_fk = 0, 'ALTER TABLE entries ADD CONSTRAINT fk_entries_payable FOREIGN KEY (payable_id) REFERENCES payables(id) ON DELETE RESTRICT', 'SELECT 1');
+PREPARE stmt FROM @stmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- migrate:down
 ALTER TABLE entries DROP FOREIGN KEY fk_entries_payable;

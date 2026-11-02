@@ -146,6 +146,17 @@ export const useCreateCategory = () => {
   });
 };
 
+export const useUpdateCategory = () => {
+  const qc = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: ({ id, ...dto }: { id: string; name?: string; icon?: string; color?: string }) =>
+      categoriesApi.update(id, dto),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['cats'] }); toast.success(t('Category updated')); },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to update category')),
+  });
+};
+
 export const useDeleteCategory = () => {
   const qc = useQueryClient();
   const { t } = useTranslation();
