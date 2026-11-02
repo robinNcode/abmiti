@@ -17,6 +17,8 @@ class EntryFormModal extends StatefulWidget {
     this.initialAmount,
     this.initialNote,
     this.initialCategoryId,
+    this.initialType,
+    this.initialDate,
   });
 
   final FinanceRepository financeRepo;
@@ -28,6 +30,8 @@ class EntryFormModal extends StatefulWidget {
   final num? initialAmount;
   final String? initialNote;
   final String? initialCategoryId;
+  final String? initialType;
+  final DateTime? initialDate;
 
   static Future<void> show(
     BuildContext context, {
@@ -38,6 +42,8 @@ class EntryFormModal extends StatefulWidget {
     num? initialAmount,
     String? initialNote,
     String? initialCategoryId,
+    String? initialType,
+    DateTime? initialDate,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -51,6 +57,8 @@ class EntryFormModal extends StatefulWidget {
         initialAmount: initialAmount,
         initialNote: initialNote,
         initialCategoryId: initialCategoryId,
+        initialType: initialType,
+        initialDate: initialDate,
       ),
     );
   }
@@ -85,12 +93,13 @@ class _EntryFormModalState extends State<EntryFormModal> {
   void initState() {
     super.initState();
     final entry = widget.entry;
-    _type = entry?['type']?.toString() ?? 'expense';
+    _type = entry?['type']?.toString() ?? widget.initialType ?? 'expense';
     _source = entry?['source']?.toString() ?? 'cash';
     _selectedBudgetLineId = widget.initialBudgetLineId;
     _selectedCategoryId = widget.initialCategoryId;
-    _date =
-        DateTime.tryParse(entry?['date']?.toString() ?? '') ?? DateTime.now();
+    _date = DateTime.tryParse(entry?['date']?.toString() ?? '') ??
+        widget.initialDate ??
+        DateTime.now();
 
     final rawCategory = entry?['category'];
     if (rawCategory is Map && rawCategory['_id'] != null) {

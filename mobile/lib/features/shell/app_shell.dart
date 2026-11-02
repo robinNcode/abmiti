@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 
@@ -8,6 +11,8 @@ import '../../core/localization/app_locale.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/data/finance_repository.dart';
+import '../../shared/services/sms_parser_service.dart';
+import '../../shared/widgets/sms_parser_consent_dialog.dart';
 import '../analytics/analytics_screen.dart';
 import '../budgets/budget_screen.dart';
 import '../categories/categories_screen.dart';
@@ -43,10 +48,13 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
   int _currentIndex = 0;
   int _unreadNotifications = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  StreamSubscription<void>? _smsSubscription;
+  bool _smsEnabled = false;
+  bool _showingSmsCandidate = false;
 
   String? get _userId {
     final user = widget.auth.currentUser;
@@ -56,7 +64,150 @@ class _AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _refreshUnreadCount();
+    _initializeSmsParser();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _smsSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _consumePendingSmsCandidates();
+  }
+
+  Future<void> _initializeSmsParser() async {
+    final smsParser = SmsParserService.instance;
+    if (!smsParser.isSupported) return;
+
+    _smsSubscription = smsParser.incomingCandidates.listen(
+      (_) => _consumePendingSmsCandidates(),
+      onError: (Object error, StackTrace stackTrace) {
+        _showSmsError(error.toString());
+      },
+    );
+
+    try {
+      final status = await smsParser.getStatus();
+      if (!mounted) return;
+      _smsEnabled = status['enabled'] == true;
+      if (status['decisionMade'] != true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _askForSmsConsent();
+        });
+      } else if (_smsEnabled) {
+        _consumePendingSmsCandidates();
+      }
+    } on PlatformException catch (error) {
+      _showSmsError(error.message ?? context.appLocale.tr('sms_setup_error'));
+    }
+  }
+
+  Future<void> _askForSmsConsent() async {
+    final loc = context.appLocale;
+    final accepted = await showSmsParserConsentDialog(context);
+    final smsParser = SmsParserService.instance;
+    try {
+      await smsParser.recordConsent(accepted);
+      if (!accepted) return;
+      final granted = await smsParser.requestPermission();
+      final enabled = granted && await smsParser.setEnabled(true);
+      if (!mounted) return;
+      setState(() => _smsEnabled = enabled);
+      if (enabled) {
+        _consumePendingSmsCandidates();
+      } else {
+        _showSmsError(loc.tr('sms_permission_denied'));
+      }
+    } on PlatformException catch (error) {
+      _showSmsError(error.message ?? loc.tr('sms_setup_error'));
+    }
+  }
+
+  Future<void> _consumePendingSmsCandidates() async {
+    if (_showingSmsCandidate) return;
+    final loc = context.appLocale;
+    var consumedCandidates = false;
+    try {
+      final status = await SmsParserService.instance.getStatus();
+      _smsEnabled = status['enabled'] == true;
+      if (!_smsEnabled) return;
+      final candidates =
+          await SmsParserService.instance.consumePendingCandidates();
+      if (!mounted || candidates.isEmpty) return;
+      consumedCandidates = true;
+      _showingSmsCandidate = true;
+      for (final candidate in candidates) {
+        if (!mounted) break;
+        await _showSmsCandidate(candidate);
+      }
+    } on PlatformException catch (error) {
+      _showSmsError(error.message ?? loc.tr('sms_setup_error'));
+    } finally {
+      _showingSmsCandidate = false;
+      if (mounted && consumedCandidates) {
+        unawaited(_consumePendingSmsCandidates());
+      }
+    }
+  }
+
+  Future<void> _showSmsCandidate(Map<String, dynamic> candidate) async {
+    final loc = context.appLocale;
+    final amount = candidate['amount'] is num
+        ? (candidate['amount'] as num).toStringAsFixed(2)
+        : candidate['amount']?.toString() ?? '';
+    final receivedAt = candidate['receivedAt'] is num
+        ? DateTime.fromMillisecondsSinceEpoch(
+            (candidate['receivedAt'] as num).toInt(),
+          )
+        : DateTime.now();
+    final review = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(loc.tr('sms_candidate_title')),
+        content: Text(
+          loc
+              .tr('sms_candidate_message')
+              .replaceAll('{provider}', candidate['provider']?.toString() ?? '')
+              .replaceAll('{amount}', amount),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(loc.tr('sms_candidate_ignore')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(loc.tr('sms_candidate_review')),
+          ),
+        ],
+      ),
+    );
+    if (review != true || !mounted) return;
+    await EntryFormModal.show(
+      context,
+      financeRepo: widget.financeRepo,
+      onEntryCreated: () => setState(() {}),
+      initialAmount: candidate['amount'] is num
+          ? candidate['amount'] as num
+          : num.tryParse(candidate['amount']?.toString() ?? ''),
+      initialNote: candidate['note']?.toString(),
+      initialType: candidate['type']?.toString(),
+      initialDate: receivedAt,
+    );
+  }
+
+  void _showSmsError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   Future<void> _refreshUnreadCount() async {

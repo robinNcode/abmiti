@@ -393,6 +393,24 @@ class AppLocale extends ChangeNotifier {
     'auth_continue_google': 'Continue with Google',
     'or_divider': 'OR',
 
+    // Bank SMS parser
+    'sms_consent_title': 'Track transactions from bank SMS?',
+    'sms_consent_message':
+        'With your permission, Abmiti checks new SMS messages on this device for supported payment and bank sender names such as bKash, Nagad, Bank Asia, and BRAC Bank. The full SMS text is never stored or uploaded. Parsed suggestions stay on this device, and no ledger entry is created until you review and confirm. You can turn this off in Profile & Settings.',
+    'sms_consent_decline': 'Not now',
+    'sms_consent_enable': 'Continue',
+    'sms_parser_title': 'Bank SMS suggestions',
+    'sms_parser_setting_hint':
+        'Review detected transactions before they are added',
+    'sms_candidate_title': 'Possible transaction found',
+    'sms_candidate_message':
+        'A possible transaction from {provider} for ৳{amount} was detected. Review the details before saving.',
+    'sms_candidate_ignore': 'Ignore',
+    'sms_candidate_review': 'Review',
+    'sms_permission_denied':
+        'SMS permission was not granted. You can enable suggestions in Profile & Settings.',
+    'sms_setup_error': 'Could not set up SMS transaction suggestions.',
+
     // Common
     'cancel': 'Cancel',
     'edit': 'Edit',
@@ -738,6 +756,23 @@ class AppLocale extends ChangeNotifier {
     'auth_no_account': 'নতুন অবমিতিতে? অ্যাকাউন্ট তৈরি করুন',
     'auth_continue_google': 'গুগল দিয়ে চালিয়ে যান',
     'or_divider': 'অথবা',
+
+    // Bank SMS parser
+    'sms_consent_title': 'ব্যাংকের SMS থেকে লেনদেন শনাক্ত করবেন?',
+    'sms_consent_message':
+        'আপনার অনুমতিতে, অবমিতি এই ডিভাইসে আসা নতুন SMS থেকে বিকাশ, নগদ, ব্যাংক এশিয়া এবং ব্র্যাক ব্যাংকের মতো সমর্থিত পেমেন্ট ও ব্যাংক প্রেরকের নাম পরীক্ষা করবে। SMS-এর সম্পূর্ণ লেখা সংরক্ষণ বা আপলোড করা হয় না। শনাক্ত করা পরামর্শ এই ডিভাইসেই থাকবে এবং আপনি যাচাই করে নিশ্চিত না করা পর্যন্ত কোনো লেনদেন যোগ হবে না। প্রোফাইল ও সেটিংস থেকে এটি বন্ধ করতে পারবেন।',
+    'sms_consent_decline': 'এখন নয়',
+    'sms_consent_enable': 'চালিয়ে যান',
+    'sms_parser_title': 'ব্যাংক SMS লেনদেন পরামর্শ',
+    'sms_parser_setting_hint': 'লেনদেন যোগ করার আগে শনাক্ত তথ্য যাচাই করুন',
+    'sms_candidate_title': 'সম্ভাব্য লেনদেন শনাক্ত হয়েছে',
+    'sms_candidate_message':
+        '{provider} থেকে ৳{amount}-এর একটি সম্ভাব্য লেনদেন শনাক্ত হয়েছে। সংরক্ষণের আগে তথ্য যাচাই করুন।',
+    'sms_candidate_ignore': 'উপেক্ষা করুন',
+    'sms_candidate_review': 'যাচাই করুন',
+    'sms_permission_denied':
+        'SMS অনুমতি দেওয়া হয়নি। প্রোফাইল ও সেটিংস থেকে পরামর্শ চালু করতে পারবেন।',
+    'sms_setup_error': 'SMS লেনদেন পরামর্শ চালু করা যায়নি।',
 
     // Common
     'cancel': 'বাতিল',

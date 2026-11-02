@@ -56,6 +56,14 @@ You don't need to rebuild the app to change environments:
 
 The existing API has no password reset route, mobile-native Google OAuth callback, account deletion route, or notification pagination. Google OAuth still redirects to the web client. The mobile app does not simulate those flows or expose them as native actions. Subscription checkout and reporting require the server's SSLCommerz configuration.
 
+## Optional Android bank SMS suggestions
+
+After the first successful login on an Android installation, users can opt in to local parsing of new SMS messages from supported payment and bank sender IDs (including bKash, Nagad, Rocket, Bank Asia, and BRAC Bank). The app requests Android's `RECEIVE_SMS` permission only after showing an in-app disclosure and the user accepts. iOS does not support monitoring arbitrary incoming SMS, so this setting is Android-only.
+
+Parsing runs on-device. Full SMS text is not stored or sent to the API; only recognized transaction suggestions are kept locally (up to 25 pending reviews). SMS consent and pending suggestions are excluded from Android cloud and device backups. A suggestion opens the normal entry form, and no ledger entry is created until the user reviews and saves it. Users can turn the feature off under Profile & Settings. The sender registry and parser are intentionally extensible in `BankSmsParser.kt`.
+
+Google Play restricts SMS permissions; Play releases must satisfy its applicable SMS permission policy and declaration requirements.
+
 ## Structure
 
 ```text

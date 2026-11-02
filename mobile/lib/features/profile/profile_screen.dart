@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -6,6 +9,8 @@ import '../../core/localization/app_locale.dart';
 import '../../core/theme/theme_notifier.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
+import '../../shared/services/sms_parser_service.dart';
+import '../../shared/widgets/sms_parser_consent_dialog.dart';
 import '../../shared/widgets/glossy_card.dart';
 
 /// User profile and settings screen with membership info and sign out.
@@ -25,11 +30,82 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _tier = 'free';
   String _validUntil = '';
   bool _initiatingPayment = false;
+  bool _smsParserEnabled = false;
+  bool _smsParserBusy = false;
 
   @override
   void initState() {
     super.initState();
     _loadSubscription();
+    _loadSmsParserStatus();
+  }
+
+  Future<void> _loadSmsParserStatus() async {
+    if (!Platform.isAndroid) return;
+    try {
+      final status = await SmsParserService.instance.getStatus();
+      if (mounted) {
+        setState(() => _smsParserEnabled = status['enabled'] == true);
+      }
+    } on PlatformException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              error.message ?? context.appLocale.tr('sms_setup_error'),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _toggleSmsParser(bool enabled) async {
+    if (_smsParserBusy) return;
+    final service = SmsParserService.instance;
+    if (!enabled) {
+      setState(() => _smsParserBusy = true);
+      try {
+        await service.recordConsent(false);
+        await service.setEnabled(false);
+        if (mounted) setState(() => _smsParserEnabled = false);
+      } on PlatformException catch (error) {
+        _showSmsParserError(error.message);
+      } finally {
+        if (mounted) setState(() => _smsParserBusy = false);
+      }
+      return;
+    }
+
+    final accepted = await showSmsParserConsentDialog(context);
+    if (!accepted || !mounted) return;
+    setState(() => _smsParserBusy = true);
+    try {
+      await service.recordConsent(true);
+      final permissionGranted = await service.requestPermission();
+      final active = permissionGranted && await service.setEnabled(true);
+      if (mounted) {
+        setState(() => _smsParserEnabled = active);
+        if (!active) {
+          _showSmsParserError(
+            context.appLocale.tr('sms_permission_denied'),
+          );
+        }
+      }
+    } on PlatformException catch (error) {
+      _showSmsParserError(error.message);
+    } finally {
+      if (mounted) setState(() => _smsParserBusy = false);
+    }
+  }
+
+  void _showSmsParserError(String? message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message ?? context.appLocale.tr('sms_setup_error')),
+      ),
+    );
   }
 
   Future<void> _loadSubscription() async {
@@ -267,6 +343,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Column(
               children: [
+                if (Platform.isAndroid) ...[
+                  ListTile(
+                    leading: const Icon(
+                      Icons.sms_outlined,
+                      color: AppColors.terra,
+                      size: 22,
+                    ),
+                    title: Text(
+                      loc.tr('sms_parser_title'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: Text(
+                      loc.tr('sms_parser_setting_hint'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color:
+                            isDark ? AppColors.darkMuted : AppColors.inkLight,
+                      ),
+                    ),
+                    trailing: _smsParserBusy
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Switch.adaptive(
+                            value: _smsParserEnabled,
+                            onChanged: _toggleSmsParser,
+                          ),
+                  ),
+                  Divider(
+                    height: 1,
+                    color: isDark ? AppColors.darkBorder : AppColors.paperMist,
+                  ),
+                ],
                 _SettingsTile(
                   icon: Icons.security_rounded,
                   title: loc.tr('halal_finance'),
