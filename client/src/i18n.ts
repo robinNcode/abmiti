@@ -795,6 +795,20 @@ const extraEn = {
   'Gas Bill': 'Gas Bill',
   'College Fee': 'College Fee',
   'Groceries': 'Groceries',
+  'Quick Expenses': 'Quick Expenses',
+  'Customize': 'Customize',
+  'Expense name': 'Expense name',
+  'From budget sub-items': 'From budget sub-items',
+  'Expense categories': 'Expense categories',
+  'Selected': 'Selected',
+  'Pick up to 6 monthly expenses for the dashboard': 'Pick up to 6 monthly expenses for the dashboard',
+  'Custom expense': 'Custom expense',
+  'Save quick expenses': 'Save quick expenses',
+  'Quick expenses saved': 'Quick expenses saved',
+  'Failed to save quick expenses': 'Failed to save quick expenses',
+  'Tap a monthly expense to log it — it leaves the shortcuts once logged this month': 'Tap a monthly expense to log it — it leaves the shortcuts once logged this month',
+  'All monthly expenses are logged for this month': 'All monthly expenses are logged for this month',
+  'logged this month': 'logged this month',
 };
 
 const extraBn: Record<string, string> = {
@@ -1585,6 +1599,20 @@ const extraBn: Record<string, string> = {
   'Gas Bill': 'গ্যাস বিল',
   'College Fee': 'কলেজ ফি',
   'Groceries': 'মুদি ও বাজার',
+  'Quick Expenses': 'কুইক খরচ',
+  'Customize': 'কাস্টমাইজ',
+  'Expense name': 'খরচের নাম',
+  'From budget sub-items': 'বাজেট সাব-আইটেম থেকে',
+  'Expense categories': 'খরচের ক্যাটাগরি',
+  'Selected': 'নির্বাচিত',
+  'Pick up to 6 monthly expenses for the dashboard': 'ড্যাশবোর্ডের জন্য সর্বোচ্চ ৬টি মাসিক খরচ বাছাই করুন',
+  'Custom expense': 'নিজের খরচ',
+  'Save quick expenses': 'কুইক খরচ সংরক্ষণ করুন',
+  'Quick expenses saved': 'কুইক খরচ সংরক্ষিত হয়েছে',
+  'Failed to save quick expenses': 'কুইক খরচ সংরক্ষণ করা যায়নি',
+  'Tap a monthly expense to log it — it leaves the shortcuts once logged this month': 'খরচ যোগ করতে ট্যাপ করুন — এই মাসে যোগ হলে শর্টকাট থেকে সরে যাবে',
+  'All monthly expenses are logged for this month': 'এই মাসের সব মাসিক খরচ যোগ করা হয়েছে',
+  'logged this month': 'এই মাসে যোগ হয়েছে',
 };
 
 const resources = {

@@ -2,6 +2,18 @@ import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { IUser } from '../../shared/types';
 
+const quickExpenseSchema = new Schema(
+  {
+    id:             { type: String, required: true },
+    label:          { type: String, required: true, trim: true, maxlength: 100 },
+    icon:           { type: String, maxlength: 20 },
+    categoryId:     { type: String, default: null },
+    budgetLineId:   { type: String, default: null },
+    expectedAmount: { type: Number, default: 0, min: 0 },
+  },
+  { _id: false },
+);
+
 const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true, maxlength: 80 },
@@ -11,6 +23,7 @@ const userSchema = new Schema<IUser>(
     avatar: { type: String, default: '' },
     google_id: { type: String, unique: true, sparse: true },
     userType: { type: String, enum: ['admin', 'user'], default: 'user' },
+    quickExpenses: { type: [quickExpenseSchema], default: [] },
   },
   { timestamps: true },
 );

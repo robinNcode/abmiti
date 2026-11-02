@@ -1,5 +1,5 @@
 import { User } from '../../../modules/auth/auth.model';
-import { IUser } from '../../../shared/types';
+import { IUser, IQuickExpenseItem } from '../../../shared/types';
 import { IUserRepository } from '../../../shared/types/repositories';
 
 export class MongoUserRepository implements IUserRepository {
@@ -26,6 +26,10 @@ export class MongoUserRepository implements IUserRepository {
     if (data.avatar !== undefined) update.avatar = data.avatar;
     if (Object.keys(update).length === 0) return this.findById(id);
     return User.findByIdAndUpdate(id, update, { new: true });
+  }
+
+  async updateQuickExpenses(id: string, items: IQuickExpenseItem[]): Promise<IUser | null> {
+    return User.findByIdAndUpdate(id, { quickExpenses: items }, { new: true });
   }
 
   async findByGoogleId(googleId: string): Promise<IUser | null> {

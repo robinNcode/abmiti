@@ -1,13 +1,26 @@
 import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcryptjs';
 import { getMySQLPool } from '../../database/mysql/connection';
-import { IUser } from '../../../shared/types';
+import { IUser, IQuickExpenseItem } from '../../../shared/types';
 import { IUserRepository } from '../../../shared/types/repositories';
 
 type UserRow = {
   id: string; name: string; email: string; password: string;
   budget: number; avatar?: string; google_id?: string; user_type?: 'admin' | 'user';
+  quick_expenses?: string | IQuickExpenseItem[] | null;
   created_at: Date; updated_at: Date;
+};
+
+/** MySQL returns the JSON column as a string (or as an object depending on the driver path). */
+const parseQuickExpenses = (value: UserRow['quick_expenses']): IQuickExpenseItem[] => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 };
 
 const toIUser = (row: UserRow): IUser => ({
@@ -19,6 +32,7 @@ const toIUser = (row: UserRow): IUser => ({
   avatar:    row.avatar,
   google_id: row.google_id,
   userType: row.user_type ?? 'user',
+  quickExpenses: parseQuickExpenses(row.quick_expenses),
   createdAt: row.created_at,
   updatedAt: row.updated_at,
   comparePassword: async (candidate: string) =>
@@ -31,7 +45,7 @@ export class MySQLUserRepository implements IUserRepository {
   async findByEmail(email: string, includePassword = false): Promise<IUser | null> {
     const cols = includePassword
       ? '*'
-      : 'id, name, email, budget, avatar, google_id, user_type, created_at, updated_at';
+      : 'id, name, email, budget, avatar, google_id, user_type, quick_expenses, created_at, updated_at';
     const [rows] = await this.pool.execute<any[]>(
       `SELECT ${cols} FROM users WHERE email = ? LIMIT 1`,
       [email],
@@ -41,7 +55,7 @@ export class MySQLUserRepository implements IUserRepository {
 
   async findById(id: string): Promise<IUser | null> {
     const [rows] = await this.pool.execute<any[]>(
-      'SELECT id, name, email, budget, avatar, google_id, user_type, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, name, email, budget, avatar, google_id, user_type, quick_expenses, created_at, updated_at FROM users WHERE id = ? LIMIT 1',
       [id],
     );
     return rows[0] ? toIUser(rows[0]) : null;
@@ -85,9 +99,17 @@ export class MySQLUserRepository implements IUserRepository {
     return this.findById(id);
   }
 
+  async updateQuickExpenses(id: string, items: IQuickExpenseItem[]): Promise<IUser | null> {
+    await this.pool.execute(
+      'UPDATE users SET quick_expenses = ? WHERE id = ?',
+      [JSON.stringify(items), id],
+    );
+    return this.findById(id);
+  }
+
   async findByGoogleId(googleId: string): Promise<IUser | null> {
     const [rows] = await this.pool.execute<any[]>(
-      'SELECT id, name, email, budget, avatar, google_id, user_type, created_at, updated_at FROM users WHERE google_id = ? LIMIT 1',
+      'SELECT id, name, email, budget, avatar, google_id, user_type, quick_expenses, created_at, updated_at FROM users WHERE google_id = ? LIMIT 1',
       [googleId],
     );
     return rows[0] ? toIUser(rows[0]) : null;

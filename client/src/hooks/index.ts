@@ -36,6 +36,8 @@ export const useCreateEntry = () => {
       qc.invalidateQueries({ queryKey: ['summary'] });
       qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
       qc.invalidateQueries({ queryKey: ['yearly'] });
+      // A logged quick-expense shortcut must disappear from the dashboard.
+      qc.invalidateQueries({ queryKey: ['quick-expenses'] });
       toast.success(t('Entry saved ✓'));
     },
     onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to save entry')),
@@ -51,6 +53,7 @@ export const useDeleteEntry = () => {
       qc.invalidateQueries({ queryKey: ['entries'] });
       qc.invalidateQueries({ queryKey: ['summary'] });
       qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
+      qc.invalidateQueries({ queryKey: ['quick-expenses'] });
       toast.success(t('Entry deleted'));
     },
     onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to delete entry')),
@@ -196,5 +199,6 @@ export const useDeleteAccount = () => {
 
 export * from './useBudget';
 export * from './budget.hooks';
+export * from './quickExpenses.hooks';
 export * from './payables.hooks';
 export * from './receivables.hooks';

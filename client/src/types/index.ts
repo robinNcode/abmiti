@@ -246,6 +246,26 @@ export interface ApiSuccess<T> {
   meta?: Record<string, unknown>;
 }
 
+export interface QuickExpenseItem {
+  id: string;
+  label: string;
+  icon?: string;
+  categoryId?: string | null;
+  budgetLineId?: string | null;
+  expectedAmount?: number;
+  /** True when an expense with this name is already recorded in the selected month. */
+  logged?: boolean;
+}
+
+export interface QuickExpenseInput {
+  id?: string;
+  label: string;
+  icon?: string;
+  categoryId?: string | null;
+  budgetLineId?: string | null;
+  expectedAmount?: number;
+}
+
 export interface CreateEntryDto {
   type: EntryType;
   amount: number;
