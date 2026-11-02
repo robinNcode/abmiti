@@ -18,9 +18,9 @@ export const connectMySQL = async (): Promise<void> => {
       timezone:           '+00:00',
       charset:            'utf8mb4',
     });
-    // Force utf8mb4 on every new connection so emoji are stored/read correctly,
-    // even on cPanel-hosted MySQL where the server default charset is latin1.
-    await pool.query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+    // Use utf8mb4 without forcing a server-specific collation so the schema stays
+    // compatible with the database default and foreign-key metadata remains valid.
+    await pool.query("SET NAMES utf8mb4");
     // Verify connectivity
     const conn = await pool.getConnection();
     logger.info(`MySQL connected: ${env.MYSQL_HOST}:${env.MYSQL_PORT}/${env.MYSQL_DATABASE}`);
