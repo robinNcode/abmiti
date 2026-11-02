@@ -686,22 +686,23 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foreground = active ? Colors.white : (isDark ? Colors.white70 : AppColors.ink);
+    final labelColor = active ? AppColors.terra : (isDark ? Colors.white70 : AppColors.inkLight);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 21, color: foreground),
-          const SizedBox(height: 3),
+          Icon(icon, size: 20, color: foreground),
+          const SizedBox(height: 4),
           Text(
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: foreground,
+              color: labelColor,
               fontSize: 10,
-              fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+              fontWeight: active ? FontWeight.w800 : FontWeight.w500,
             ),
           ),
         ],
