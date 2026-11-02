@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS payables (
   CONSTRAINT fk_payables_user     FOREIGN KEY (user_id)     REFERENCES users(id)       ON DELETE CASCADE,
   CONSTRAINT fk_payables_category FOREIGN KEY (category_id) REFERENCES categories(id)  ON DELETE SET NULL,
   CONSTRAINT fk_payables_account  FOREIGN KEY (account_id)  REFERENCES accounts(id)    ON DELETE SET NULL
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+) CHARACTER SET utf8mb4;
 
 SET @has_payable_id = (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'entries' AND column_name = 'payable_id');
 SET @stmt = IF(@has_payable_id = 0, 'ALTER TABLE entries ADD COLUMN payable_id VARCHAR(36) DEFAULT NULL', 'SELECT 1');

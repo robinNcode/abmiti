@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS receivables (
   CONSTRAINT fk_receivables_user     FOREIGN KEY (user_id)     REFERENCES users(id)       ON DELETE CASCADE,
   CONSTRAINT fk_receivables_category FOREIGN KEY (category_id) REFERENCES categories(id)  ON DELETE SET NULL,
   CONSTRAINT fk_receivables_account  FOREIGN KEY (account_id)  REFERENCES accounts(id)    ON DELETE SET NULL
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+) CHARACTER SET utf8mb4;
 
 SET @has_receivable_id = (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'entries' AND column_name = 'receivable_id');
 SET @stmt = IF(@has_receivable_id = 0, 'ALTER TABLE entries ADD COLUMN receivable_id VARCHAR(36) DEFAULT NULL', 'SELECT 1');
