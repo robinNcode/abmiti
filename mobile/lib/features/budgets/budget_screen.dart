@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_locale.dart';
@@ -31,11 +32,121 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
   Map<String, dynamic>? _budget;
   Map<String, dynamic>? _budgetSummary;
+  List<Map<String, dynamic>> _budgetTemplates = [];
+  bool _templatesLoading = true;
+  bool _templatesLoadFailed = false;
+  bool _savingTemplate = false;
 
   @override
   void initState() {
     super.initState();
     _loadBudget();
+    _loadBudgetTemplates();
+  }
+
+  Future<void> _refreshBudget() async {
+    await Future.wait([_loadBudget(), _loadBudgetTemplates()]);
+  }
+
+  Future<void> _loadBudgetTemplates() async {
+    if (mounted) {
+      setState(() {
+        _templatesLoading = true;
+        _templatesLoadFailed = false;
+      });
+    }
+
+    try {
+      final templates = await widget.financeRepo.fetchBudgetTemplates();
+      if (mounted) {
+        setState(() {
+          _budgetTemplates = templates;
+          _templatesLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _templatesLoading = false;
+          _templatesLoadFailed = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${context.appLocale.tr('template_check_failed')}: ${ApiClient.messageFrom(e)}',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  bool get _hasTemplateForSelectedMonth => _budgetTemplates.any(
+        (template) =>
+            template['month'] == _selectedDate.month &&
+            template['year'] == _selectedDate.year,
+      );
+
+  bool get _hasBudgetLines =>
+      _budget?['lines'] is List && (_budget!['lines'] as List).isNotEmpty;
+
+  Future<void> _saveAsTemplate() async {
+    final budget = _budget;
+    final budgetId = budget?['_id']?.toString();
+    if (budget == null || budgetId == null || budgetId.isEmpty) return;
+
+    final loc = context.appLocale;
+    if (_hasTemplateForSelectedMonth) {
+      _showTemplateNotice(loc.tr('template_exists'), isError: true);
+      return;
+    }
+    if (!_hasBudgetLines) {
+      _showTemplateNotice(loc.tr('add_lines_before_save_template'),
+          isError: true);
+      return;
+    }
+
+    setState(() => _savingTemplate = true);
+    try {
+      await widget.financeRepo.saveBudgetAsTemplate(
+        budgetId,
+        '${_selectedDate.month}/${_selectedDate.year} Budget',
+      );
+      await _loadBudgetTemplates();
+      if (mounted) _showTemplateNotice(loc.tr('template_saved'));
+    } catch (e) {
+      if (mounted) {
+        final isDuplicate = e is DioException && e.response?.statusCode == 409;
+        _showTemplateNotice(
+          isDuplicate ? loc.tr('template_exists') : ApiClient.messageFrom(e),
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _savingTemplate = false);
+    }
+  }
+
+  void _showTemplateNotice(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          backgroundColor: isError ? AppColors.danger : AppColors.sageDark,
+          content: Row(
+            children: [
+              Icon(
+                isError
+                    ? Icons.info_outline_rounded
+                    : Icons.check_circle_outline,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 10),
+              Expanded(child: Text(message)),
+            ],
+          ),
+        ),
+      );
   }
 
   Future<void> _loadBudget() async {
@@ -367,7 +478,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _loadBudget,
+        onRefresh: _refreshBudget,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 80),
           children: [
@@ -716,6 +827,37 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 action: '+ ${loc.tr('add_line')}',
                 onAction: () => _showLineDialog(),
               ),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _templatesLoading ||
+                          _templatesLoadFailed ||
+                          _hasTemplateForSelectedMonth ||
+                          !_hasBudgetLines ||
+                          _savingTemplate
+                      ? null
+                      : _saveAsTemplate,
+                  icon: Icon(
+                    _hasTemplateForSelectedMonth
+                        ? Icons.check_circle_outline
+                        : Icons.bookmark_add_outlined,
+                  ),
+                  label: Text(
+                    _templatesLoading
+                        ? loc.tr('checking_templates')
+                        : _templatesLoadFailed
+                            ? loc.tr('template_check_failed')
+                            : _hasTemplateForSelectedMonth
+                                ? loc.tr('template_saved')
+                                : !_hasBudgetLines
+                                    ? loc.tr('add_lines_before_save_template')
+                                    : _savingTemplate
+                                        ? loc.tr('saving_template')
+                                        : loc.tr('save_template'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
 
               if (_budgetSummary?['lines'] is List &&
                   (_budgetSummary!['lines'] as List).isNotEmpty)

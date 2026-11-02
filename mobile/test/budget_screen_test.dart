@@ -1,6 +1,7 @@
 import 'package:abmiti/features/budgets/budget_screen.dart';
 import 'package:abmiti/shared/data/api_client.dart';
 import 'package:abmiti/shared/data/finance_repository.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +12,10 @@ class _FakeFinanceRepository extends FinanceRepository {
   Map<String, dynamic>? updatedBudgetPayload;
   String? updatedLineId;
   Map<String, dynamic>? updatedLinePayload;
+  final List<Map<String, dynamic>> budgetTemplates = [];
+  String? savedTemplateName;
+  bool duplicateTemplateOnSave = false;
+  bool budgetHasLines = true;
 
   static const _budget = <String, dynamic>{
     '_id': 'b1',
@@ -47,7 +52,7 @@ class _FakeFinanceRepository extends FinanceRepository {
 
   @override
   Future<Map<String, dynamic>?> fetchBudget(int month, int year) async =>
-      _budget;
+      budgetHasLines ? _budget : {..._budget, 'lines': <dynamic>[]};
 
   @override
   Future<Map<String, dynamic>?> fetchBudgetSummary(String budgetId) async =>
@@ -60,6 +65,35 @@ class _FakeFinanceRepository extends FinanceRepository {
   ) async {
     updatedBudgetPayload = payload;
     return _budget;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> fetchBudgetTemplates() async =>
+      List<Map<String, dynamic>>.from(budgetTemplates);
+
+  @override
+  Future<Map<String, dynamic>> saveBudgetAsTemplate(
+    String budgetId,
+    String templateName,
+  ) async {
+    savedTemplateName = templateName;
+    if (duplicateTemplateOnSave) {
+      final path = '/budgets/$budgetId/save-as-template';
+      throw DioException(
+        requestOptions: RequestOptions(path: path),
+        response: Response(
+          requestOptions: RequestOptions(path: path),
+          statusCode: 409,
+          data: {'message': 'A template already exists for this month.'},
+        ),
+      );
+    }
+    final template = {
+      'month': DateTime.now().month,
+      'year': DateTime.now().year,
+    };
+    budgetTemplates.add(template);
+    return template;
   }
 
   @override
@@ -90,8 +124,71 @@ void main() {
 
     expect(find.text('Budget Allocations'), findsOneWidget);
     expect(find.text('Food'), findsOneWidget);
-    expect(find.text('Income ৳50000'), findsOneWidget);
+    expect(find.text('Income: ৳50000'), findsOneWidget);
     expect(find.text('৳6000 / ৳12000'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('saves a template and disables the action for that month',
+      (tester) async {
+    final fake = _FakeFinanceRepository();
+    await pumpBudget(tester, fake);
+
+    final saveButton = find.widgetWithText(OutlinedButton, 'Save template');
+    expect(saveButton, findsOneWidget);
+    expect(tester.widget<OutlinedButton>(saveButton).onPressed, isNotNull);
+
+    await tester.tap(saveButton);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final now = DateTime.now();
+    expect(fake.savedTemplateName, '${now.month}/${now.year} Budget');
+    expect(find.text('Template saved'), findsNWidgets(2));
+    final savedButton = find.widgetWithText(OutlinedButton, 'Template saved');
+    expect(tester.widget<OutlinedButton>(savedButton).onPressed, isNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows a clear message when the month already has a template',
+      (tester) async {
+    final fake = _FakeFinanceRepository()..duplicateTemplateOnSave = true;
+    await pumpBudget(tester, fake);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Save template'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.text('A template already exists for this month.'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'disables template saving when the selected month is already saved',
+      (tester) async {
+    final now = DateTime.now();
+    final fake = _FakeFinanceRepository()
+      ..budgetTemplates.add({'month': now.month, 'year': now.year});
+    await pumpBudget(tester, fake);
+
+    final savedButton = find.widgetWithText(OutlinedButton, 'Template saved');
+    expect(savedButton, findsOneWidget);
+    expect(tester.widget<OutlinedButton>(savedButton).onPressed, isNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('requires budget lines before enabling template saving',
+      (tester) async {
+    final fake = _FakeFinanceRepository()..budgetHasLines = false;
+    await pumpBudget(tester, fake);
+
+    final saveButton = find.widgetWithText(
+        OutlinedButton, 'Add budget lines before saving a template');
+    expect(saveButton, findsOneWidget);
+    expect(tester.widget<OutlinedButton>(saveButton).onPressed, isNull);
     expect(tester.takeException(), isNull);
   });
 
@@ -129,7 +226,7 @@ void main() {
     final fake = _FakeFinanceRepository();
     await pumpBudget(tester, fake);
 
-    await tester.tap(find.byTooltip('Edit Estimated Income'));
+    await tester.tap(find.text('Edit'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 

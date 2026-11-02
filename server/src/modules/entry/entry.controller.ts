@@ -13,6 +13,12 @@ export const entryController = {
         year:     req.query.year     ? parseInt(String(req.query.year),  10)  : undefined,
         category: req.query.category as string,
         source:   req.query.source   as PaymentSource,
+        startDate: req.query.startDate
+          ? new Date(`${String(req.query.startDate).slice(0, 10)}T00:00:00.000Z`)
+          : undefined,
+        endDate: req.query.endDate
+          ? new Date(`${String(req.query.endDate).slice(0, 10)}T23:59:59.999Z`)
+          : undefined,
       };
       const pagination = parsePagination(req.query as Record<string, unknown>);
       const result = await entryService.list(req.user!.userId, filters, pagination);

@@ -32,6 +32,16 @@ class _ActivityTabState extends State<ActivityTab> {
   int _page = 1;
   int _totalPages = 1;
   String _selectedFilter = 'all';
+  DateTime _startDate = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    1,
+  );
+  DateTime _endDate = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
 
   final ScrollController _scrollController = ScrollController();
 
@@ -81,6 +91,8 @@ class _ActivityTabState extends State<ActivityTab> {
         page: _page,
         limit: 20,
         type: _selectedFilter == 'all' ? null : _selectedFilter,
+        startDate: _startDate,
+        endDate: _endDate,
       );
 
       final items = response['data'] is List
@@ -122,6 +134,8 @@ class _ActivityTabState extends State<ActivityTab> {
         page: _page,
         limit: 20,
         type: _selectedFilter == 'all' ? null : _selectedFilter,
+        startDate: _startDate,
+        endDate: _endDate,
       );
       final items = response['data'] is List
           ? (response['data'] as List)
@@ -183,6 +197,24 @@ class _ActivityTabState extends State<ActivityTab> {
     _loadEntries(refresh: true);
   }
 
+  Future<void> _pickDateRange() async {
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2015),
+      lastDate: DateTime(DateTime.now().year + 5, 12, 31),
+      initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
+    );
+    if (range == null || !mounted) return;
+    setState(() {
+      _startDate =
+          DateTime(range.start.year, range.start.month, range.start.day);
+      _endDate = DateTime(range.end.year, range.end.month, range.end.day);
+    });
+    _loadEntries(refresh: true);
+  }
+
+  String _dateLabel(DateTime date) => '${date.day}/${date.month}/${date.year}';
+
   String _formatCurrency(num value) {
     return '৳${value.toStringAsFixed(0)}';
   }
@@ -206,42 +238,59 @@ class _ActivityTabState extends State<ActivityTab> {
       body: Column(
         children: [
           // ── Filter Horizontal Chips ────────────────────────────────
-          Container(
-            height: 52,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              scrollDirection: Axis.horizontal,
-              itemCount: _filterOptions.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final opt = _filterOptions[index];
-                final isSelected = _selectedFilter == opt['key'];
-                return ChoiceChip(
-                  label: Text(loc.tr('filter_${opt['key']}')),
-                  selected: isSelected,
-                  selectedColor: AppColors.terra,
-                  labelStyle: TextStyle(
-                    color: isSelected
-                        ? Colors.white
-                        : (isDark ? Colors.white70 : AppColors.ink),
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    fontSize: 12,
+          Column(
+            children: [
+              SizedBox(
+                height: 52,
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _filterOptions.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final opt = _filterOptions[index];
+                    final isSelected = _selectedFilter == opt['key'];
+                    return ChoiceChip(
+                      label: Text(loc.tr('filter_${opt['key']}')),
+                      selected: isSelected,
+                      selectedColor: AppColors.terra,
+                      labelStyle: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark ? Colors.white70 : AppColors.ink),
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                      backgroundColor: isDark
+                          ? AppColors.darkElevated
+                          : AppColors.pastelCream.withAlpha(150),
+                      side: BorderSide(
+                        color: isSelected
+                            ? AppColors.terra
+                            : (isDark
+                                ? AppColors.darkBorder
+                                : AppColors.pastelApricot.withAlpha(120)),
+                      ),
+                      onSelected: (_) => _onFilterSelected(opt['key']!),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: _pickDateRange,
+                    icon: const Icon(Icons.date_range_rounded, size: 18),
+                    label: Text(
+                      '${_dateLabel(_startDate)} – ${_dateLabel(_endDate)}',
+                    ),
                   ),
-                  backgroundColor: isDark
-                      ? AppColors.darkElevated
-                      : AppColors.pastelCream.withAlpha(150),
-                  side: BorderSide(
-                    color: isSelected
-                        ? AppColors.terra
-                        : (isDark
-                            ? AppColors.darkBorder
-                            : AppColors.pastelApricot.withAlpha(120)),
-                  ),
-                  onSelected: (_) => _onFilterSelected(opt['key']!),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
 
           // ── Entries List ───────────────────────────────────────────

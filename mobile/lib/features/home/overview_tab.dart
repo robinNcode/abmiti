@@ -47,6 +47,7 @@ class _OverviewTabState extends State<OverviewTab> {
   List<Map<String, dynamic>> _recentEntries = [];
   Map<String, dynamic>? _budgetSummary;
   Map<String, dynamic>? _netPosition;
+  List<Map<String, dynamic>> _quickExpenses = [];
 
   final DateTime _currentDate = DateTime.now();
 
@@ -69,9 +70,15 @@ class _OverviewTabState extends State<OverviewTab> {
       final summaryFuture = widget.financeRepo.fetchMonthlySummary(month, year);
       final categoriesFuture =
           widget.financeRepo.fetchCategoryBreakdown(month, year);
-      final entriesFuture = widget.financeRepo.fetchEntries(limit: 5);
+      final entriesFuture = widget.financeRepo.fetchEntries(
+        limit: 5,
+        month: month,
+        year: year,
+      );
       final budgetFuture = widget.financeRepo.fetchBudget(month, year);
       final netPosFuture = widget.financeRepo.fetchNetPosition();
+      final quickExpensesFuture =
+          widget.financeRepo.fetchQuickExpenses(month, year);
 
       final results = await Future.wait([
         summaryFuture,
@@ -79,6 +86,7 @@ class _OverviewTabState extends State<OverviewTab> {
         entriesFuture,
         budgetFuture,
         netPosFuture,
+        quickExpensesFuture,
       ]);
 
       final budget = results[3] as Map<String, dynamic>?;
@@ -100,6 +108,7 @@ class _OverviewTabState extends State<OverviewTab> {
               : [];
           _budgetSummary = budgetSum;
           _netPosition = results[4] as Map<String, dynamic>?;
+          _quickExpenses = results[5] as List<Map<String, dynamic>>;
           _loading = false;
         });
       }
@@ -117,11 +126,16 @@ class _OverviewTabState extends State<OverviewTab> {
     return '৳${value.toStringAsFixed(0)}';
   }
 
-  void _openQuickEntry(String note) {
+  void _openQuickEntry(Map<String, dynamic> item) {
     EntryFormModal.show(
       context,
       financeRepo: widget.financeRepo,
       onEntryCreated: _loadData,
+      initialBudgetLineId: item['budgetLineId']?.toString(),
+      initialAmount:
+          item['expectedAmount'] is num ? item['expectedAmount'] as num : null,
+      initialNote: item['label']?.toString(),
+      initialCategoryId: item['categoryId']?.toString(),
     );
   }
 
@@ -171,7 +185,9 @@ class _OverviewTabState extends State<OverviewTab> {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: AppColors.mustard.withAlpha(
-                      Theme.of(context).brightness == Brightness.dark ? 80 : 120),
+                      Theme.of(context).brightness == Brightness.dark
+                          ? 80
+                          : 120),
                   width: 1.2,
                 ),
                 boxShadow: [
@@ -200,22 +216,23 @@ class _OverviewTabState extends State<OverviewTab> {
                         ),
                       ),
                       Tooltip(
-                        message:
-                            'Formula: Liquid + Receivables - Payables',
+                        message: 'Formula: Liquid + Receivables - Payables',
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? AppColors.darkSurface
-                                : AppColors.paperMist,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? AppColors.darkSurface
+                                    : AppColors.paperMist,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.info_outline_rounded,
                             size: 14,
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white60
-                                : AppColors.inkLight,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white60
+                                    : AppColors.inkLight,
                           ),
                         ),
                       ),
@@ -223,7 +240,8 @@ class _OverviewTabState extends State<OverviewTab> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _formatCurrency((_netPosition!['netPosition'] as num?) ?? 0),
+                    _formatCurrency(
+                        (_netPosition!['netPosition'] as num?) ?? 0),
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w900,
@@ -282,12 +300,10 @@ class _OverviewTabState extends State<OverviewTab> {
           Builder(
             builder: (context) {
               final isDark = Theme.of(context).brightness == Brightness.dark;
-              final primaryCardColor = isDark
-                  ? AppColors.darkElevated
-                  : Colors.white;
-              final borderStrokeColor = isDark
-                  ? AppColors.darkBorder
-                  : AppColors.paperMist;
+              final primaryCardColor =
+                  isDark ? AppColors.darkElevated : Colors.white;
+              final borderStrokeColor =
+                  isDark ? AppColors.darkBorder : AppColors.paperMist;
 
               return Container(
                 decoration: BoxDecoration(
@@ -319,7 +335,9 @@ class _OverviewTabState extends State<OverviewTab> {
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                (isDark ? AppColors.terraLight : AppColors.terra)
+                                (isDark
+                                        ? AppColors.terraLight
+                                        : AppColors.terra)
                                     .withAlpha(isDark ? 30 : 20),
                                 Colors.transparent,
                               ],
@@ -344,14 +362,16 @@ class _OverviewTabState extends State<OverviewTab> {
                                       decoration: BoxDecoration(
                                         color: isDark
                                             ? AppColors.darkSurface
-                                            : AppColors.paperMist.withAlpha(150),
+                                            : AppColors.paperMist
+                                                .withAlpha(150),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
-                                            Icons.account_balance_wallet_rounded,
+                                            Icons
+                                                .account_balance_wallet_rounded,
                                             size: 14,
                                             color: isDark
                                                 ? AppColors.terraLight
@@ -638,38 +658,35 @@ class _OverviewTabState extends State<OverviewTab> {
           SectionHeader(
             title: loc.tr('quick_expenses'),
           ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _QuickExpenseChip(
-                  icon: '🏠',
-                  label: 'Home Rent',
-                  onTap: () => _openQuickEntry('Home Rent'),
-                ),
-                _QuickExpenseChip(
-                  icon: '⚡',
-                  label: 'Electricity Bill',
-                  onTap: () => _openQuickEntry('Electricity Bill'),
-                ),
-                _QuickExpenseChip(
-                  icon: '🔥',
-                  label: 'Gas Bill',
-                  onTap: () => _openQuickEntry('Gas Bill'),
-                ),
-                _QuickExpenseChip(
-                  icon: '🛒',
-                  label: 'Groceries',
-                  onTap: () => _openQuickEntry('Groceries'),
-                ),
-                _QuickExpenseChip(
-                  icon: '🎓',
-                  label: 'College Fee',
-                  onTap: () => _openQuickEntry('College Fee'),
-                ),
-              ],
+          if (_quickExpenses.isEmpty)
+            Text(
+              loc.tr('no_quick_expenses'),
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkMuted
+                    : AppColors.inkLight,
+              ),
+            )
+          else
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _quickExpenses.map((item) {
+                final label = item['label']?.toString() ?? '';
+                final logged = item['logged'] == true;
+                final amount = item['expectedAmount'];
+                return _QuickExpenseChip(
+                  icon: item['icon']?.toString() ?? '💸',
+                  label: logged ? '$label ✓' : label,
+                  subtitle: amount is num && amount > 0
+                      ? _formatCurrency(amount)
+                      : null,
+                  logged: logged,
+                  onTap: logged ? null : () => _openQuickEntry(item),
+                );
+              }).toList(),
             ),
-          ),
           const SizedBox(height: 24),
 
           // ── Recent Activity ────────────────────────────────────────
@@ -839,12 +856,16 @@ class _QuickExpenseChip extends StatelessWidget {
   const _QuickExpenseChip({
     required this.icon,
     required this.label,
+    this.subtitle,
+    this.logged = false,
     required this.onTap,
   });
 
   final String icon;
   final String label;
-  final VoidCallback onTap;
+  final String? subtitle;
+  final bool logged;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -859,10 +880,14 @@ class _QuickExpenseChip extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkElevated : AppColors.paperCard,
+              color: logged
+                  ? AppColors.sage.withAlpha(isDark ? 35 : 18)
+                  : (isDark ? AppColors.darkElevated : AppColors.paperCard),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isDark ? AppColors.darkBorder : AppColors.paperMist,
+                color: logged
+                    ? AppColors.sage.withAlpha(100)
+                    : (isDark ? AppColors.darkBorder : AppColors.paperMist),
               ),
             ),
             child: Row(
@@ -870,9 +895,27 @@ class _QuickExpenseChip extends StatelessWidget {
               children: [
                 Text(icon, style: const TextStyle(fontSize: 14)),
                 const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: logged ? AppColors.sage : null,
+                      ),
+                    ),
+                    if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color:
+                              isDark ? AppColors.darkMuted : AppColors.inkLight,
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -882,4 +925,3 @@ class _QuickExpenseChip extends StatelessWidget {
     );
   }
 }
-
