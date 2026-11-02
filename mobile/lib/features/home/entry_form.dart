@@ -13,6 +13,12 @@ class EntryFormModal extends StatefulWidget {
     required this.financeRepo,
     required this.onEntryCreated,
     this.entry,
+    this.initialBudgetLineId,
+    this.initialAmount,
+    this.initialNote,
+    this.initialCategoryId,
+    this.initialType,
+    this.initialDate,
   });
 
   final FinanceRepository financeRepo;
@@ -20,12 +26,24 @@ class EntryFormModal extends StatefulWidget {
 
   /// When set, the modal edits this existing entry instead of creating one.
   final Map<String, dynamic>? entry;
+  final String? initialBudgetLineId;
+  final num? initialAmount;
+  final String? initialNote;
+  final String? initialCategoryId;
+  final String? initialType;
+  final DateTime? initialDate;
 
   static Future<void> show(
     BuildContext context, {
     required FinanceRepository financeRepo,
     required VoidCallback onEntryCreated,
     Map<String, dynamic>? entry,
+    String? initialBudgetLineId,
+    num? initialAmount,
+    String? initialNote,
+    String? initialCategoryId,
+    String? initialType,
+    DateTime? initialDate,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -35,6 +53,12 @@ class EntryFormModal extends StatefulWidget {
         financeRepo: financeRepo,
         onEntryCreated: onEntryCreated,
         entry: entry,
+        initialBudgetLineId: initialBudgetLineId,
+        initialAmount: initialAmount,
+        initialNote: initialNote,
+        initialCategoryId: initialCategoryId,
+        initialType: initialType,
+        initialDate: initialDate,
       ),
     );
   }
@@ -46,15 +70,21 @@ class EntryFormModal extends StatefulWidget {
 class _EntryFormModalState extends State<EntryFormModal> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
+  final _sectorController = TextEditingController();
 
   late String _type;
   String _source = 'cash';
   String? _selectedCategoryId;
+  String? _selectedBudgetLineId;
+  String? _selectedAccountId;
+  bool _showAllCategories = false;
   late DateTime _date;
   bool _submitting = false;
   String? _errorMessage;
 
   List<Map<String, dynamic>> _categories = [];
+  List<Map<String, dynamic>> _budgetLines = [];
+  List<Map<String, dynamic>> _accounts = [];
   bool _loadingCategories = true;
 
   bool get _editing => widget.entry != null;
@@ -63,10 +93,13 @@ class _EntryFormModalState extends State<EntryFormModal> {
   void initState() {
     super.initState();
     final entry = widget.entry;
-    _type = entry?['type']?.toString() ?? 'expense';
+    _type = entry?['type']?.toString() ?? widget.initialType ?? 'expense';
     _source = entry?['source']?.toString() ?? 'cash';
-    _date =
-        DateTime.tryParse(entry?['date']?.toString() ?? '') ?? DateTime.now();
+    _selectedBudgetLineId = widget.initialBudgetLineId;
+    _selectedCategoryId = widget.initialCategoryId;
+    _date = DateTime.tryParse(entry?['date']?.toString() ?? '') ??
+        widget.initialDate ??
+        DateTime.now();
 
     final rawCategory = entry?['category'];
     if (rawCategory is Map && rawCategory['_id'] != null) {
@@ -74,20 +107,79 @@ class _EntryFormModalState extends State<EntryFormModal> {
     } else if (rawCategory is String && rawCategory.isNotEmpty) {
       _selectedCategoryId = rawCategory;
     }
+    final rawAccount = entry?['account'];
+    if (rawAccount is Map && rawAccount['_id'] != null) {
+      _selectedAccountId = rawAccount['_id'].toString();
+    } else if (rawAccount is String && rawAccount.isNotEmpty) {
+      _selectedAccountId = rawAccount;
+    }
 
     final amount = entry?['amount'];
     if (amount is num) {
       _amountController.text = amount.toString();
     }
-    _noteController.text = entry?['note']?.toString() ?? '';
+    _noteController.text =
+        entry?['note']?.toString() ?? widget.initialNote ?? '';
+    _sectorController.text = entry?['sector']?.toString() ?? '';
+    if (widget.initialAmount != null) {
+      _amountController.text = widget.initialAmount.toString();
+    }
 
     _loadCategories();
+    _loadAccounts();
+    _loadBudgetLines();
+  }
+
+  Map<String, dynamic>? get _selectedBudgetLine {
+    for (final line in _budgetLines) {
+      if (line['_id']?.toString() == _selectedBudgetLineId) return line;
+    }
+    return null;
+  }
+
+  Future<void> _loadAccounts() async {
+    try {
+      final accounts = await widget.financeRepo.fetchAccounts();
+      if (mounted) setState(() => _accounts = accounts);
+    } catch (e) {
+      if (mounted) setState(() => _errorMessage = ApiClient.messageFrom(e));
+    }
+  }
+
+  Future<void> _loadBudgetLines() async {
+    if (_type != 'expense') return;
+    try {
+      final budget = await widget.financeRepo.fetchBudget(
+        _date.month,
+        _date.year,
+      );
+      if (!mounted) return;
+      final lines = budget?['lines'];
+      setState(() {
+        _budgetLines = lines is List
+            ? lines
+                .whereType<Map>()
+                .map((line) => Map<String, dynamic>.from(line))
+                .where((line) => line['isActive'] != false)
+                .toList()
+            : [];
+        if (_selectedBudgetLineId != null &&
+            !_budgetLines.any(
+              (line) => line['_id']?.toString() == _selectedBudgetLineId,
+            )) {
+          _selectedBudgetLineId = null;
+        }
+      });
+    } catch (e) {
+      if (mounted) setState(() => _errorMessage = ApiClient.messageFrom(e));
+    }
   }
 
   @override
   void dispose() {
     _amountController.dispose();
     _noteController.dispose();
+    _sectorController.dispose();
     super.dispose();
   }
 
@@ -107,8 +199,12 @@ class _EntryFormModalState extends State<EntryFormModal> {
         _categories = list;
         if (_selectedCategoryId == null ||
             !list.any((c) => c['_id']?.toString() == _selectedCategoryId)) {
-          _selectedCategoryId =
-              list.isNotEmpty ? list.first['_id']?.toString() : null;
+          final linkedIds = _selectedBudgetLine?['linkedCategoryIds'];
+          final linkedId = linkedIds is List && linkedIds.isNotEmpty
+              ? linkedIds.first.toString()
+              : null;
+          _selectedCategoryId = linkedId ??
+              (list.isNotEmpty ? list.first['_id']?.toString() : null);
         }
         _loadingCategories = false;
       });
@@ -122,8 +218,10 @@ class _EntryFormModalState extends State<EntryFormModal> {
     setState(() {
       _type = newType;
       _selectedCategoryId = null;
+      _selectedBudgetLineId = null;
     });
     _loadCategories();
+    _loadBudgetLines();
   }
 
   Future<void> _pickDate() async {
@@ -141,6 +239,7 @@ class _EntryFormModalState extends State<EntryFormModal> {
             _date.hour,
             _date.minute,
           ));
+      _loadBudgetLines();
     }
   }
 
@@ -188,6 +287,8 @@ class _EntryFormModalState extends State<EntryFormModal> {
         'source': _source,
         'date': _date.toIso8601String(),
         'note': note,
+        'sector': _sectorController.text.trim(),
+        'accountId': _selectedAccountId,
         if (!_editing) 'type': _type,
       };
 
@@ -275,6 +376,99 @@ class _EntryFormModalState extends State<EntryFormModal> {
             ],
             const SizedBox(height: 18),
 
+            if (!_editing && _type == 'expense' && _budgetLines.isNotEmpty) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  loc.tr('budget_line'),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: Text(loc.tr('all')),
+                    selected: _selectedBudgetLineId == null,
+                    onSelected: (_) =>
+                        setState(() => _selectedBudgetLineId = null),
+                  ),
+                  ..._budgetLines.map((line) {
+                    final id = line['_id']?.toString();
+                    return ChoiceChip(
+                      label: Text(
+                        '${line['icon'] ?? '📦'} ${line['name'] ?? ''}',
+                      ),
+                      selected: id == _selectedBudgetLineId,
+                      onSelected: (_) {
+                        final linkedIds = line['linkedCategoryIds'];
+                        setState(() {
+                          _selectedBudgetLineId = id;
+                          _showAllCategories = false;
+                          if (linkedIds is List && linkedIds.isNotEmpty) {
+                            _selectedCategoryId = linkedIds.first.toString();
+                          }
+                        });
+                      },
+                    );
+                  }),
+                ],
+              ),
+              if ((_selectedBudgetLine?['subItems'] as List?)?.isNotEmpty ??
+                  false) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    loc.tr('budget_sub_items'),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? AppColors.darkMuted : AppColors.inkLight,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: ((_selectedBudgetLine!['subItems'] as List)
+                          .whereType<Map>())
+                      .map((rawSubItem) {
+                    final subItem = Map<String, dynamic>.from(rawSubItem);
+                    final name = subItem['name']?.toString() ?? '';
+                    final expectedAmount = subItem['expectedAmount'];
+                    return ActionChip(
+                      label: Text(
+                        expectedAmount is num && expectedAmount > 0
+                            ? '$name (৳${expectedAmount.toStringAsFixed(0)})'
+                            : name,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _noteController.text = name;
+                          if (expectedAmount is num && expectedAmount > 0) {
+                            _amountController.text = expectedAmount.toString();
+                          }
+                          final linkedIds =
+                              _selectedBudgetLine?['linkedCategoryIds'];
+                          if (linkedIds is List && linkedIds.isNotEmpty) {
+                            _selectedCategoryId = linkedIds.first.toString();
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+              ],
+              const SizedBox(height: 12),
+            ],
+
             // Amount Field
             TextField(
               controller: _amountController,
@@ -299,18 +493,50 @@ class _EntryFormModalState extends State<EntryFormModal> {
             if (_loadingCategories)
               const LinearProgressIndicator(minHeight: 2)
             else if (_categories.isNotEmpty)
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategoryId,
-                decoration: InputDecoration(labelText: loc.tr('category')),
-                items: _categories.map((c) {
-                  return DropdownMenuItem<String>(
-                    value: c['_id']?.toString(),
-                    child: Text(
-                      '${c['icon'] != null ? '${c['icon']} ' : ''}${c['name'] ?? 'Unnamed'}',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_selectedBudgetLine?['linkedCategoryIds'] is List &&
+                      (_selectedBudgetLine!['linkedCategoryIds'] as List)
+                          .isNotEmpty)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => setState(
+                            () => _showAllCategories = !_showAllCategories),
+                        child: Text(
+                          _showAllCategories
+                              ? loc.tr('show_line_categories')
+                              : loc.tr('show_all_categories'),
+                        ),
+                      ),
                     ),
-                  );
-                }).toList(),
-                onChanged: (val) => setState(() => _selectedCategoryId = val),
+                  DropdownButtonFormField<String>(
+                    initialValue: _categories.any(
+                            (c) => c['_id']?.toString() == _selectedCategoryId)
+                        ? _selectedCategoryId
+                        : null,
+                    decoration: InputDecoration(labelText: loc.tr('category')),
+                    items: _categories
+                        .where((category) {
+                          final ids = _selectedBudgetLine?['linkedCategoryIds'];
+                          return _showAllCategories ||
+                              ids is! List ||
+                              ids.isEmpty ||
+                              ids.any((id) =>
+                                  id.toString() == category['_id']?.toString());
+                        })
+                        .map((c) => DropdownMenuItem<String>(
+                              value: c['_id']?.toString(),
+                              child: Text(
+                                '${c['icon'] != null ? '${c['icon']} ' : ''}${c['name'] ?? 'Unnamed'}',
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (val) =>
+                        setState(() => _selectedCategoryId = val),
+                  ),
+                ],
               )
             else
               Text(
@@ -361,6 +587,41 @@ class _EntryFormModalState extends State<EntryFormModal> {
               onChanged: (val) {
                 if (val != null) setState(() => _source = val);
               },
+            ),
+            const SizedBox(height: 14),
+
+            if (_accounts.isNotEmpty)
+              DropdownButtonFormField<String>(
+                initialValue: _accounts.any(
+                  (account) => account['_id']?.toString() == _selectedAccountId,
+                )
+                    ? _selectedAccountId
+                    : null,
+                decoration: InputDecoration(
+                  labelText: loc.tr('account_optional'),
+                ),
+                items: [
+                  DropdownMenuItem<String>(
+                    value: null,
+                    child: Text(loc.tr('no_account')),
+                  ),
+                  ..._accounts.map((account) => DropdownMenuItem<String>(
+                        value: account['_id']?.toString(),
+                        child: Text(account['name']?.toString() ?? ''),
+                      )),
+                ],
+                onChanged: (value) =>
+                    setState(() => _selectedAccountId = value),
+              ),
+            if (_accounts.isNotEmpty) const SizedBox(height: 14),
+
+            TextField(
+              controller: _sectorController,
+              maxLength: 120,
+              decoration: InputDecoration(
+                counterText: '',
+                labelText: loc.tr('sector_optional'),
+              ),
             ),
             const SizedBox(height: 14),
 

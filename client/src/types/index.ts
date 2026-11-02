@@ -68,7 +68,7 @@ export interface BudgetLineSummary {
   variance: number;
   usedPercent: number;
   status: 'on_track' | 'warning' | 'over_budget' | 'unused';
-  subItems: (BudgetSubItem & { variance: number })[];
+  subItems: (BudgetSubItem & { actualAmount: number; variance: number })[];
 }
 
 export interface BudgetSummary {
@@ -244,6 +244,26 @@ export interface ApiSuccess<T> {
   data: T;
   message?: string;
   meta?: Record<string, unknown>;
+}
+
+export interface QuickExpenseItem {
+  id: string;
+  label: string;
+  icon?: string;
+  categoryId?: string | null;
+  budgetLineId?: string | null;
+  expectedAmount?: number;
+  /** True when an expense with this name is already recorded in the selected month. */
+  logged?: boolean;
+}
+
+export interface QuickExpenseInput {
+  id?: string;
+  label: string;
+  icon?: string;
+  categoryId?: string | null;
+  budgetLineId?: string | null;
+  expectedAmount?: number;
 }
 
 export interface CreateEntryDto {

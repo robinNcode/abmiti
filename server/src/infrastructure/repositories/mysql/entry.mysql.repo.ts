@@ -143,6 +143,7 @@ export class MySQLEntryRepository implements IEntryRepository {
     const fields: string[] = [];
     const vals:   any[] = [];
 
+    if (d.type      !== undefined) { fields.push('type = ?');      vals.push(d.type); }
     if (d.amount    !== undefined) { fields.push('amount = ?');    vals.push(d.amount); }
     if (d.note      !== undefined) { fields.push('note = ?');      vals.push(d.note); }
     if (d.source    !== undefined) { fields.push('source = ?');    vals.push(d.source); }

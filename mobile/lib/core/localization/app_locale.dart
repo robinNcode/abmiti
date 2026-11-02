@@ -117,6 +117,27 @@ class AppLocale extends ChangeNotifier {
     'add_expense_under_line': 'Add Expense',
     'budget_templates': 'Budget Templates',
     'apply_template': 'Apply Template',
+    'save_template': 'Save template',
+    'template_saved': 'Template saved',
+    'template_exists': 'A template already exists for this month.',
+    'add_lines_before_save_template':
+        'Add budget lines before saving a template',
+    'checking_templates': 'Checking saved templates…',
+    'saving_template': 'Saving template…',
+    'template_check_failed': 'Could not check saved templates',
+    'budget_line': 'Budget line',
+    'budget_sub_items': 'Budget sub-items',
+    'all': 'All',
+    'show_line_categories': 'Show line categories',
+    'show_all_categories': 'Show all categories',
+    'account_optional': 'Account (optional)',
+    'no_account': 'No account',
+    'sector_optional': 'Sector (optional)',
+    'all_categories': 'All categories',
+    'category_report_entries': 'Transactions in this period',
+    'date_range': 'Date range',
+    'no_quick_expenses': 'No quick expenses are available for this month.',
+    'transactions': 'transactions',
 
     // Overview
     'total_balance': 'Total Balance',
@@ -372,6 +393,24 @@ class AppLocale extends ChangeNotifier {
     'auth_continue_google': 'Continue with Google',
     'or_divider': 'OR',
 
+    // Bank SMS parser
+    'sms_consent_title': 'Track transactions from bank SMS?',
+    'sms_consent_message':
+        'With your permission, Abmiti checks new SMS messages on this device for supported payment and bank sender names such as bKash, Nagad, Bank Asia, and BRAC Bank. The full SMS text is never stored or uploaded. Parsed suggestions stay on this device, and no ledger entry is created until you review and confirm. You can turn this off in Profile & Settings.',
+    'sms_consent_decline': 'Not now',
+    'sms_consent_enable': 'Continue',
+    'sms_parser_title': 'Bank SMS suggestions',
+    'sms_parser_setting_hint':
+        'Review detected transactions before they are added',
+    'sms_candidate_title': 'Possible transaction found',
+    'sms_candidate_message':
+        'A possible transaction from {provider} for ৳{amount} was detected. Review the details before saving.',
+    'sms_candidate_ignore': 'Ignore',
+    'sms_candidate_review': 'Review',
+    'sms_permission_denied':
+        'SMS permission was not granted. You can enable suggestions in Profile & Settings.',
+    'sms_setup_error': 'Could not set up SMS transaction suggestions.',
+
     // Common
     'cancel': 'Cancel',
     'edit': 'Edit',
@@ -440,6 +479,27 @@ class AppLocale extends ChangeNotifier {
     'add_expense_under_line': 'খরচ যুক্ত করুন',
     'budget_templates': 'বাজেট টেমপ্লেট',
     'apply_template': 'টেমপ্লেট প্রয়োগ করুন',
+    'save_template': 'টেমপ্লেট সংরক্ষণ',
+    'template_saved': 'টেমপ্লেট সংরক্ষিত',
+    'template_exists': 'এই মাসের জন্য একটি টেমপ্লেট ইতিমধ্যে সংরক্ষিত আছে।',
+    'add_lines_before_save_template':
+        'টেমপ্লেট সংরক্ষণের আগে বাজেট লাইন যোগ করুন',
+    'checking_templates': 'সংরক্ষিত টেমপ্লেট খোঁজা হচ্ছে…',
+    'saving_template': 'টেমপ্লেট সংরক্ষণ হচ্ছে…',
+    'template_check_failed': 'সংরক্ষিত টেমপ্লেট যাচাই করা যায়নি',
+    'budget_line': 'বাজেট লাইন',
+    'budget_sub_items': 'বাজেটের উপ-আইটেম',
+    'all': 'সব',
+    'show_line_categories': 'লাইনের ক্যাটাগরি দেখুন',
+    'show_all_categories': 'সব ক্যাটাগরি দেখুন',
+    'account_optional': 'অ্যাকাউন্ট (ঐচ্ছিক)',
+    'no_account': 'কোনো অ্যাকাউন্ট নয়',
+    'sector_optional': 'খাত (ঐচ্ছিক)',
+    'all_categories': 'সব ক্যাটাগরি',
+    'category_report_entries': 'এই সময়ের লেনদেন',
+    'date_range': 'তারিখের সীমা',
+    'no_quick_expenses': 'এই মাসের জন্য কোনো দ্রুত ব্যয়ের আইটেম নেই।',
+    'transactions': 'টি লেনদেন',
 
     // Overview
     'total_balance': 'মোট ব্যালেন্স',
@@ -696,6 +756,23 @@ class AppLocale extends ChangeNotifier {
     'auth_no_account': 'নতুন অবমিতিতে? অ্যাকাউন্ট তৈরি করুন',
     'auth_continue_google': 'গুগল দিয়ে চালিয়ে যান',
     'or_divider': 'অথবা',
+
+    // Bank SMS parser
+    'sms_consent_title': 'ব্যাংকের SMS থেকে লেনদেন শনাক্ত করবেন?',
+    'sms_consent_message':
+        'আপনার অনুমতিতে, অবমিতি এই ডিভাইসে আসা নতুন SMS থেকে বিকাশ, নগদ, ব্যাংক এশিয়া এবং ব্র্যাক ব্যাংকের মতো সমর্থিত পেমেন্ট ও ব্যাংক প্রেরকের নাম পরীক্ষা করবে। SMS-এর সম্পূর্ণ লেখা সংরক্ষণ বা আপলোড করা হয় না। শনাক্ত করা পরামর্শ এই ডিভাইসেই থাকবে এবং আপনি যাচাই করে নিশ্চিত না করা পর্যন্ত কোনো লেনদেন যোগ হবে না। প্রোফাইল ও সেটিংস থেকে এটি বন্ধ করতে পারবেন।',
+    'sms_consent_decline': 'এখন নয়',
+    'sms_consent_enable': 'চালিয়ে যান',
+    'sms_parser_title': 'ব্যাংক SMS লেনদেন পরামর্শ',
+    'sms_parser_setting_hint': 'লেনদেন যোগ করার আগে শনাক্ত তথ্য যাচাই করুন',
+    'sms_candidate_title': 'সম্ভাব্য লেনদেন শনাক্ত হয়েছে',
+    'sms_candidate_message':
+        '{provider} থেকে ৳{amount}-এর একটি সম্ভাব্য লেনদেন শনাক্ত হয়েছে। সংরক্ষণের আগে তথ্য যাচাই করুন।',
+    'sms_candidate_ignore': 'উপেক্ষা করুন',
+    'sms_candidate_review': 'যাচাই করুন',
+    'sms_permission_denied':
+        'SMS অনুমতি দেওয়া হয়নি। প্রোফাইল ও সেটিংস থেকে পরামর্শ চালু করতে পারবেন।',
+    'sms_setup_error': 'SMS লেনদেন পরামর্শ চালু করা যায়নি।',
 
     // Common
     'cancel': 'বাতিল',

@@ -154,6 +154,42 @@ console.log('\n[5] Insufficient history');
   assert('warnings array is empty', forecast.months[0].warnings.length === 0);
 }
 
+console.log('\n[6] Sub-item note matching');
+{
+  const lines: BudgetLineInputData[] = [
+    {
+      id: 'living',
+      name: 'Living Cost',
+      allocationMethod: 'fixed',
+      allocationValue: 20000,
+      linkedCategoryIds: [],
+      subItemNames: ['Home Rent', 'Wifi Bill'],
+    },
+    {
+      id: 'food',
+      name: 'Food',
+      allocationMethod: 'fixed',
+      allocationValue: 5000,
+      linkedCategoryIds: ['food_cat'],
+    },
+  ];
+  const entries: EntryInputData[] = [
+    { id: 'e1', amount: 12000, type: 'expense', categoryId: 'rent_cat', date: '2026-11-11', note: 'Home Rent' },
+    { id: 'e2', amount: 500, type: 'expense', categoryId: 'rent_cat', date: '2026-11-12', note: '  wifi bill ' },
+    { id: 'e3', amount: 4000, type: 'expense', categoryId: 'settlement', date: '2026-11-09', note: '50k remains' },
+    { id: 'e4', amount: 700, type: 'expense', categoryId: 'food_cat', date: '2026-11-05', note: 'Groceries' },
+  ];
+  const res = computeBudgetAnalysis(lines, entries, 40000, 46000);
+  const living = res.lines.find((l) => l.id === 'living');
+  const food = res.lines.find((l) => l.id === 'food');
+
+  assert('Sub-item notes are counted on the line (12000 + 500)', living?.spent === 12500, `Got: ${living?.spent}`);
+  assert('Category link still works alongside sub-items', food?.spent === 700, `Got: ${food?.spent}`);
+  assert('Only the unmatched note is unbudgeted (4000)', res.unbudgetedSpent === 4000, `Got: ${res.unbudgetedSpent}`);
+  assert('Unbudgeted count counts entries (1)', res.unbudgetedEntriesCount === 1, `Got: ${res.unbudgetedEntriesCount}`);
+  assert('Total spent is 12500 + 700 + 4000', res.totalSpent === 17200, `Got: ${res.totalSpent}`);
+}
+
 console.log('\n──────────────────────────────────────────────────');
 console.log(`Results: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

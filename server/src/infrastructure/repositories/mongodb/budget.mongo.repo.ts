@@ -4,6 +4,8 @@ import { IBudget, IBudgetInput, IBudgetLineInput, IEntry } from '../../../shared
 import { Budget } from '../../../modules/budget/budget.model';
 import { Entry } from '../../../modules/entry/entry.model';
 
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const normalizeLine = (line: IBudgetLineInput, index = 0) => ({
   name: line.name,
   icon: line.icon ?? '📦',
@@ -110,6 +112,14 @@ export class MongoBudgetRepository implements IBudgetRepository {
     }).populate('category', 'name icon color');
   }
 
+  async findOutflowEntriesForMonth(userId: string, start: Date, end: Date): Promise<IEntry[]> {
+    return Entry.find({
+      user: userId,
+      type: { $in: ['expense', 'savings', 'investment'] },
+      date: { $gte: start, $lte: end },
+    }).sort({ date: -1, createdAt: -1 });
+  }
+
   async getAggregatesForMonth(
     userId: string,
     start: Date,
@@ -143,7 +153,9 @@ export class MongoBudgetRepository implements IBudgetRepository {
       start: Date;
       end: Date;
       categoryIds?: string[];
+      subItemNames?: string[];
       unmappedCategoryIds?: string[];
+      unmappedSubItemNames?: string[];
       isUnbudgeted?: boolean;
     },
     page: number,
@@ -155,10 +167,34 @@ export class MongoBudgetRepository implements IBudgetRepository {
       date: { $gte: filters.start, $lte: filters.end },
     };
 
-    if (filters.isUnbudgeted && filters.unmappedCategoryIds?.length) {
-      query.category = { $nin: filters.unmappedCategoryIds.map((id) => new Types.ObjectId(id)) };
-    } else if (filters.categoryIds?.length) {
-      query.category = { $in: filters.categoryIds.map((id) => new Types.ObjectId(id)) };
+    // Notes are matched the same way as the SQL `LOWER(TRIM(note))` comparison.
+    const nameMatcher = (names: string[]) => names.map((name) => (
+      new RegExp(`^\\s*${escapeRegExp(name)}\\s*$`, 'i')
+    ));
+
+    if (filters.isUnbudgeted) {
+      const and: Record<string, unknown>[] = [];
+      const unmappedCategories = filters.unmappedCategoryIds ?? [];
+      const unmappedNames = filters.unmappedSubItemNames ?? [];
+      if (unmappedCategories.length) {
+        and.push({ category: { $nin: unmappedCategories.map((id) => new Types.ObjectId(id)) } });
+      }
+      if (unmappedNames.length) {
+        and.push({ note: { $nin: nameMatcher(unmappedNames) } });
+      }
+      if (and.length) query.$and = and;
+    } else {
+      const mappedCategories = filters.categoryIds ?? [];
+      const mappedNames = filters.subItemNames ?? [];
+      const or: Record<string, unknown>[] = [];
+      if (mappedCategories.length) {
+        or.push({ category: { $in: mappedCategories.map((id) => new Types.ObjectId(id)) } });
+      }
+      if (mappedNames.length) {
+        or.push({ note: { $in: nameMatcher(mappedNames) } });
+      }
+      // A line with no categories and no sub-items owns nothing.
+      query.$or = or.length ? or : [{ _id: { $exists: false } }];
     }
 
     const total = await Entry.countDocuments(query);

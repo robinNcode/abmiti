@@ -49,12 +49,20 @@ You don't need to rebuild the app to change environments:
 
 - `POST /auth/login`, `POST /auth/register`, `POST /auth/refresh`, `GET /auth/me`, and `PATCH /auth/me`. Access and refresh tokens are kept in platform secure storage. The API client retries expired access tokens and signs out when refresh fails. Admin accounts are denied access to the personal finance screens.
 - `GET /summary/monthly`, `GET /summary/categories`, `GET /summary/yearly`, `GET /summary/yearly-summary`, `GET /summary/budget-warnings`, `GET /entries`, `POST /entries`, `PATCH /entries/:id`, `DELETE /entries/:id`, and `GET /categories` power the overview, activity list, analytics, and transaction form. All six entry types (`income`, `expense`, `savings`, `investment`, `payable`, `receivable`) can be created and edited, with a date picker for back-dated entries.
-- `GET /budgets`, `POST /budgets`, `PUT /budgets/:id`, `GET /budgets/:id/summary`, `POST /budgets/:id/lines`, `PUT /budgets/:id/lines/:lineId`, and `DELETE /budgets/:id/lines/:lineId` power the budget screen, including editing the estimated income and editing or removing allocation lines.
+- `GET /budgets`, `POST /budgets`, `PUT /budgets/:id`, `GET /budgets/:id/summary`, `GET /budgets/templates`, `POST /budgets/:id/save-as-template`, `POST /budgets/:id/lines`, `PUT /budgets/:id/lines/:lineId`, and `DELETE /budgets/:id/lines/:lineId` power the budget screen, including editing the estimated income and allocation lines. Template saving is disabled when the selected month has no lines or already has a saved template; duplicate saves receive a clear message.
 - `GET /categories`, `POST /categories`, `PATCH /categories/:id`, and `DELETE /categories/:id` power the categories manager with per-type tabs.
 - `GET /notifications`, `PATCH /notifications/read-all`, and `PATCH /notifications/:id/read` power the in-app notification inbox and the unread badge in the app bar.
 - `GET /subscriptions` shows server-reported plan history. `POST /payments/start` opens the backend-created SSLCommerz checkout URL. A plan is never marked paid by the app; the backend verifies the gateway callback/IPN.
 
 The existing API has no password reset route, mobile-native Google OAuth callback, account deletion route, or notification pagination. Google OAuth still redirects to the web client. The mobile app does not simulate those flows or expose them as native actions. Subscription checkout and reporting require the server's SSLCommerz configuration.
+
+## Optional Android bank SMS suggestions
+
+After the first successful login on an Android installation, users can opt in to local parsing of new SMS messages from supported payment and bank sender IDs (including bKash, Nagad, Rocket, Bank Asia, and BRAC Bank). The app requests Android's `RECEIVE_SMS` permission only after showing an in-app disclosure and the user accepts. iOS does not support monitoring arbitrary incoming SMS, so this setting is Android-only.
+
+Parsing runs on-device. Full SMS text is not stored or sent to the API; only recognized transaction suggestions are kept locally (up to 25 pending reviews). SMS consent and pending suggestions are excluded from Android cloud and device backups. A suggestion opens the normal entry form, and no ledger entry is created until the user reviews and saves it. Users can turn the feature off under Profile & Settings. The sender registry and parser are intentionally extensible in `BankSmsParser.kt`.
+
+Google Play restricts SMS permissions; Play releases must satisfy its applicable SMS permission policy and declaration requirements.
 
 ## Structure
 

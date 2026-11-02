@@ -1,37 +1,69 @@
 import { useState } from 'react';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Pencil } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { useCategories, useCreateCategory, useDeleteCategory } from '@/hooks';
+import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks';
 import { PageHeader, Modal, Spinner, EmptyState } from '@/components/ui';
-import { EntryType } from '@/types';
+import { Category, EntryType } from '@/types';
 import { cx } from '@/utils';
 import { useTranslation } from 'react-i18next';
 
-const ICONS = ['🏠','🍔','🚌','💡','🎓','🏥','🛍️','🎬','✈️','💳','📦','💼','💻','🏪','🎁','💰','💵','🌍','🎯','📱'];
-const COLORS = ['#c2552a','#4a7c59','#d4973e','#2a6dc2','#9b59b6','#e74c3c','#e67e22','#1abc9c','#16a085','#2980b9','#8e44ad','#c0392b'];
+const ICONS = ['🏠','🍔','🚌','💡','🎓','🏥','🛍️','🎬','✈️','💳','📦','💼','💻','🏪','🎁','💰','💵','🌍','🎯','📱','🏦','📄','📥','📤'];
+const COLORS = ['#c2552a','#4a7c59','#d4973e','#2a6dc2','#9b59b6','#e74c3c','#e67e22','#1abc9c','#16a085','#2980b9','#8e44ad','#c0392b','#7f8c8d','#95a5a6','#f39c12','#e91e63','#27ae60','#f1c40f','#3498db'];
 
 interface FormData { name: string; }
 
 export default function CategoriesPage() {
   const { t } = useTranslation();
   const [modal, setModal]       = useState(false);
+  const [editing, setEditing]   = useState<Category | null>(null);
   const [tab, setTab]           = useState<EntryType>('expense');
   const [selIcon, setSelIcon]   = useState('📦');
   const [selColor, setSelColor] = useState(COLORS[0]);
 
   const { data: categories = [], isLoading } = useCategories(tab);
   const create = useCreateCategory();
+  const update = useUpdateCategory();
   const remove = useDeleteCategory();
+  const saving  = create.isPending || update.isPending;
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<FormData>({
     defaultValues: { name: '' },
   });
   const nameVal = watch('name');
 
+  const openCreate = () => {
+    setEditing(null);
+    reset({ name: '' });
+    setSelIcon('📦');
+    setSelColor(COLORS[0]);
+    setModal(true);
+  };
+
+  const openEdit = (cat: Category) => {
+    setEditing(cat);
+    reset({ name: cat.name });
+    setSelIcon(cat.icon);
+    setSelColor(cat.color);
+    setModal(true);
+  };
+
+  const closeModal = () => {
+    setModal(false);
+    setEditing(null);
+    reset({ name: '' });
+  };
+
   const onSubmit = handleSubmit(async (data) => {
-    await create.mutateAsync({ name: data.name, icon: selIcon, color: selColor, type: tab });
-    reset(); setSelIcon('📦'); setSelColor(COLORS[0]); setModal(false);
+    const payload = { name: data.name.trim(), icon: selIcon, color: selColor };
+    if (editing) {
+      await update.mutateAsync({ id: editing._id, ...payload });
+    } else {
+      await create.mutateAsync({ ...payload, type: tab });
+    }
+    closeModal();
   });
+
+  const formType: EntryType = editing?.type ?? tab;
 
   return (
     <div className="min-h-full">
@@ -39,7 +71,7 @@ export default function CategoriesPage() {
         title={t('categoriesTitle')}
         subtitle={t('categoriesSubtitle')}
         action={
-          <button onClick={() => { reset(); setModal(true); }} className="btn-primary text-sm">
+          <button onClick={openCreate} className="btn-primary text-sm">
             <Plus size={14} /> {t('addCategory')}
           </button>
         }
@@ -78,12 +110,18 @@ export default function CategoriesPage() {
                     {cat.isDefault ? t('default') : t('custom')}
                   </p>
                 </div>
-                {!cat.isDefault && (
-                  <button onClick={() => remove.mutate(cat._id)} disabled={remove.isPending} aria-label={t('Delete category')}
-                    className="opacity-0 group-hover:opacity-100 w-7 h-7 rounded-lg hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all text-ink/30 shrink-0">
-                    <Trash2 size={13} />
+                <div className="flex items-center gap-1 shrink-0">
+                  <button onClick={() => openEdit(cat)} aria-label={t('Edit category')}
+                    className="w-7 h-7 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-all text-ink/30 hover:text-ink/70">
+                    <Pencil size={13} />
                   </button>
-                )}
+                  {!cat.isDefault && (
+                    <button onClick={() => remove.mutate(cat._id)} disabled={remove.isPending} aria-label={t('Delete category')}
+                      className="sm:opacity-0 sm:group-hover:opacity-100 w-7 h-7 rounded-lg hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all text-ink/30">
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -92,11 +130,14 @@ export default function CategoriesPage() {
         )}
       </div>
 
-      <Modal open={modal} onClose={() => setModal(false)} title={t('newCategory')}>
+      <Modal open={modal} onClose={closeModal} title={editing ? t('editCategory') : t('newCategory')}>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="label">{t('name')} *</label>
-            <input {...register('name', { required: t('Name is required') })}
+            <input {...register('name', {
+              required: t('Name is required'),
+              validate: (v) => v.trim().length > 0 || t('Name is required'),
+            })}
               placeholder={`${t('e.g.')} ${t('groceries')}`} className="input" autoFocus />
             {errors.name && <p className="text-xs text-terra mt-1">{errors.name.message}</p>}
           </div>
@@ -128,11 +169,11 @@ export default function CategoriesPage() {
             </div>
             <div>
               <p className="text-sm font-semibold">{nameVal || t('categoryName')}</p>
-              <p className="text-xs text-ink/40 capitalize">{t(tab === 'income' ? 'IncomeCategory' : 'ExpenseCategory')}</p>
+              <p className="text-xs text-ink/40 capitalize">{t(formType === 'income' ? 'IncomeCategory' : 'ExpenseCategory')}</p>
             </div>
           </div>
-          <button type="submit" disabled={create.isPending} className="btn-primary w-full">
-            {create.isPending ? <Spinner /> : <><Plus size={14} /> {t('createCategory')}</>}
+          <button type="submit" disabled={saving} className="btn-primary w-full">
+            {saving ? <Spinner /> : editing ? <>{t('Save Changes')}</> : <><Plus size={14} /> {t('createCategory')}</>}
           </button>
         </form>
       </Modal>

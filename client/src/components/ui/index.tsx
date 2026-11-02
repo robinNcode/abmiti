@@ -100,16 +100,21 @@ export const Modal = ({ open, onClose, title, children }: {
   const { t } = useTranslation();
   if (!open) return null;
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       <div className="absolute inset-0 bg-ink/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative card w-full max-w-md shadow-lift animate-fade-up">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-paper-mist2">
-          <h2 className="font-display font-bold text-lg">{title}</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors" aria-label={t('Close')}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="relative card w-full max-w-md shadow-lift animate-fade-up flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[min(90dvh,900px)] overflow-hidden"
+      >
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-paper-mist2 shrink-0">
+          <h2 className="font-display font-bold text-lg truncate">{title}</h2>
+          <button onClick={onClose} className="w-8 h-8 shrink-0 rounded-lg hover:bg-paper-mist flex items-center justify-center transition-colors" aria-label={t('Close')}>
             <X size={16} />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6">{children}</div>
       </div>
     </div>,
     document.body,

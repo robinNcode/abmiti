@@ -8,6 +8,7 @@ import budgetRouter from './modules/budget/budget.routes';
 import adminRouter from './modules/admin/admin.routes';
 import payableRouter from './modules/payable/payable.routes';
 import receivableRouter from './modules/receivable/receivable.routes';
+import quickExpenseRouter from './modules/quick-expense/quick-expense.routes';
 
 import { env } from './config/env';
 
@@ -434,6 +435,7 @@ export const registerRoutes = (app: Express): void => {
   app.use(`${API_V1}/budgets`, budgetRouter);
   app.use(`${API_V1}/payables`, payableRouter);
   app.use(`${API_V1}/receivables`, receivableRouter);
+  app.use(`${API_V1}/quick-expenses`, quickExpenseRouter);
   app.use(`${API_V1}`, adminRouter);
 };
 

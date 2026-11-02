@@ -3,10 +3,14 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Required by connectivity_plus to detect network changes -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Requested only after the user enables local bank SMS parsing. -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <application
         android:label="Abmiti"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
@@ -30,6 +34,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <receiver
+            android:name="com.robinncode.abmiti.BankSmsReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="500">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

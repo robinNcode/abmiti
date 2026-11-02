@@ -36,9 +36,28 @@ export const useCreateEntry = () => {
       qc.invalidateQueries({ queryKey: ['summary'] });
       qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
       qc.invalidateQueries({ queryKey: ['yearly'] });
+      // A logged quick-expense shortcut must disappear from the dashboard.
+      qc.invalidateQueries({ queryKey: ['quick-expenses'] });
       toast.success(t('Entry saved ✓'));
     },
     onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to save entry')),
+  });
+};
+
+export const useUpdateEntry = () => {
+  const qc = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: Partial<CreateEntryDto> }) => entriesApi.update(id, dto),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['entries'] });
+      qc.invalidateQueries({ queryKey: ['summary'] });
+      qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
+      qc.invalidateQueries({ queryKey: ['yearly'] });
+      qc.invalidateQueries({ queryKey: ['quick-expenses'] });
+      toast.success(t('Entry updated'));
+    },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to update entry')),
   });
 };
 
@@ -51,6 +70,7 @@ export const useDeleteEntry = () => {
       qc.invalidateQueries({ queryKey: ['entries'] });
       qc.invalidateQueries({ queryKey: ['summary'] });
       qc.invalidateQueries({ queryKey: ['categories-breakdown'] });
+      qc.invalidateQueries({ queryKey: ['quick-expenses'] });
       toast.success(t('Entry deleted'));
     },
     onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to delete entry')),
@@ -146,6 +166,17 @@ export const useCreateCategory = () => {
   });
 };
 
+export const useUpdateCategory = () => {
+  const qc = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: ({ id, ...dto }: { id: string; name?: string; icon?: string; color?: string }) =>
+      categoriesApi.update(id, dto),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['cats'] }); toast.success(t('Category updated')); },
+    onError: (e: unknown) => toast.error(localizedApiError(e, t, 'Failed to update category')),
+  });
+};
+
 export const useDeleteCategory = () => {
   const qc = useQueryClient();
   const { t } = useTranslation();
@@ -185,5 +216,6 @@ export const useDeleteAccount = () => {
 
 export * from './useBudget';
 export * from './budget.hooks';
+export * from './quickExpenses.hooks';
 export * from './payables.hooks';
 export * from './receivables.hooks';

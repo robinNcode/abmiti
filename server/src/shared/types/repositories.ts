@@ -2,7 +2,7 @@ import {
   IUser, ICategory, ICategoryInput, IEntry, IAccount, IAccountInput, IBudget, IBudgetInput, IBudgetLineInput,
   IEntryFilters, IPaginationOptions, IPaginatedResult, EntryType,
   IPayable, IPayableInput, INetPosition,
-  IReceivable, IReceivableInput,
+  IReceivable, IReceivableInput, IQuickExpenseItem,
 } from './index';
 
 // ── User Repository ─────────────────────────────────────────
@@ -12,6 +12,7 @@ export interface IUserRepository {
   create(data: { name: string; email: string; password: string }): Promise<IUser>;
   updateBudget(id: string, budget: number): Promise<IUser | null>;
   updateProfile(id: string, data: { name?: string; avatar?: string }): Promise<IUser | null>;
+  updateQuickExpenses(id: string, items: IQuickExpenseItem[]): Promise<IUser | null>;
   findByGoogleId(googleId: string): Promise<IUser | null>;
   createFromGoogle(data: { name: string; email: string; googleId: string; avatar?: string }): Promise<IUser>;
   linkGoogleId(userId: string, googleId: string): Promise<IUser | null>;
@@ -145,6 +146,8 @@ export interface IBudgetRepository {
     start: Date,
     end: Date,
   ): Promise<IEntry[]>;
+  /** All expense/savings/investment entries in the window (notes included, for sub-item matching). */
+  findOutflowEntriesForMonth(userId: string, start: Date, end: Date): Promise<IEntry[]>;
   getAggregatesForMonth(
     userId: string,
     start: Date,
@@ -159,8 +162,14 @@ export interface IBudgetRepository {
     filters: {
       start: Date;
       end: Date;
+      /** Linked category ids of the line (matched with OR against subItemNames). */
       categoryIds?: string[];
+      /** Normalized sub-item names of the line. */
+      subItemNames?: string[];
+      /** Category ids mapped to any active budget line. */
       unmappedCategoryIds?: string[];
+      /** Normalized sub-item names mapped to any active budget line. */
+      unmappedSubItemNames?: string[];
       isUnbudgeted?: boolean;
     },
     page: number,

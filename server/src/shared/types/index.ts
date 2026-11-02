@@ -5,6 +5,18 @@ export type EntryType = 'income' | 'expense' | 'savings' | 'payable' | 'receivab
 export type PaymentSource = 'bank' | 'bkash' | 'nagad' | 'cash' | 'card' | 'other';
 
 // ── Entity interfaces ────────────────────────────────────────────────
+export interface IQuickExpenseItem {
+  id: string;
+  label: string;
+  icon?: string;
+  /** Expense category the shortcut logs into. */
+  categoryId?: string | null;
+  /** Budget line the shortcut was pinned from (optional context). */
+  budgetLineId?: string | null;
+  /** Suggested amount, copied from the budget sub-item. */
+  expectedAmount?: number;
+}
+
 export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
@@ -14,6 +26,8 @@ export interface IUser extends Document {
   avatar?: string;
   google_id?: string;
   userType: 'admin' | 'user';
+  /** Dashboard quick-expense shortcuts (max 6), ordered. */
+  quickExpenses?: IQuickExpenseItem[];
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidate: string): Promise<boolean>;
@@ -151,7 +165,7 @@ export interface IBudgetLineSummary {
   variance: number;
   usedPercent: number;
   status: 'on_track' | 'warning' | 'over_budget' | 'unused';
-  subItems: (IBudgetSubItem & { variance: number })[];
+  subItems: (IBudgetSubItem & { actualAmount: number; variance: number })[];
 }
 
 export interface IBudgetSummary {

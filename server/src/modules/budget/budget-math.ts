@@ -13,6 +13,8 @@ export interface BudgetLineInputData {
   allocationMethod: 'percentage' | 'fixed';
   allocationValue: number;
   linkedCategoryIds: string[];
+  /** Sub-item names; entries whose note matches one of these belong to the line. */
+  subItemNames?: string[];
 }
 
 export interface EntryInputData {
@@ -21,6 +23,7 @@ export interface EntryInputData {
   type: string;
   categoryId: string;
   date: Date | string;
+  note?: string | null;
 }
 
 export interface ComputedLineSummary {
@@ -50,6 +53,57 @@ export interface BudgetAnalysisResult {
   savingsRate: number | null;
   lines: ComputedLineSummary[];
   unbudgetedEntriesCount: number;
+}
+
+/**
+ * Case/space-insensitive key used to match an entry note to a budget sub-item.
+ * Mirrors the SQL `LOWER(TRIM(note))` comparison used by the repositories.
+ */
+export const normalizeEntryName = (value: string | null | undefined): string =>
+  (value ?? '').trim().toLowerCase();
+
+export interface BudgetLineLookup {
+  /** entry category id -> budget line id */
+  categoryToLineId: Map<string, string>;
+  /** normalized sub-item name -> budget line id */
+  subItemToLineId: Map<string, string>;
+}
+
+/**
+ * A budget line owns an entry when the entry's category is linked to the line, or when
+ * the entry's note is the name of one of the line's sub-items (the expense form writes
+ * the sub-item name into the note when the entry is logged from a sub-item).
+ */
+export function buildLineLookup(lines: BudgetLineInputData[]): BudgetLineLookup {
+  const categoryToLineId = new Map<string, string>();
+  const subItemToLineId = new Map<string, string>();
+
+  lines.forEach((line) => {
+    line.linkedCategoryIds.forEach((catId) => {
+      categoryToLineId.set(String(catId), line.id);
+    });
+    (line.subItemNames ?? []).forEach((name) => {
+      const key = normalizeEntryName(name);
+      // First line wins when two lines share a sub-item name.
+      if (key && !subItemToLineId.has(key)) subItemToLineId.set(key, line.id);
+    });
+  });
+
+  return { categoryToLineId, subItemToLineId };
+}
+
+export function resolveEntryLineId(
+  entry: { categoryId?: string | null; note?: string | null },
+  lookup: BudgetLineLookup,
+): string | undefined {
+  const categoryId = entry.categoryId === null || entry.categoryId === undefined
+    ? ''
+    : String(entry.categoryId);
+  const byCategory = categoryId ? lookup.categoryToLineId.get(categoryId) : undefined;
+  if (byCategory) return byCategory;
+
+  const key = normalizeEntryName(entry.note);
+  return key ? lookup.subItemToLineId.get(key) : undefined;
 }
 
 /**
@@ -120,13 +174,8 @@ export function computeBudgetAnalysis(
   const incomeBasis = budgetTotalIncome > 0 ? budgetTotalIncome : actualIncome;
   const allocations = calculateAllocations(lines, incomeBasis);
 
-  // Map categoryId -> lineId
-  const categoryToLineId = new Map<string, string>();
-  lines.forEach((line) => {
-    line.linkedCategoryIds.forEach((catId) => {
-      categoryToLineId.set(String(catId), line.id);
-    });
-  });
+  // Map category and sub-item name -> lineId
+  const lookup = buildLineLookup(lines);
 
   // Accumulate spend in paisa
   const lineSpendPaisa = new Map<string, number>();
@@ -141,7 +190,7 @@ export function computeBudgetAnalysis(
       return;
     }
     const catId = String(e.categoryId);
-    const lineId = categoryToLineId.get(catId);
+    const lineId = resolveEntryLineId({ categoryId: catId, note: e.note }, lookup);
     const amtPaisa = Math.round(e.amount * 100);
 
     if (lineId && lineSpendPaisa.has(lineId)) {

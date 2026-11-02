@@ -15,10 +15,15 @@ export const createEntryValidator = [
 ];
 
 export const updateEntryValidator = [
+  body('type').optional().isIn(['income', 'expense', 'investment', 'savings', 'payable', 'receivable'])
+    .withMessage('Type must be income, expense, investment, savings, payable or receivable'),
   body('amount').optional().isFloat({ min: 0.01 }),
   body('categoryId').optional().custom(isDatabaseId).withMessage('Valid category ID required'),
   body('note').optional().isString().isLength({ max: 300 }),
+  body('sector').optional().isString().isLength({ max: 120 }),
   body('source').optional().isIn(['bank','bkash','nagad','cash','card','other']),
+  body('accountId').optional({ nullable: true }).custom((v) => v === '' || v === null || isDatabaseId(v))
+    .withMessage('Valid account ID required'),
   body('date').optional().isISO8601(),
 ];
 

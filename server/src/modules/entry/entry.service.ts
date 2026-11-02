@@ -69,6 +69,7 @@ export const entryService = {
 
     const isMongo    = env.DB_PROVIDER === 'mongodb';
     const updateData: Partial<IEntry> = {};
+    if (dto.type   !== undefined) updateData.type   = dto.type;
     if (dto.amount !== undefined) updateData.amount = dto.amount;
     if (dto.note   !== undefined) updateData.note   = dto.note;
     if (dto.source !== undefined) updateData.source = dto.source as IEntry['source'];
@@ -80,10 +81,14 @@ export const entryService = {
       if (!cat) throw new NotFoundError('Category');
       updateData.category = (isMongo ? new Types.ObjectId(dto.categoryId) : dto.categoryId) as any;
     }
-    if (dto.accountId) {
-      const acc = await container.accountRepo.findById(userId, dto.accountId);
-      if (!acc) throw new NotFoundError('Account');
-      updateData.account = (isMongo ? new Types.ObjectId(dto.accountId) : dto.accountId) as any;
+    if (dto.accountId !== undefined) {
+      if (!dto.accountId) {
+        updateData.account = null as any;
+      } else {
+        const acc = await container.accountRepo.findById(userId, dto.accountId);
+        if (!acc) throw new NotFoundError('Account');
+        updateData.account = (isMongo ? new Types.ObjectId(dto.accountId) : dto.accountId) as any;
+      }
     }
 
     const updated = await container.entryRepo.update(id, userId, updateData);

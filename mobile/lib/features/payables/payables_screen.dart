@@ -8,6 +8,12 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
 import '../../shared/widgets/shimmer_loading.dart';
 
+double payableAmountValue(dynamic value, {double fallback = 0}) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.trim()) ?? fallback;
+  return fallback;
+}
+
 class PayablesScreen extends StatefulWidget {
   const PayablesScreen({super.key, required this.financeRepo});
 
@@ -100,7 +106,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
             ),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : AppColors.paper,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -138,8 +145,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                       Expanded(
                         child: TextField(
                           controller: amountCtrl,
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
                           decoration: InputDecoration(
                             labelText: '${loc.tr('principal')} (৳) *',
                             hintText: '0.00',
@@ -198,7 +205,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                           ),
                         ),
                       ],
-                      onChanged: (val) => setModalState(() => selectedAccountId = val),
+                      onChanged: (val) =>
+                          setModalState(() => selectedAccountId = val),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -211,16 +219,22 @@ class _PayablesScreenState extends State<PayablesScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         color: dueDate == null ? Colors.grey : AppColors.terra,
-                        fontWeight: dueDate == null ? FontWeight.normal : FontWeight.w700,
+                        fontWeight: dueDate == null
+                            ? FontWeight.normal
+                            : FontWeight.w700,
                       ),
                     ),
-                    trailing: const Icon(Icons.calendar_today_rounded, size: 20),
+                    trailing:
+                        const Icon(Icons.calendar_today_rounded, size: 20),
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: ctx,
-                        initialDate: DateTime.now().add(const Duration(days: 30)),
-                        firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                        lastDate: DateTime.now().add(const Duration(days: 3650)),
+                        initialDate:
+                            DateTime.now().add(const Duration(days: 30)),
+                        firstDate:
+                            DateTime.now().subtract(const Duration(days: 365)),
+                        lastDate:
+                            DateTime.now().add(const Duration(days: 3650)),
                       );
                       if (picked != null) {
                         setModalState(() => dueDate = picked);
@@ -251,7 +265,9 @@ class _PayablesScreenState extends State<PayablesScreen> {
                       final amt = double.tryParse(amountCtrl.text.trim()) ?? 0;
                       if (name.isEmpty || amt <= 0) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter name and valid amount')),
+                          const SnackBar(
+                              content:
+                                  Text('Please enter name and valid amount')),
                         );
                         return;
                       }
@@ -262,9 +278,12 @@ class _PayablesScreenState extends State<PayablesScreen> {
                           'counterparty': name,
                           'principal': amt,
                           'kind': kind,
-                          if (selectedAccountId != null) 'accountId': selectedAccountId,
-                          if (dueDate != null) 'dueDate': dueDate!.toIso8601String(),
-                          if (noteCtrl.text.trim().isNotEmpty) 'note': noteCtrl.text.trim(),
+                          if (selectedAccountId != null)
+                            'accountId': selectedAccountId,
+                          if (dueDate != null)
+                            'dueDate': dueDate!.toIso8601String(),
+                          if (noteCtrl.text.trim().isNotEmpty)
+                            'note': noteCtrl.text.trim(),
                         });
                         _loadData();
                       } catch (e) {
@@ -292,11 +311,16 @@ class _PayablesScreenState extends State<PayablesScreen> {
   void _showPayDialog(Map<String, dynamic> payable) {
     final loc = context.appLocale;
     final payableId = (payable['_id'] ?? payable['id'])?.toString() ?? '';
-    final principal = (payable['principal'] as num?)?.toDouble() ?? 0.0;
-    final paid = (payable['paidAmount'] ?? payable['paid_amount'] as num?)?.toDouble() ?? 0.0;
-    final remaining = (payable['remaining'] as num?)?.toDouble() ?? (principal - paid);
+    final principal = payableAmountValue(payable['principal']);
+    final paid =
+        payableAmountValue(payable['paidAmount'] ?? payable['paid_amount']);
+    final remaining = payableAmountValue(
+      payable['remaining'],
+      fallback: principal - paid,
+    );
 
-    final amountCtrl = TextEditingController(text: remaining.toStringAsFixed(0));
+    final amountCtrl =
+        TextEditingController(text: remaining.toStringAsFixed(0));
     final noteCtrl = TextEditingController();
     String source = 'bank';
     String? selectedAccountId;
@@ -317,7 +341,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
             ),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : AppColors.paper,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -355,7 +380,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                       children: [
                         Text(
                           loc.tr('remaining'),
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                         Text(
                           '৳${remaining.toStringAsFixed(0)}',
@@ -370,7 +396,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                   ),
                   TextField(
                     controller: amountCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       labelText: '${loc.tr('principal')} (৳) *',
                       filled: true,
@@ -415,7 +442,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                           ),
                         ),
                       ],
-                      onChanged: (val) => setModalState(() => selectedAccountId = val),
+                      onChanged: (val) =>
+                          setModalState(() => selectedAccountId = val),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -442,7 +470,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                       if (amt <= 0 || amt > remaining) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Payment amount cannot exceed remaining balance'),
+                            content: Text(
+                                'Payment amount cannot exceed remaining balance'),
                           ),
                         );
                         return;
@@ -453,8 +482,10 @@ class _PayablesScreenState extends State<PayablesScreen> {
                         await widget.financeRepo.payPayable(payableId, {
                           'amount': amt,
                           'source': source,
-                          if (selectedAccountId != null) 'accountId': selectedAccountId,
-                          if (noteCtrl.text.trim().isNotEmpty) 'note': noteCtrl.text.trim(),
+                          if (selectedAccountId != null)
+                            'accountId': selectedAccountId,
+                          if (noteCtrl.text.trim().isNotEmpty)
+                            'note': noteCtrl.text.trim(),
                         });
                         _loadData();
                       } catch (e) {
@@ -493,16 +524,21 @@ class _PayablesScreenState extends State<PayablesScreen> {
           final isDark = Theme.of(ctx).brightness == Brightness.dark;
           final detail = snapshot.data ?? item;
           final payments = (detail['payments'] as List?) ?? [];
-          final principal = (detail['principal'] as num?)?.toDouble() ?? 0.0;
-          final paid = (detail['paidAmount'] ?? detail['paid_amount'] as num?)?.toDouble() ?? 0.0;
-          final remaining = (detail['remaining'] as num?)?.toDouble() ?? (principal - paid);
+          final principal = payableAmountValue(detail['principal']);
+          final paid =
+              payableAmountValue(detail['paidAmount'] ?? detail['paid_amount']);
+          final remaining = payableAmountValue(
+            detail['remaining'],
+            fallback: principal - paid,
+          );
           final status = detail['status']?.toString() ?? 'open';
 
           return Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : AppColors.paper,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -531,7 +567,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkElevated : AppColors.paperMist,
+                      color:
+                          isDark ? AppColors.darkElevated : AppColors.paperMist,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -539,18 +576,23 @@ class _PayablesScreenState extends State<PayablesScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(loc.tr('principal'), style: const TextStyle(fontSize: 12)),
+                            Text(loc.tr('principal'),
+                                style: const TextStyle(fontSize: 12)),
                             Text('৳${principal.toStringAsFixed(0)}',
-                                style: const TextStyle(fontWeight: FontWeight.w700)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700)),
                           ],
                         ),
                         const SizedBox(height: 6),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(loc.tr('paid'), style: const TextStyle(fontSize: 12)),
+                            Text(loc.tr('paid'),
+                                style: const TextStyle(fontSize: 12)),
                             Text('৳${paid.toStringAsFixed(0)}',
-                                style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.sage)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.sage)),
                           ],
                         ),
                         const Divider(height: 16),
@@ -558,7 +600,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(loc.tr('remaining'),
-                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                style: const TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.bold)),
                             Text('৳${remaining.toStringAsFixed(0)}',
                                 style: const TextStyle(
                                     fontSize: 16,
@@ -572,7 +615,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                   const SizedBox(height: 16),
                   Text(
                     loc.tr('history_installments'),
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
                   if (payments.isEmpty)
@@ -580,13 +624,14 @@ class _PayablesScreenState extends State<PayablesScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
                         'No payment entries linked yet.',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey.shade500),
                         textAlign: TextAlign.center,
                       ),
                     )
                   else
                     ...payments.map((p) {
-                      final amt = (p['amount'] as num?)?.toDouble() ?? 0.0;
+                      final amt = payableAmountValue(p['amount']);
                       final date = p['date']?.toString() ?? '';
                       return ListTile(
                         dense: true,
@@ -594,11 +639,14 @@ class _PayablesScreenState extends State<PayablesScreen> {
                         leading: const CircleAvatar(
                           radius: 14,
                           backgroundColor: AppColors.terra,
-                          child: Icon(Icons.arrow_upward_rounded, size: 14, color: Colors.white),
+                          child: Icon(Icons.arrow_upward_rounded,
+                              size: 14, color: Colors.white),
                         ),
                         title: Text('৳${amt.toStringAsFixed(0)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text('${p['source'] ?? ''} • ${date.split('T').first}'),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(
+                            '${p['source'] ?? ''} • ${date.split('T').first}'),
                       );
                     }),
                   if (status == 'open' && paid == 0) ...[
@@ -607,7 +655,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.danger,
                         side: const BorderSide(color: AppColors.danger),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () async {
                         Navigator.pop(ctx);
@@ -644,9 +693,11 @@ class _PayablesScreenState extends State<PayablesScreen> {
       0.0,
       (sum, p) =>
           sum +
-          ((p['remaining'] as num?)?.toDouble() ??
-              (((p['principal'] as num?)?.toDouble() ?? 0.0) -
-                  ((p['paidAmount'] ?? p['paid_amount'] as num?)?.toDouble() ?? 0.0))),
+          payableAmountValue(
+            p['remaining'],
+            fallback: payableAmountValue(p['principal']) -
+                payableAmountValue(p['paidAmount'] ?? p['paid_amount']),
+          ),
     );
     final overdueCount = openList.where(_isOverdue).length;
 
@@ -711,7 +762,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.mustard.withAlpha(20),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.mustard.withAlpha(60)),
+                      border:
+                          Border.all(color: AppColors.mustard.withAlpha(60)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -760,13 +812,17 @@ class _PayablesScreenState extends State<PayablesScreen> {
                                     : loc.tr('filter_all'),
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                          color: selected ? Colors.white : (isDark ? Colors.white70 : AppColors.ink),
+                          fontWeight:
+                              selected ? FontWeight.w800 : FontWeight.w500,
+                          color: selected
+                              ? Colors.white
+                              : (isDark ? Colors.white70 : AppColors.ink),
                         ),
                       ),
                       selected: selected,
                       selectedColor: AppColors.ink,
-                      backgroundColor: isDark ? AppColors.darkElevated : AppColors.paperMist,
+                      backgroundColor:
+                          isDark ? AppColors.darkElevated : AppColors.paperMist,
                       onSelected: (val) {
                         if (val) {
                           setState(() => _filter = status);
@@ -794,12 +850,17 @@ class _PayablesScreenState extends State<PayablesScreen> {
               )
             else
               ..._payables.map((item) {
-                final principal = (item['principal'] as num?)?.toDouble() ?? 0.0;
-                final paid = (item['paidAmount'] ?? item['paid_amount'] as num?)?.toDouble() ?? 0.0;
-                final remaining = (item['remaining'] as num?)?.toDouble() ?? (principal - paid);
+                final principal = payableAmountValue(item['principal']);
+                final paid = payableAmountValue(
+                    item['paidAmount'] ?? item['paid_amount']);
+                final remaining = payableAmountValue(
+                  item['remaining'],
+                  fallback: principal - paid,
+                );
                 final status = item['status']?.toString() ?? 'open';
                 final isOverdue = _isOverdue(item);
-                final progress = principal > 0 ? (paid / principal).clamp(0.0, 1.0) : 0.0;
+                final progress =
+                    principal > 0 ? (paid / principal).clamp(0.0, 1.0) : 0.0;
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -834,7 +895,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: isOverdue
                                   ? AppColors.danger.withAlpha(30)
@@ -844,7 +906,9 @@ class _PayablesScreenState extends State<PayablesScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              isOverdue ? loc.tr('overdue_count') : status.toUpperCase(),
+                              isOverdue
+                                  ? loc.tr('overdue_count')
+                                  : status.toUpperCase(),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
@@ -874,7 +938,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                             '৳${paid.toStringAsFixed(0)} / ৳${principal.toStringAsFixed(0)}',
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDark ? Colors.white60 : AppColors.inkLight,
+                              color:
+                                  isDark ? Colors.white60 : AppColors.inkLight,
                             ),
                           ),
                         ],
@@ -885,9 +950,13 @@ class _PayablesScreenState extends State<PayablesScreen> {
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
-                          backgroundColor: isDark ? AppColors.darkElevated : AppColors.paperMist,
+                          backgroundColor: isDark
+                              ? AppColors.darkElevated
+                              : AppColors.paperMist,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            status == 'settled' ? AppColors.sage : AppColors.terra,
+                            status == 'settled'
+                                ? AppColors.sage
+                                : AppColors.terra,
                           ),
                         ),
                       ),
@@ -902,7 +971,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             icon: const Icon(Icons.history_rounded, size: 16),
-                            label: const Text('Details', style: TextStyle(fontSize: 12)),
+                            label: const Text('Details',
+                                style: TextStyle(fontSize: 12)),
                             onPressed: () => _showDetailBottomSheet(item),
                           ),
                           if (status == 'open')
@@ -910,7 +980,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.terra,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 8),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -918,7 +989,8 @@ class _PayablesScreenState extends State<PayablesScreen> {
                               icon: const Icon(Icons.payment_rounded, size: 14),
                               label: Text(
                                 loc.tr('settle_pay'),
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w800),
                               ),
                               onPressed: () => _showPayDialog(item),
                             ),

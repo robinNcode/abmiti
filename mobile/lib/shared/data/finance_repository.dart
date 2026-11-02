@@ -225,6 +225,8 @@ class FinanceRepository {
     String? type,
     int? month,
     int? year,
+    DateTime? startDate,
+    DateTime? endDate,
     String? categoryId,
   }) async {
     final queryParams = <String, dynamic>{
@@ -234,6 +236,12 @@ class FinanceRepository {
     if (type != null && type.isNotEmpty) queryParams['type'] = type;
     if (month != null) queryParams['month'] = month;
     if (year != null) queryParams['year'] = year;
+    if (startDate != null) {
+      queryParams['startDate'] = _dateParameter(startDate);
+    }
+    if (endDate != null) {
+      queryParams['endDate'] = _dateParameter(endDate);
+    }
     if (categoryId != null && categoryId.isNotEmpty) {
       queryParams['category'] = categoryId;
     }
@@ -248,6 +256,11 @@ class FinanceRepository {
     }
     return {};
   }
+
+  String _dateParameter(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
 
   Future<Map<String, dynamic>> createEntry(Map<String, dynamic> payload) async {
     final response = await _apiClient.client.post('/entries', data: payload);
@@ -326,7 +339,8 @@ class FinanceRepository {
     return {};
   }
 
-  Future<Map<String, dynamic>> createPayable(Map<String, dynamic> payload) async {
+  Future<Map<String, dynamic>> createPayable(
+      Map<String, dynamic> payload) async {
     final response = await _apiClient.client.post('/payables', data: payload);
     final data = response.data;
     if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
@@ -365,7 +379,9 @@ class FinanceRepository {
     if (data is Map<String, dynamic>) {
       final inner = data['data'];
       if (inner is List) {
-        return inner.map((item) => Map<String, dynamic>.from(item as Map)).toList();
+        return inner
+            .map((item) => Map<String, dynamic>.from(item as Map))
+            .toList();
       }
       if (inner is Map<String, dynamic> && inner['data'] is List) {
         return (inner['data'] as List)
@@ -387,7 +403,8 @@ class FinanceRepository {
 
   Future<Map<String, dynamic>> createReceivable(
       Map<String, dynamic> payload) async {
-    final response = await _apiClient.client.post('/receivables', data: payload);
+    final response =
+        await _apiClient.client.post('/receivables', data: payload);
     final data = response.data;
     if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
       return data['data'] as Map<String, dynamic>;
@@ -425,6 +442,34 @@ class FinanceRepository {
           .toList();
     }
     return [];
+  }
+
+  Future<List<Map<String, dynamic>>> fetchQuickExpenses(
+      int month, int year) async {
+    final response = await _apiClient.client.get(
+      '/quick-expenses',
+      queryParameters: {'month': month, 'year': year},
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is List) {
+      return (data['data'] as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    }
+    return [];
+  }
+
+  Future<Map<String, dynamic>> saveBudgetAsTemplate(
+      String budgetId, String templateName) async {
+    final response = await _apiClient.client.post(
+      '/budgets/$budgetId/save-as-template',
+      data: {'templateName': templateName},
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return {};
   }
 
   Future<Map<String, dynamic>> applyBudgetTemplate(
