@@ -14,6 +14,12 @@ double payableAmountValue(dynamic value, {double fallback = 0}) {
   return fallback;
 }
 
+double receivableAmountValue(dynamic value, {double fallback = 0}) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.trim()) ?? fallback;
+  return fallback;
+}
+
 class PayablesScreen extends StatefulWidget {
   const PayablesScreen({super.key, required this.financeRepo});
 

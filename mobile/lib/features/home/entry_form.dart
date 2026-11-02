@@ -261,6 +261,35 @@ class _EntryFormModalState extends State<EntryFormModal> {
     return '${_date.day} ${months[_date.month - 1]} ${_date.year}';
   }
 
+  Widget _categoryIconWidget(String? value, {double size = 16}) {
+    final safeValue = (value ?? '').trim();
+    if (safeValue.isEmpty) {
+      return const Icon(Icons.label_rounded, size: 16, color: AppColors.terra);
+    }
+
+    if (RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(safeValue)) {
+      return Text(safeValue, style: TextStyle(fontSize: size));
+    }
+
+    final iconMap = {
+      'tag': Icons.local_offer_rounded,
+      'cart': Icons.shopping_cart_rounded,
+      'food': Icons.restaurant_rounded,
+      'home': Icons.home_rounded,
+      'car': Icons.directions_car_rounded,
+      'medical': Icons.medical_services_rounded,
+      'work': Icons.work_rounded,
+      'gift': Icons.card_giftcard_rounded,
+      'education': Icons.school_rounded,
+      'travel': Icons.flight_rounded,
+      'money': Icons.attach_money_rounded,
+      'chart': Icons.bar_chart_rounded,
+    };
+
+    return Icon(iconMap[safeValue] ?? Icons.label_rounded,
+        size: size, color: AppColors.terra);
+  }
+
   Future<void> _submit() async {
     final loc = context.appLocale;
     final amount = double.tryParse(_amountController.text.trim());
@@ -319,16 +348,19 @@ class _EntryFormModalState extends State<EntryFormModal> {
     final media = MediaQuery.of(context);
     final loc = context.appLocale;
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, media.viewInsets.bottom + 24),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.paper,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: media.size.height * 0.88,
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(20, 16, 20, media.viewInsets.bottom + 24),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.paper,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
           children: [
             Center(
               child: Container(
@@ -347,8 +379,8 @@ class _EntryFormModalState extends State<EntryFormModal> {
                 Text(
                   _editing ? loc.tr('edit_entry') : loc.tr('new_entry_title'),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
@@ -358,7 +390,6 @@ class _EntryFormModalState extends State<EntryFormModal> {
             ),
             const SizedBox(height: 14),
 
-            // ── Type selector (create) / read-only type (edit) ───────
             _TypeGrid(
               selected: _type,
               enabled: !_editing,
@@ -401,9 +432,7 @@ class _EntryFormModalState extends State<EntryFormModal> {
                   ..._budgetLines.map((line) {
                     final id = line['_id']?.toString();
                     return ChoiceChip(
-                      label: Text(
-                        '${line['icon'] ?? '📦'} ${line['name'] ?? ''}',
-                      ),
+                      label: Text('${line['icon'] ?? '📦'} ${line['name'] ?? ''}'),
                       selected: id == _selectedBudgetLineId,
                       onSelected: (_) {
                         final linkedIds = line['linkedCategoryIds'];
@@ -419,8 +448,7 @@ class _EntryFormModalState extends State<EntryFormModal> {
                   }),
                 ],
               ),
-              if ((_selectedBudgetLine?['subItems'] as List?)?.isNotEmpty ??
-                  false) ...[
+              if ((_selectedBudgetLine?['subItems'] as List?)?.isNotEmpty ?? false) ...[
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -455,8 +483,7 @@ class _EntryFormModalState extends State<EntryFormModal> {
                           if (expectedAmount is num && expectedAmount > 0) {
                             _amountController.text = expectedAmount.toString();
                           }
-                          final linkedIds =
-                              _selectedBudgetLine?['linkedCategoryIds'];
+                          final linkedIds = _selectedBudgetLine?['linkedCategoryIds'];
                           if (linkedIds is List && linkedIds.isNotEmpty) {
                             _selectedCategoryId = linkedIds.first.toString();
                           }
@@ -469,11 +496,9 @@ class _EntryFormModalState extends State<EntryFormModal> {
               const SizedBox(height: 12),
             ],
 
-            // Amount Field
             TextField(
               controller: _amountController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               autofocus: !_editing,
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
               decoration: InputDecoration(
@@ -489,7 +514,6 @@ class _EntryFormModalState extends State<EntryFormModal> {
             ),
             const SizedBox(height: 14),
 
-            // Category Dropdown
             if (_loadingCategories)
               const LinearProgressIndicator(minHeight: 2)
             else if (_categories.isNotEmpty)
@@ -497,13 +521,12 @@ class _EntryFormModalState extends State<EntryFormModal> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (_selectedBudgetLine?['linkedCategoryIds'] is List &&
-                      (_selectedBudgetLine!['linkedCategoryIds'] as List)
-                          .isNotEmpty)
+                      (_selectedBudgetLine!['linkedCategoryIds'] as List).isNotEmpty)
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => setState(
-                            () => _showAllCategories = !_showAllCategories),
+                        onPressed: () =>
+                            setState(() => _showAllCategories = !_showAllCategories),
                         child: Text(
                           _showAllCategories
                               ? loc.tr('show_line_categories')
@@ -528,13 +551,18 @@ class _EntryFormModalState extends State<EntryFormModal> {
                         })
                         .map((c) => DropdownMenuItem<String>(
                               value: c['_id']?.toString(),
-                              child: Text(
-                                '${c['icon'] != null ? '${c['icon']} ' : ''}${c['name'] ?? 'Unnamed'}',
+                              child: Row(
+                                children: [
+                                  _categoryIconWidget(c['icon']?.toString()),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(c['name']?.toString() ?? 'Unnamed'),
+                                  ),
+                                ],
                               ),
                             ))
                         .toList(),
-                    onChanged: (val) =>
-                        setState(() => _selectedCategoryId = val),
+                    onChanged: (val) => setState(() => _selectedCategoryId = val),
                   ),
                 ],
               )
@@ -545,15 +573,13 @@ class _EntryFormModalState extends State<EntryFormModal> {
               ),
             const SizedBox(height: 14),
 
-            // Date picker
             InkWell(
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
               child: InputDecorator(
                 decoration: InputDecoration(
                   labelText: loc.tr('date'),
-                  suffixIcon:
-                      const Icon(Icons.calendar_today_rounded, size: 18),
+                  suffixIcon: const Icon(Icons.calendar_today_rounded, size: 18),
                 ),
                 child: Text(
                   _formattedDate,
@@ -566,23 +592,16 @@ class _EntryFormModalState extends State<EntryFormModal> {
             ),
             const SizedBox(height: 14),
 
-            // Source Selector
             DropdownButtonFormField<String>(
               initialValue: _source,
               decoration: InputDecoration(labelText: loc.tr('payment_source')),
               items: [
-                DropdownMenuItem(
-                    value: 'cash', child: Text(loc.tr('source_cash'))),
-                DropdownMenuItem(
-                    value: 'bank', child: Text(loc.tr('source_bank'))),
-                DropdownMenuItem(
-                    value: 'bkash', child: Text(loc.tr('source_bkash'))),
-                DropdownMenuItem(
-                    value: 'nagad', child: Text(loc.tr('source_nagad'))),
-                DropdownMenuItem(
-                    value: 'card', child: Text(loc.tr('source_card'))),
-                DropdownMenuItem(
-                    value: 'other', child: Text(loc.tr('source_other'))),
+                DropdownMenuItem(value: 'cash', child: Text(loc.tr('source_cash'))),
+                DropdownMenuItem(value: 'bank', child: Text(loc.tr('source_bank'))),
+                DropdownMenuItem(value: 'bkash', child: Text(loc.tr('source_bkash'))),
+                DropdownMenuItem(value: 'nagad', child: Text(loc.tr('source_nagad'))),
+                DropdownMenuItem(value: 'card', child: Text(loc.tr('source_card'))),
+                DropdownMenuItem(value: 'other', child: Text(loc.tr('source_other'))),
               ],
               onChanged: (val) {
                 if (val != null) setState(() => _source = val);
@@ -610,8 +629,7 @@ class _EntryFormModalState extends State<EntryFormModal> {
                         child: Text(account['name']?.toString() ?? ''),
                       )),
                 ],
-                onChanged: (value) =>
-                    setState(() => _selectedAccountId = value),
+                onChanged: (value) => setState(() => _selectedAccountId = value),
               ),
             if (_accounts.isNotEmpty) const SizedBox(height: 14),
 
@@ -625,7 +643,6 @@ class _EntryFormModalState extends State<EntryFormModal> {
             ),
             const SizedBox(height: 14),
 
-            // Note
             TextField(
               controller: _noteController,
               maxLength: 300,

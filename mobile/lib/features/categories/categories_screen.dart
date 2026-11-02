@@ -134,6 +134,36 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     }
   }
 
+  Widget _categoryIcon(String? value, {required Color color, double size = 20}) {
+    final safeValue = (value ?? '').trim();
+    final isEmoji = RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true)
+        .hasMatch(safeValue);
+
+    if (isEmoji) {
+      return Text(
+        safeValue.isEmpty ? '🏷️' : safeValue,
+        style: TextStyle(fontSize: size),
+      );
+    }
+
+    final iconMap = {
+      'tag': Icons.local_offer_rounded,
+      'cart': Icons.shopping_cart_rounded,
+      'food': Icons.restaurant_rounded,
+      'home': Icons.home_rounded,
+      'car': Icons.directions_car_rounded,
+      'medical': Icons.medical_services_rounded,
+      'work': Icons.work_rounded,
+      'gift': Icons.card_giftcard_rounded,
+      'education': Icons.school_rounded,
+      'travel': Icons.flight_rounded,
+      'money': Icons.attach_money_rounded,
+      'chart': Icons.bar_chart_rounded,
+    };
+
+    return Icon(iconMap[safeValue] ?? Icons.label_rounded, color: color, size: size);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -238,8 +268,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                                       width: 1,
                                     ),
                                   ),
-                                  child: Icon(
-                                    Icons.label_rounded,
+                                  child: _categoryIcon(
+                                    c['icon']?.toString(),
                                     color: color,
                                     size: 20,
                                   ),

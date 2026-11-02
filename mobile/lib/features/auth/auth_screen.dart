@@ -109,7 +109,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 18),
                     Text(
                       _registering
                           ? loc.tr('auth_register_headline')
@@ -129,7 +129,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           .bodyLarge
                           ?.copyWith(color: Colors.black54),
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 18),
 
                     // Google Sign-In / Sign-Up Button
                     OutlinedButton(
@@ -164,7 +164,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 14),
                     Row(
                       children: [
                         Expanded(child: Divider(color: Colors.grey.shade300)),
@@ -182,7 +182,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         Expanded(child: Divider(color: Colors.grey.shade300)),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 14),
 
                     if (_registering) ...[
                       _field(

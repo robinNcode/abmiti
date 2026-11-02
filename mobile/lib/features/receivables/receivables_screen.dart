@@ -8,6 +8,12 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
 import '../../shared/widgets/shimmer_loading.dart';
 
+double receivableAmountValue(dynamic value, {double fallback = 0}) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.trim()) ?? fallback;
+  return fallback;
+}
+
 class ReceivablesScreen extends StatefulWidget {
   const ReceivablesScreen({super.key, required this.financeRepo});
 
@@ -292,10 +298,14 @@ class _ReceivablesScreenState extends State<ReceivablesScreen> {
   void _showCollectDialog(Map<String, dynamic> receivable) {
     final loc = context.appLocale;
     final receivableId = (receivable['_id'] ?? receivable['id'])?.toString() ?? '';
-    final principal = (receivable['principal'] as num?)?.toDouble() ?? 0.0;
-    final received =
-        (receivable['receivedAmount'] ?? receivable['received_amount'] as num?)?.toDouble() ?? 0.0;
-    final remaining = (receivable['remaining'] as num?)?.toDouble() ?? (principal - received);
+    final principal = receivableAmountValue(receivable['principal']);
+    final received = receivableAmountValue(
+      receivable['receivedAmount'] ?? receivable['received_amount'],
+    );
+    final remaining = receivableAmountValue(
+      receivable['remaining'],
+      fallback: principal - received,
+    );
 
     final amountCtrl = TextEditingController(text: remaining.toStringAsFixed(0));
     final noteCtrl = TextEditingController();
@@ -515,10 +525,14 @@ class _ReceivablesScreenState extends State<ReceivablesScreen> {
           final isDark = Theme.of(ctx).brightness == Brightness.dark;
           final detail = snapshot.data ?? item;
           final payments = (detail['payments'] as List?) ?? [];
-          final principal = (detail['principal'] as num?)?.toDouble() ?? 0.0;
-          final received =
-              (detail['receivedAmount'] ?? detail['received_amount'] as num?)?.toDouble() ?? 0.0;
-          final remaining = (detail['remaining'] as num?)?.toDouble() ?? (principal - received);
+          final principal = receivableAmountValue(detail['principal']);
+          final received = receivableAmountValue(
+            detail['receivedAmount'] ?? detail['received_amount'],
+          );
+          final remaining = receivableAmountValue(
+            detail['remaining'],
+            fallback: principal - received,
+          );
           final status = detail['status']?.toString() ?? 'open';
 
           return Container(
@@ -691,13 +705,21 @@ class _ReceivablesScreenState extends State<ReceivablesScreen> {
       0.0,
       (sum, r) =>
           sum +
-          ((r['remaining'] as num?)?.toDouble() ??
-              (((r['principal'] as num?)?.toDouble() ?? 0.0) -
-                  ((r['receivedAmount'] ?? r['received_amount'] as num?)?.toDouble() ?? 0.0))),
+          receivableAmountValue(
+            r['remaining'],
+            fallback: receivableAmountValue(r['principal']) -
+                receivableAmountValue(
+                  r['receivedAmount'] ?? r['received_amount'],
+                ),
+          ),
     );
     final totalReceived = openList.fold<double>(
       0.0,
-      (sum, r) => sum + ((r['receivedAmount'] ?? r['received_amount'] as num?)?.toDouble() ?? 0.0),
+      (sum, r) =>
+          sum +
+          receivableAmountValue(
+            r['receivedAmount'] ?? r['received_amount'],
+          ),
     );
     final overdueCount = openList.where(_isOverdue).length;
 
@@ -880,10 +902,14 @@ class _ReceivablesScreenState extends State<ReceivablesScreen> {
               )
             else
               ..._receivables.map((item) {
-                final principal = (item['principal'] as num?)?.toDouble() ?? 0.0;
-                final received =
-                    (item['receivedAmount'] ?? item['received_amount'] as num?)?.toDouble() ?? 0.0;
-                final remaining = (item['remaining'] as num?)?.toDouble() ?? (principal - received);
+                final principal = receivableAmountValue(item['principal']);
+                final received = receivableAmountValue(
+                  item['receivedAmount'] ?? item['received_amount'],
+                );
+                final remaining = receivableAmountValue(
+                  item['remaining'],
+                  fallback: principal - received,
+                );
                 final status = item['status']?.toString() ?? 'open';
                 final isOverdue = _isOverdue(item);
                 final progress = principal > 0 ? (received / principal).clamp(0.0, 1.0) : 0.0;
