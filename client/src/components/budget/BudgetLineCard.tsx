@@ -17,6 +17,7 @@ export default function BudgetLineCard({
   onDelete,
   onViewEntries,
   onAddEntry,
+  onViewSubItems,
 }: {
   line: BudgetLine;
   summary?: BudgetLineSummary;
@@ -25,6 +26,7 @@ export default function BudgetLineCard({
   onDelete: () => void;
   onViewEntries?: () => void;
   onAddEntry?: () => void;
+  onViewSubItems?: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -92,7 +94,16 @@ export default function BudgetLineCard({
         <span className={status === 'over' ? 'text-terra font-semibold' : status === 'warn' ? 'text-mustard font-semibold' : ''}>
           {usedPercent}% {t('used')}
         </span>
-        {line.subItems && line.subItems.length > 0 && <span>{line.subItems.length} {t('sub-items')}</span>}
+        {line.subItems && line.subItems.length > 0 && (
+          <button
+            type="button"
+            onClick={onViewSubItems}
+            disabled={!onViewSubItems}
+            className="text-terra font-semibold hover:underline disabled:text-ink/45 disabled:no-underline"
+          >
+            {line.subItems.length} {t('sub-items')}
+          </button>
+        )}
       </div>
     </div>
   );

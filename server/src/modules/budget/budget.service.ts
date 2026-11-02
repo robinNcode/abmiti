@@ -44,10 +44,6 @@ const ensureBudget = (budget: IBudget | null): IBudget => {
   return sortLines(budget);
 };
 
-const lineCategoryIds = (lines: IBudgetLine[]): string[] => (
-  lines.flatMap((line) => line.linkedCategoryIds.map((id) => id.toString()))
-);
-
 import {
   computeBudgetAnalysis,
   calculateForecast,
@@ -56,7 +52,45 @@ import {
   HistoricalMonthData,
   UpcomingMonthPlan,
   BudgetLineInputData,
+  BudgetLineLookup,
+  buildLineLookup,
+  normalizeEntryName,
+  resolveEntryLineId,
 } from './budget-math';
+
+const lineCategoryIds = (lines: IBudgetLine[]): string[] => (
+  lines.flatMap((line) => line.linkedCategoryIds.map((id) => id.toString()))
+);
+
+/** Matching input for a budget line: linked categories plus sub-item names. */
+const toLookupLine = (line: IBudgetLine): BudgetLineInputData => ({
+  id: line._id.toString(),
+  name: line.name,
+  allocationMethod: line.allocationMethod,
+  allocationValue: line.allocationValue,
+  linkedCategoryIds: (line.linkedCategoryIds ?? []).map((id) => id.toString()),
+  subItemNames: (line.subItems ?? []).map((item) => item.name),
+});
+
+/** Normalized sub-item names of the given lines, used for note matching. */
+const lineSubItemNames = (lines: IBudgetLine[]): string[] => (
+  Array.from(new Set(
+    lines
+      .flatMap((line) => (line.subItems ?? []).map((item) => normalizeEntryName(item.name)))
+      .filter(Boolean),
+  ))
+);
+
+/** Entry category id, whether the repository returned an id or a populated object. */
+const entryCategoryId = (entry: IEntry): string => {
+  const category = entry.category as unknown;
+  if (!category) return '';
+  if (typeof category === 'string') return category;
+  if (typeof category === 'object' && '_id' in (category as Record<string, unknown>)) {
+    return String((category as { _id: unknown })._id);
+  }
+  return String(category);
+};
 
 const assertUniqueLinkedCategories = (lines: Array<{ linkedCategoryIds?: Array<{ toString(): string }> }>): void => {
   const seen = new Set<string>();
@@ -212,16 +246,32 @@ export const budgetService = {
     await this.remove(userId, id);
   },
 
-  computeLineSummary(budget: IBudget, line: IBudgetLine, entries: IEntry[]): IBudgetLineSummary {
+  computeLineSummary(budget: IBudget, line: IBudgetLine, entries: IEntry[], lookup: BudgetLineLookup): IBudgetLineSummary {
     const plannedAmount = this.resolvePlannedAmount(line, budget.totalIncome);
-    const categorySet = new Set(line.linkedCategoryIds.map((id) => id.toString()));
-    const actualAmount = entries
-      .filter((entry) => categorySet.has(entry.category.toString()))
-      .reduce((sum, entry) => sum + entry.amount, 0);
+    const lineId = line._id.toString();
+    const lineEntries = entries.filter((entry) => (
+      resolveEntryLineId({ categoryId: entryCategoryId(entry), note: entry.note }, lookup) === lineId
+    ));
+    const actualAmount = lineEntries.reduce((sum, entry) => sum + entry.amount, 0);
     const usedPercent = plannedAmount > 0 ? Number(((actualAmount / plannedAmount) * 100).toFixed(2)) : 0;
     const status = actualAmount === 0 ? 'unused' : usedPercent > 100 ? 'over_budget' : usedPercent > 80 ? 'warning' : 'on_track';
+
+    const subItems = (line.subItems ?? []).map((item) => {
+      const key = normalizeEntryName(item.name);
+      const subItemActual = key
+        ? lineEntries
+          .filter((entry) => normalizeEntryName(entry.note) === key)
+          .reduce((sum, entry) => sum + entry.amount, 0)
+        : 0;
+      return {
+        ...item,
+        actualAmount: Number(subItemActual.toFixed(2)),
+        variance: Number((item.expectedAmount - subItemActual).toFixed(2)),
+      };
+    });
+
     return {
-      lineId: line._id.toString(),
+      lineId,
       name: line.name,
       icon: line.icon,
       color: line.color,
@@ -230,7 +280,7 @@ export const budgetService = {
       variance: Number((plannedAmount - actualAmount).toFixed(2)),
       usedPercent,
       status,
-      subItems: line.subItems.map((item) => ({ ...item, variance: Number((item.expectedAmount - actualAmount).toFixed(2)) })),
+      subItems,
     };
   },
 
@@ -238,8 +288,10 @@ export const budgetService = {
     const budget = ensureBudget(await container.budgetRepo.findById(id, userId));
     const start = new Date(budget.year, budget.month - 1, 1);
     const end = new Date(budget.year, budget.month, 0, 23, 59, 59);
-    const entries = await container.budgetRepo.findExpenseEntriesByCategories(userId, lineCategoryIds(budget.lines), start, end);
-    const lines = budget.lines.filter((line) => line.isActive).map((line) => this.computeLineSummary(budget, line, entries));
+    const entries = await container.budgetRepo.findOutflowEntriesForMonth(userId, start, end);
+    const activeLines = budget.lines.filter((line) => line.isActive);
+    const lookup = buildLineLookup(activeLines.map(toLookupLine));
+    const lines = activeLines.map((line) => this.computeLineSummary(budget, line, entries, lookup));
     const totalPlanned = lines.reduce((sum, line) => sum + line.plannedAmount, 0);
     const totalActual = lines.reduce((sum, line) => sum + line.actualAmount, 0);
     return {
@@ -259,12 +311,11 @@ export const budgetService = {
     if (!line) throw new AppError('Budget line not found', 404);
     const start = new Date(budget.year, budget.month - 1, 1);
     const end = new Date(budget.year, budget.month, 0, 23, 59, 59);
-    return container.budgetRepo.findExpenseEntriesByCategories(
-      userId,
-      line.linkedCategoryIds.map((id) => id.toString()),
-      start,
-      end,
-    );
+    const entries = await container.budgetRepo.findOutflowEntriesForMonth(userId, start, end);
+    const lookup = buildLineLookup([toLookupLine(line)]);
+    return entries.filter((entry) => (
+      resolveEntryLineId({ categoryId: entryCategoryId(entry), note: entry.note }, lookup) === lineId
+    ));
   },
 
   async analysis(userId: string, id: string): Promise<BudgetAnalysisResult> {
@@ -272,26 +323,22 @@ export const budgetService = {
     const start = new Date(budget.year, budget.month - 1, 1);
     const end = new Date(budget.year, budget.month, 0, 23, 59, 59);
 
-    const aggregates = await container.budgetRepo.getAggregatesForMonth(userId, start, end);
+    const [aggregates, entries] = await Promise.all([
+      container.budgetRepo.getAggregatesForMonth(userId, start, end),
+      container.budgetRepo.findOutflowEntriesForMonth(userId, start, end),
+    ]);
 
     const linesInput: BudgetLineInputData[] = budget.lines
       .filter((l) => l.isActive)
-      .map((l) => ({
-        id: l._id.toString(),
-        name: l.name,
-        icon: l.icon,
-        color: l.color,
-        allocationMethod: l.allocationMethod,
-        allocationValue: l.allocationValue,
-        linkedCategoryIds: (l.linkedCategoryIds ?? []).map((c) => c.toString()),
-      }));
+      .map(toLookupLine);
 
-    const entriesInput = aggregates.categorySpends.map((cs, idx) => ({
-      id: `agg-${idx}`,
-      amount: cs.amount,
-      type: 'expense',
-      categoryId: cs.categoryId,
-      date: start,
+    const entriesInput = entries.map((entry, idx) => ({
+      id: `entry-${idx}`,
+      amount: entry.amount,
+      type: entry.type,
+      categoryId: entryCategoryId(entry),
+      date: entry.date,
+      note: entry.note,
     }));
 
     return computeBudgetAnalysis(linesInput, entriesInput, budget.totalIncome, aggregates.actualIncome);
@@ -386,16 +433,16 @@ export const budgetService = {
     const end = new Date(budget.year, budget.month, 0, 23, 59, 59);
 
     if (lineId === 'unbudgeted' || !lineId) {
-      const mappedCategoryIds = budget.lines.flatMap((l) =>
-        l.linkedCategoryIds.map((c) => c.toString()),
-      );
+      // Active lines define what is budgeted, by linked category or by sub-item name.
+      const activeLines = budget.lines.filter((l) => l.isActive);
       return container.budgetRepo.findLineEntriesPaginated(
         userId,
         {
           start,
           end,
           isUnbudgeted: true,
-          unmappedCategoryIds: mappedCategoryIds,
+          unmappedCategoryIds: lineCategoryIds(activeLines),
+          unmappedSubItemNames: lineSubItemNames(activeLines),
         },
         page,
         limit,
@@ -411,6 +458,7 @@ export const budgetService = {
         start,
         end,
         categoryIds: line.linkedCategoryIds.map((c) => c.toString()),
+        subItemNames: lineSubItemNames([line]),
       },
       page,
       limit,

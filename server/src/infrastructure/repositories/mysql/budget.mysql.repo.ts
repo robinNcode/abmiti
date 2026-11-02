@@ -261,6 +261,45 @@ export class MySQLBudgetRepository implements IBudgetRepository {
     } as unknown as IEntry));
   }
 
+  async findOutflowEntriesForMonth(userId: string, start: Date, end: Date): Promise<IEntry[]> {
+    const [rows] = await this.pool.query<(RowDataPacket & {
+      id: string;
+      user_id: string;
+      type: string;
+      amount: string;
+      note?: string | null;
+      category_id: string;
+      source: string;
+      account_id?: string | null;
+      sector?: string | null;
+      date: Date;
+      parsed_from_sms: number;
+      created_at: Date;
+      updated_at: Date;
+    })[]>(
+      `SELECT id, user_id, type, amount, note, category_id, source, account_id, sector, date, parsed_from_sms, created_at, updated_at
+       FROM entries
+       WHERE user_id = ? AND type IN ('expense','savings','investment') AND date BETWEEN ? AND ?
+       ORDER BY date DESC, created_at DESC`,
+      [userId, start, end],
+    );
+    return rows.map((row) => ({
+      _id: row.id,
+      user: row.user_id,
+      type: row.type,
+      amount: Number(row.amount),
+      note: row.note,
+      category: row.category_id,
+      source: row.source,
+      account: row.account_id,
+      sector: row.sector,
+      date: row.date,
+      parsedFromSms: Boolean(row.parsed_from_sms),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    } as unknown as IEntry));
+  }
+
   async getAggregatesForMonth(
     userId: string,
     start: Date,
@@ -298,27 +337,48 @@ export class MySQLBudgetRepository implements IBudgetRepository {
       start: Date;
       end: Date;
       categoryIds?: string[];
+      subItemNames?: string[];
       unmappedCategoryIds?: string[];
+      unmappedSubItemNames?: string[];
       isUnbudgeted?: boolean;
     },
     page: number,
     limit: number,
   ): Promise<{ data: IEntry[]; total: number; page: number; totalPages: number }> {
     const params: unknown[] = [userId];
-    let where = `user_id = ? AND type IN ('expense','savings','investment') AND date BETWEEN ? AND ?`;
+    let where = `e.user_id = ? AND e.type IN ('expense','savings','investment') AND e.date BETWEEN ? AND ?`;
     params.push(filters.start, filters.end);
 
-    if (filters.isUnbudgeted && filters.unmappedCategoryIds?.length) {
-      // Unbudgeted = entries whose category is NOT in any mapped set
-      where += ` AND category_id NOT IN (?)`;
-      params.push(filters.unmappedCategoryIds);
-    } else if (filters.categoryIds?.length) {
-      where += ` AND category_id IN (?)`;
-      params.push(filters.categoryIds);
+    if (filters.isUnbudgeted) {
+      // Unbudgeted = neither the category nor the note is claimed by an active line.
+      const unmappedCategories = filters.unmappedCategoryIds ?? [];
+      const unmappedNames = filters.unmappedSubItemNames ?? [];
+      if (unmappedCategories.length) {
+        where += ` AND e.category_id NOT IN (?)`;
+        params.push(unmappedCategories);
+      }
+      if (unmappedNames.length) {
+        where += ` AND LOWER(TRIM(e.note)) NOT IN (?)`;
+        params.push(unmappedNames);
+      }
+    } else {
+      const mappedCategories = filters.categoryIds ?? [];
+      const mappedNames = filters.subItemNames ?? [];
+      const matches: string[] = [];
+      if (mappedCategories.length) {
+        matches.push('e.category_id IN (?)');
+        params.push(mappedCategories);
+      }
+      if (mappedNames.length) {
+        matches.push('LOWER(TRIM(e.note)) IN (?)');
+        params.push(mappedNames);
+      }
+      // A line with no categories and no sub-items owns nothing.
+      where += matches.length ? ` AND (${matches.join(' OR ')})` : ' AND 1 = 0';
     }
 
     const [countRows] = await this.pool.query<RowDataPacket[]>(
-      `SELECT COUNT(*) as cnt FROM entries WHERE ${where}`,
+      `SELECT COUNT(*) as cnt FROM entries e WHERE ${where}`,
       params,
     );
     const total = Number(countRows[0].cnt);
@@ -329,7 +389,7 @@ export class MySQLBudgetRepository implements IBudgetRepository {
       `SELECT e.*, c.name as category_name, c.icon as category_icon, c.color as category_color
        FROM entries e
        LEFT JOIN categories c ON c.id = e.category_id
-       WHERE e.${where}
+       WHERE ${where}
        ORDER BY e.date DESC, e.created_at DESC
        LIMIT ? OFFSET ?`,
       [...params, limit, offset],

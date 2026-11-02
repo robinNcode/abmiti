@@ -165,7 +165,7 @@ export interface IBudgetLineSummary {
   variance: number;
   usedPercent: number;
   status: 'on_track' | 'warning' | 'over_budget' | 'unused';
-  subItems: (IBudgetSubItem & { variance: number })[];
+  subItems: (IBudgetSubItem & { actualAmount: number; variance: number })[];
 }
 
 export interface IBudgetSummary {

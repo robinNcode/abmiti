@@ -146,6 +146,8 @@ export interface IBudgetRepository {
     start: Date,
     end: Date,
   ): Promise<IEntry[]>;
+  /** All expense/savings/investment entries in the window (notes included, for sub-item matching). */
+  findOutflowEntriesForMonth(userId: string, start: Date, end: Date): Promise<IEntry[]>;
   getAggregatesForMonth(
     userId: string,
     start: Date,
@@ -160,8 +162,14 @@ export interface IBudgetRepository {
     filters: {
       start: Date;
       end: Date;
+      /** Linked category ids of the line (matched with OR against subItemNames). */
       categoryIds?: string[];
+      /** Normalized sub-item names of the line. */
+      subItemNames?: string[];
+      /** Category ids mapped to any active budget line. */
       unmappedCategoryIds?: string[];
+      /** Normalized sub-item names mapped to any active budget line. */
+      unmappedSubItemNames?: string[];
       isUnbudgeted?: boolean;
     },
     page: number,

@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { summaryService } from './summary.service';
+import { payableController } from '../payable/payable.controller';
 import { sendSuccess } from '../../shared/utils/response';
 import { authenticate, requireUser } from '../../shared/middleware';
 import { container } from '../../container';
@@ -7,6 +8,9 @@ import { container } from '../../container';
 const router = Router();
 router.use(authenticate);
 router.use(requireUser);
+
+// Net position (payables vs receivables) — also aliased at /payables/net-position
+router.get('/net-position', payableController.netPosition);
 
 router.get('/monthly', async (req: Request, res: Response, next: NextFunction) => {
   try {

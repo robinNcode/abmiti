@@ -68,7 +68,7 @@ export interface BudgetLineSummary {
   variance: number;
   usedPercent: number;
   status: 'on_track' | 'warning' | 'over_budget' | 'unused';
-  subItems: (BudgetSubItem & { variance: number })[];
+  subItems: (BudgetSubItem & { actualAmount: number; variance: number })[];
 }
 
 export interface BudgetSummary {
