@@ -277,6 +277,21 @@ class _CategoryFormDialogState extends State<CategoryFormDialog> {
                 );
               }).toList(),
             ),
+            const SizedBox(height: 10),
+            TextField(
+              key: const Key('category-emoji-input'),
+              maxLength: 8,
+              onChanged: (value) {
+                final emoji = value.trim();
+                if (emoji.isNotEmpty) setState(() => _selectedIcon = emoji);
+              },
+              decoration: InputDecoration(
+                labelText: loc.tr('icon'),
+                hintText: '🏷️',
+                counterText: '',
+                prefixText: '$_selectedIcon  ',
+              ),
+            ),
 
             if (_error != null) ...[
               const SizedBox(height: 12),
