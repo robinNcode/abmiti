@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../shared/widgets/smart_bottom_nav_bar.dart';
+import '../../shared/widgets/curved_navigation_bar.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
@@ -610,14 +610,101 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         children: pages,
       ),
 
-      bottomNavigationBar: SmartBottomNavBar(
-        selectedIndex: _currentIndex,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: _currentIndex == 0
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FloatingActionButton(
+                onPressed: () {
+                  EntryFormModal.show(
+                    context,
+                    financeRepo: widget.financeRepo,
+                    onEntryCreated: () => setState(() {}),
+                  );
+                },
+                backgroundColor: AppColors.terra,
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shape: const CircleBorder(),
+                child: const Icon(Icons.add_rounded, size: 30),
+              ),
+            )
+          : null,
+
+      // ── Curved Bottom Navigation Bar ───────────────────────────────
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _currentIndex,
+        height: 72,
+        backgroundColor: Colors.transparent,
+        color: isDark ? AppColors.darkSurface : AppColors.paperCard,
+        buttonBackgroundColor: AppColors.terra,
+        items: [
+          _NavItem(
+            icon: Icons.dashboard_rounded,
+            label: loc.tr('nav_overview'),
+            active: _currentIndex == 0,
+            isDark: isDark,
+          ),
+          _NavItem(
+            icon: Icons.receipt_long_rounded,
+            label: loc.tr('nav_activity'),
+            active: _currentIndex == 1,
+            isDark: isDark,
+          ),
+          _NavItem(
+            icon: Icons.pie_chart_rounded,
+            label: loc.tr('nav_budgets'),
+            active: _currentIndex == 2,
+            isDark: isDark,
+          ),
+          _NavItem(
+            icon: Icons.insights_rounded,
+            label: loc.tr('nav_analytics'),
+            active: _currentIndex == 3,
+            isDark: isDark,
+          ),
+        ],
         onTap: _onBottomNavTapped,
-        onCenterTap: () => EntryFormModal.show(
-          context,
-          financeRepo: widget.financeRepo,
-          onEntryCreated: () => setState(() {}),
-        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.isDark,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool active;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = active ? Colors.white : (isDark ? Colors.white70 : AppColors.ink);
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 21, color: foreground),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: foreground,
+              fontSize: 10,
+              fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

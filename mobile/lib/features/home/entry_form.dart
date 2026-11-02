@@ -571,120 +571,60 @@ class _EntryFormModalState extends State<EntryFormModal> {
 
             if (_loadingCategories)
               const LinearProgressIndicator(minHeight: 2)
-            else if (_categories.isNotEmpty) ...[
-              Builder(builder: (context) {
-                final linkedIds = _selectedBudgetLine?['linkedCategoryIds'];
-                final hasLinkedIds = linkedIds is List && linkedIds.isNotEmpty;
-                final lineCategories = hasLinkedIds
-                    ? _categories
-                        .where((c) => linkedIds.any(
-                            (id) => id.toString() == c['_id']?.toString()))
-                        .toList()
-                    : _categories;
-                final displayCategories = (_showAllCategories || !hasLinkedIds || lineCategories.isEmpty)
-                    ? _categories
-                    : lineCategories;
-
-                final effectiveValue = displayCategories.any(
-                        (c) => c['_id']?.toString() == _selectedCategoryId)
-                    ? _selectedCategoryId
-                    : (displayCategories.isNotEmpty
-                        ? displayCategories.first['_id']?.toString()
-                        : null);
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (hasLinkedIds && lineCategories.isNotEmpty)
-                          TextButton(
-                            onPressed: () =>
-                                setState(() => _showAllCategories = !_showAllCategories),
-                            child: Text(
-                              _showAllCategories
-                                  ? loc.tr('show_line_categories')
-                                  : loc.tr('show_all_categories'),
-                            ),
-                          )
-                        else
-                          const SizedBox.shrink(),
-                        TextButton.icon(
-                          icon: const Icon(Icons.add, size: 16),
-                          label: Text(loc.tr('create_category')),
-                          onPressed: () {
-                            CategoryFormDialog.show(
-                              context,
-                              financeRepo: widget.financeRepo,
-                              existingCategory: {'type': EntryTypes.categoryTypeOf(_type)},
-                              onSaved: _loadCategories,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    DropdownButtonFormField<String>(
-                      initialValue: effectiveValue,
-                      decoration: InputDecoration(labelText: loc.tr('category')),
-                      items: displayCategories
-                          .map((c) => DropdownMenuItem<String>(
-                                value: c['_id']?.toString(),
-                                child: Row(
-                                  children: [
-                                    _categoryIconWidget(c['icon']?.toString()),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(c['name']?.toString() ?? 'Unnamed'),
-                                    ),
-                                  ],
-                                ),
-                              ))
-                          .toList(),
-                      onChanged: (val) => setState(() => _selectedCategoryId = val),
-                    ),
-                  ],
-                );
-              }),
-            ] else
+            else if (_categories.isNotEmpty)
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    loc.tr('no_categories_for_type'),
-                    style: const TextStyle(fontSize: 13, color: AppColors.danger),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.refresh_rounded, size: 16),
-                        label: Text(loc.tr('seed_default_categories')),
-                        onPressed: () async {
-                          setState(() => _loadingCategories = true);
-                          try {
-                            await widget.financeRepo.seedDefaultCategories();
-                          } catch (_) {}
-                          await _loadCategories();
-                        },
+                  if (_selectedBudgetLine?['linkedCategoryIds'] is List &&
+                      (_selectedBudgetLine!['linkedCategoryIds'] as List).isNotEmpty)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () =>
+                            setState(() => _showAllCategories = !_showAllCategories),
+                        child: Text(
+                          _showAllCategories
+                              ? loc.tr('show_line_categories')
+                              : loc.tr('show_all_categories'),
+                        ),
                       ),
-                      FilledButton.icon(
-                        icon: const Icon(Icons.add, size: 16),
-                        label: Text(loc.tr('create_category')),
-                        onPressed: () {
-                          CategoryFormDialog.show(
-                            context,
-                            financeRepo: widget.financeRepo,
-                            existingCategory: {'type': EntryTypes.categoryTypeOf(_type)},
-                            onSaved: _loadCategories,
-                          );
-                        },
-                      ),
-                    ],
+                    ),
+                  DropdownButtonFormField<String>(
+                    initialValue: _categories.any(
+                            (c) => c['_id']?.toString() == _selectedCategoryId)
+                        ? _selectedCategoryId
+                        : null,
+                    decoration: InputDecoration(labelText: loc.tr('category')),
+                    items: _categories
+                        .where((category) {
+                          final ids = _selectedBudgetLine?['linkedCategoryIds'];
+                          return _showAllCategories ||
+                              ids is! List ||
+                              ids.isEmpty ||
+                              ids.any((id) =>
+                                  id.toString() == category['_id']?.toString());
+                        })
+                        .map((c) => DropdownMenuItem<String>(
+                              value: c['_id']?.toString(),
+                              child: Row(
+                                children: [
+                                  _categoryIconWidget(c['icon']?.toString()),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(c['name']?.toString() ?? 'Unnamed'),
+                                  ),
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => _selectedCategoryId = val),
                   ),
                 ],
+              )
+            else
+              Text(
+                loc.tr('no_categories_for_type'),
+                style: const TextStyle(fontSize: 13, color: AppColors.danger),
               ),
             const SizedBox(height: 14),
 
