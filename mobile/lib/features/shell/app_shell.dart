@@ -238,12 +238,15 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     setState(() => _currentIndex = index);
   }
 
-  void _navigateToDrawerDestination(Widget screen) {
+  Future<void> _navigateToDrawerDestination(Widget screen) async {
     Navigator.pop(context); // close drawer
-    Navigator.push(
+    final targetIndex = await Navigator.push<int>(
       context,
       MaterialPageRoute(builder: (_) => screen),
     );
+    if (targetIndex != null && mounted) {
+      setState(() => _currentIndex = targetIndex);
+    }
   }
 
   @override
@@ -260,18 +263,28 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         auth: widget.auth,
         onNavigateToLedger: () => setState(() => _currentIndex = 1),
         onNavigateToBudgets: () => setState(() => _currentIndex = 2),
-        onNavigateToPayables: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PayablesScreen(financeRepo: widget.financeRepo),
-          ),
-        ),
-        onNavigateToReceivables: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ReceivablesScreen(financeRepo: widget.financeRepo),
-          ),
-        ),
+        onNavigateToPayables: () async {
+          final target = await Navigator.push<int>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PayablesScreen(financeRepo: widget.financeRepo),
+            ),
+          );
+          if (target != null && mounted) {
+            setState(() => _currentIndex = target);
+          }
+        },
+        onNavigateToReceivables: () async {
+          final target = await Navigator.push<int>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReceivablesScreen(financeRepo: widget.financeRepo),
+            ),
+          );
+          if (target != null && mounted) {
+            setState(() => _currentIndex = target);
+          }
+        },
       ),
       ActivityTab(financeRepo: widget.financeRepo),
       BudgetScreen(financeRepo: widget.financeRepo),
@@ -601,103 +614,13 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       ),
 
       bottomNavigationBar: SmartBottomNavBar(
-        items: [
-          _NavItem(
-            icon: Icons.dashboard_rounded,
-            label: loc.tr('nav_overview'),
-            active: _currentIndex == 0,
-            isDark: isDark,
-          ),
-          _NavItem(
-            icon: Icons.receipt_long_rounded,
-            label: loc.tr('nav_activity'),
-            active: _currentIndex == 1,
-            isDark: isDark,
-          ),
-          _NavItem(
-            icon: Icons.pie_chart_rounded,
-            label: loc.tr('nav_budgets'),
-            active: _currentIndex == 2,
-            isDark: isDark,
-          ),
-          _NavItem(
-            icon: Icons.insights_rounded,
-            label: loc.tr('nav_analytics'),
-            active: _currentIndex == 3,
-            isDark: isDark,
-          _NavItem(
-            icon: Icons.dashboard_rounded,
-            label: loc.tr('nav_overview'),
-            active: _currentIndex == 0,
-            isDark: isDark,
-          ),
-          _NavItem(
-            icon: Icons.receipt_long_rounded,
-            label: loc.tr('nav_activity'),
-            active: _currentIndex == 1,
-            isDark: isDark,
-          ),
-          _NavItem(
-            icon: Icons.pie_chart_rounded,
-            label: loc.tr('nav_budgets'),
-            active: _currentIndex == 2,
-            isDark: isDark,
-          ),
-          _NavItem(
-            icon: Icons.insights_rounded,
-            label: loc.tr('nav_analytics'),
-            active: _currentIndex == 3,
-            isDark: isDark,
-          ),
-        ],
+        selectedIndex: _currentIndex,
         onTap: _onBottomNavTapped,
         onCenterTap: () => EntryFormModal.show(
           context,
           financeRepo: widget.financeRepo,
           onEntryCreated: () => setState(() {}),
         ),
-        centerAction: const Icon(Icons.add_rounded, size: 30, color: Colors.white),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.active,
-    required this.isDark,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool active;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    final foreground = active ? Colors.white : (isDark ? Colors.white70 : AppColors.ink);
-    final labelColor = active ? AppColors.terra : (isDark ? Colors.white70 : AppColors.inkLight);
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 20, color: foreground),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: labelColor,
-              fontSize: 10,
-              fontWeight: active ? FontWeight.w800 : FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
