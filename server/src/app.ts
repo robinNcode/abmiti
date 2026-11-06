@@ -93,7 +93,7 @@ const start = async (): Promise<void> => {
   }
 
   app.listen(env.PORT, () => {
-    logger.info(`🚀 abmiti server running on port ${env.PORT} [${env.NODE_ENV}]`);
+    logger.info(`🚀 abmiti server running on ip ${env.HOST} port ${env.PORT} [${env.NODE_ENV}]`);
   });
 };
 

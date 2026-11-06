@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "dev:ip": "ts-node-dev --respawn --transpile-only src/app.ts --host 192.168.0.151 --port 5000",
     "build": "tsc",
     "build:prod": "tsc",
     "start": "node dist/app.js",

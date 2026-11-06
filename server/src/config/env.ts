@@ -59,7 +59,7 @@ const DB_PROVIDER = getDbProvider();
 
 export const env = {
   NODE_ENV: optional('NODE_ENV', 'development') as NodeEnv,
-
+  HOST: optional('HOST', 'localhost'),
   PORT: Number(optional('PORT', '5000')),
   API_PREFIX: optional('API_PREFIX', '/api/v1'),
 
