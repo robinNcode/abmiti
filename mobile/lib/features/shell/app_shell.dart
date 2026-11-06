@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../shared/widgets/curved_navigation_bar.dart';
+import '../../shared/widgets/smart_bottom_nav_bar.dart';
 
 import '../../core/config/app_config.dart';
 import '../../core/constants/app_colors.dart';
@@ -610,34 +610,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
         children: pages,
       ),
 
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _currentIndex == 0
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: FloatingActionButton(
-                onPressed: () {
-                  EntryFormModal.show(
-                    context,
-                    financeRepo: widget.financeRepo,
-                    onEntryCreated: () => setState(() {}),
-                  );
-                },
-                backgroundColor: AppColors.terra,
-                foregroundColor: Colors.white,
-                elevation: 8,
-                shape: const CircleBorder(),
-                child: const Icon(Icons.add_rounded, size: 30),
-              ),
-            )
-          : null,
-
-      // ── Curved Bottom Navigation Bar ───────────────────────────────
-      bottomNavigationBar: CurvedNavigationBar(
-        index: _currentIndex,
-        height: 72,
-        backgroundColor: Colors.transparent,
-        color: isDark ? AppColors.darkSurface : AppColors.paperCard,
-        buttonBackgroundColor: AppColors.terra,
+      bottomNavigationBar: SmartBottomNavBar(
         items: [
           _NavItem(
             icon: Icons.dashboard_rounded,
@@ -665,6 +638,12 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
           ),
         ],
         onTap: _onBottomNavTapped,
+        onCenterTap: () => EntryFormModal.show(
+          context,
+          financeRepo: widget.financeRepo,
+          onEntryCreated: () => setState(() {}),
+        ),
+        centerAction: const Icon(Icons.add_rounded, size: 30, color: Colors.white),
       ),
     );
   }

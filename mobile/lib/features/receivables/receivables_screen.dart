@@ -15,12 +15,6 @@ double receivableAmountValue(dynamic value, {double fallback = 0}) {
   return fallback;
 }
 
-double receivableAmountValue(dynamic value, {double fallback = 0}) {
-  if (value is num) return value.toDouble();
-  if (value is String) return double.tryParse(value.trim()) ?? fallback;
-  return fallback;
-}
-
 class ReceivablesScreen extends StatefulWidget {
   const ReceivablesScreen({
     super.key,
@@ -1057,9 +1051,76 @@ class _ReceivablesScreenState extends State<ReceivablesScreen> {
         ),
       ),
       bottomNavigationBar: SmartBottomNavBar(
-        selectedIndex: widget.activeNavIndex,
-        onTap: (index) => Navigator.of(context).pop(index),
+        items: [
+          _CompactNavItem(
+            icon: Icons.home_rounded,
+            label: loc.tr('nav_overview'),
+            active: true,
+            isDark: isDark,
+            onTap: () => Navigator.of(context).maybePop(),
+          ),
+          _CompactNavItem(
+            icon: Icons.receipt_long_rounded,
+            label: loc.tr('nav_activity'),
+            active: false,
+            isDark: isDark,
+            onTap: () => Navigator.of(context).maybePop(),
+          ),
+        ],
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.of(context).maybePop();
+          }
+        },
         onCenterTap: _showAddReceivableDialog,
+        centerAction: const Icon(Icons.add_rounded, size: 30, color: Colors.white),
+      ),
+    );
+  }
+}
+
+class _CompactNavItem extends StatelessWidget {
+  const _CompactNavItem({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool active;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = active ? Colors.white : (isDark ? Colors.white70 : AppColors.ink);
+    final labelColor = active ? AppColors.terra : (isDark ? Colors.white70 : AppColors.inkLight);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20, color: foreground),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: labelColor,
+                fontSize: 10,
+                fontWeight: active ? FontWeight.w800 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
