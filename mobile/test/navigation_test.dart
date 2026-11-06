@@ -2,7 +2,7 @@ import 'package:abmiti/features/shell/app_shell.dart';
 import 'package:abmiti/shared/data/api_client.dart';
 import 'package:abmiti/shared/data/auth_repository.dart';
 import 'package:abmiti/shared/data/finance_repository.dart';
-import 'package:abmiti/shared/widgets/curved_navigation_bar.dart';
+import 'package:abmiti/shared/widgets/smart_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,11 +21,11 @@ void main() {
     return shell;
   }
 
-  testWidgets('shell renders the bottom navigation bar with four tabs',
+  testWidgets('shell renders the smart bottom navigation with four tabs',
       (tester) async {
     await buildShell(tester);
 
-    expect(find.byType(CurvedNavigationBar), findsOneWidget);
+    expect(find.byType(SmartBottomNavBar), findsOneWidget);
     expect(find.byType(AppBar), findsOneWidget);
     for (final icon in [
       Icons.dashboard_rounded,
@@ -35,7 +35,7 @@ void main() {
     ]) {
       expect(
         find.descendant(
-          of: find.byType(CurvedNavigationBar),
+          of: find.byType(SmartBottomNavBar),
           matching: find.byIcon(icon),
         ),
         findsAtLeastNWidgets(1),
@@ -50,7 +50,7 @@ void main() {
 
     await tester.tap(
       find.descendant(
-        of: find.byType(CurvedNavigationBar),
+        of: find.byType(SmartBottomNavBar),
         matching: find.byIcon(Icons.pie_chart_rounded),
       ),
     );
@@ -65,7 +65,7 @@ void main() {
 
     await tester.tap(
       find.descendant(
-        of: find.byType(CurvedNavigationBar),
+        of: find.byType(SmartBottomNavBar),
         matching: find.byIcon(Icons.insights_rounded),
       ),
     );
@@ -79,5 +79,27 @@ void main() {
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('smart bottom nav renders a centered circular add action',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          bottomNavigationBar: SmartBottomNavBar(
+            items: const [
+              Icon(Icons.dashboard_rounded),
+              Icon(Icons.insights_rounded),
+            ],
+            centerAction: const Icon(Icons.add_rounded),
+            onCenterTap: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(SmartBottomNavBar), findsOneWidget);
+    expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+    expect(find.byType(FloatingActionButton), findsNothing);
   });
 }
