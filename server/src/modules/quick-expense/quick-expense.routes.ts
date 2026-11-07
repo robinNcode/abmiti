@@ -8,6 +8,7 @@ router.use(authenticate);
 router.use(requireUser);
 
 router.get('/', quickExpenseController.list);
+router.post('/seed', quickExpenseController.seed);
 router.put('/', validateQuickExpenses, validate, quickExpenseController.replace);
 
 export default router;

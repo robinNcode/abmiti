@@ -175,6 +175,29 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           loc.tr('categories_title'),
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
+        actions: [
+          IconButton(
+            tooltip: loc.tr('seed_default_categories'),
+            icon: const Icon(Icons.playlist_add_rounded),
+            onPressed: () async {
+              try {
+                await widget.financeRepo.seedDefaultCategories();
+                _loadCategories();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(loc.tr('seed_default_categories'))),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(ApiClient.messageFrom(e))),
+                  );
+                }
+              }
+            },
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,

@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { container } from '../../container';
 import { BadRequestError, NotFoundError } from '../../shared/utils/errors';
 import { IQuickExpenseItem } from '../../shared/types';
+import { budgetService } from '../budget/budget.service';
 
 export const MAX_QUICK_EXPENSES = 6;
 
@@ -29,16 +30,38 @@ async function loggedLabels(userId: string, month: number, year: number): Promis
 
 /** Default shortcuts for users who have not pinned their own yet. */
 async function deriveFromBudget(userId: string, month: number, year: number): Promise<IQuickExpenseItem[]> {
-  const budget = await container.budgetRepo.findByMonth(userId, month, year);
+  const budget = await budgetService.getByMonth(userId, month, year);
+  const categories = await container.categoryRepo.findByUser(userId, 'expense');
+  const catByName = new Map<string, string>();
+  for (const cat of categories) {
+    catByName.set(cat.name.toLowerCase().trim(), String(cat._id));
+  }
+
+  const subItemToCatName = (subName: string): string | null => {
+    const s = subName.toLowerCase().trim();
+    if (s.includes('rent') || s.includes('home')) return catByName.get('home') ?? null;
+    if (s.includes('bill') || s.includes('electric') || s.includes('gas') || s.includes('utility') || s.includes('water')) return catByName.get('utility') ?? null;
+    if (s.includes('grocer') || s.includes('food') || s.includes('lunch') || s.includes('dinner')) return catByName.get('food') ?? null;
+    if (s.includes('college') || s.includes('school') || s.includes('fee') || s.includes('edu')) return catByName.get('education') ?? null;
+    if (s.includes('health') || s.includes('med') || s.includes('doctor')) return catByName.get('health') ?? null;
+    if (s.includes('shop')) return catByName.get('shopping') ?? null;
+    if (s.includes('travel') || s.includes('tour')) return catByName.get('travel') ?? null;
+    return null;
+  };
+
   const derived: IQuickExpenseItem[] = [];
 
   for (const line of budget?.lines?.filter((l) => l.isActive) ?? []) {
     for (const sub of line.subItems ?? []) {
+      const matchedCategory = subItemToCatName(sub.name) ??
+        (line.linkedCategoryIds?.[0] ? String(line.linkedCategoryIds[0]) : null) ??
+        (categories.length > 0 ? String(categories[0]._id) : null);
+
       derived.push({
         id:          `suggested-${String(line._id)}-${derived.length}`,
         label:       sub.name,
         icon:        line.icon || '💸',
-        categoryId:  line.linkedCategoryIds?.[0] ? String(line.linkedCategoryIds[0]) : null,
+        categoryId:  matchedCategory,
         budgetLineId: String(line._id),
         expectedAmount: Number(sub.expectedAmount) || 0,
       });
@@ -47,16 +70,20 @@ async function deriveFromBudget(userId: string, month: number, year: number): Pr
 
   if (derived.length > 0) return derived.slice(0, MAX_QUICK_EXPENSES);
 
-  // No budget sub-items yet → offer the user's own expense categories.
-  const categories = await container.categoryRepo.findByUser(userId, 'expense');
-  return categories.slice(0, MAX_QUICK_EXPENSES).map((cat) => ({
-    id:          `suggested-cat-${String(cat._id)}`,
-    label:       cat.name,
-    icon:        cat.icon,
-    categoryId:  String(cat._id),
-    budgetLineId: null,
-    expectedAmount: 0,
-  }));
+  // No budget sub-items yet → offer the user's own expense categories linked to relevant line
+  return categories.slice(0, MAX_QUICK_EXPENSES).map((cat) => {
+    const matchingLine = budget?.lines?.find((l) =>
+      l.linkedCategoryIds?.some((id) => String(id) === String(cat._id)),
+    );
+    return {
+      id:          `suggested-cat-${String(cat._id)}`,
+      label:       cat.name,
+      icon:        cat.icon,
+      categoryId:  String(cat._id),
+      budgetLineId: matchingLine ? String(matchingLine._id) : null,
+      expectedAmount: 0,
+    };
+  });
 }
 
 async function currentItems(userId: string, month: number, year: number): Promise<IQuickExpenseItem[]> {
@@ -106,6 +133,13 @@ export const quickExpenseService = {
     const items = await currentItems(userId, month, year);
     const logged = await loggedLabels(userId, month, year);
     return items.map((item) => ({ ...item, logged: logged.has(normalize(item.label)) }));
+  },
+
+  async seedDefaults(userId: string, month: number, year: number): Promise<IQuickExpenseView[]> {
+    const derived = await deriveFromBudget(userId, month, year);
+    await container.userRepo.updateQuickExpenses(userId, derived);
+    const logged = await loggedLabels(userId, month, year);
+    return derived.map((item) => ({ ...item, logged: logged.has(normalize(item.label)) }));
   },
 
   async replace(userId: string, rawItems: unknown, month: number, year: number): Promise<IQuickExpenseView[]> {

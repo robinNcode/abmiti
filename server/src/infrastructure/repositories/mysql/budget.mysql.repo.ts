@@ -119,8 +119,8 @@ export class MySQLBudgetRepository implements IBudgetRepository {
       );
       for (const categoryId of line.linkedCategoryIds) {
         await this.pool.query(
-          'INSERT INTO budget_line_categories (budget_line_id, category_id) VALUES (?, ?)',
-          [lineId, categoryId],
+          'INSERT IGNORE INTO budget_line_categories (budget_line_id, budget_id, category_id) VALUES (?, ?, ?)',
+          [lineId, budgetId, categoryId],
         );
       }
       for (const subItem of line.subItems) {
@@ -205,7 +205,10 @@ export class MySQLBudgetRepository implements IBudgetRepository {
     if (line.linkedCategoryIds) {
       await this.pool.query('DELETE FROM budget_line_categories WHERE budget_line_id = ?', [lineId]);
       for (const categoryId of line.linkedCategoryIds) {
-        await this.pool.query('INSERT INTO budget_line_categories (budget_line_id, category_id) VALUES (?, ?)', [lineId, categoryId]);
+        await this.pool.query(
+          'INSERT IGNORE INTO budget_line_categories (budget_line_id, budget_id, category_id) VALUES (?, ?, ?)',
+          [lineId, budgetId, categoryId],
+        );
       }
     }
     if (line.subItems) {

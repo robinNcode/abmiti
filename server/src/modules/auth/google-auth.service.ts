@@ -5,6 +5,9 @@ import { AppError, ConflictError, UnauthorizedError } from '../../shared/utils/e
 import { AuthTokens, IUser } from '../../shared/types';
 import { container } from '../../container';
 import { authService, signTokensForUser } from './auth.service';
+import { entryService } from '../entry/entry.service';
+import { budgetService } from '../budget/budget.service';
+import { quickExpenseService } from '../quick-expense/quick-expense.service';
 
 // ── Types ────────────────────────────────────────────────────
 interface GoogleTokenResponse {
@@ -177,6 +180,10 @@ export const googleAuthService = {
       googleId: googleUser.sub,
       avatar: googleUser.picture,
     });
+    const now = new Date();
+    await entryService.seedUserDefaults(String(newUser._id));
+    await budgetService.seedDefaultBudget(String(newUser._id), now.getMonth() + 1, now.getFullYear());
+    await quickExpenseService.seedDefaults(String(newUser._id), now.getMonth() + 1, now.getFullYear());
 
     const tokens = signTokensForUser(newUser);
     return { user: newUser, tokens, isNewUser: true };

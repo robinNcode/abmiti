@@ -95,6 +95,17 @@ class FinanceRepository {
     return [];
   }
 
+  Future<List<Map<String, dynamic>>> seedDefaultCategories() async {
+    final response = await _apiClient.client.post('/categories/seed');
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is List) {
+      return (data['data'] as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    }
+    return [];
+  }
+
   Future<Map<String, dynamic>> createCategory(
       Map<String, dynamic> payload) async {
     final response = await _apiClient.client.post('/categories', data: payload);

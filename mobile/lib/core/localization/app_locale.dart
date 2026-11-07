@@ -130,6 +130,12 @@ class AppLocale extends ChangeNotifier {
     'all': 'All',
     'show_line_categories': 'Show line categories',
     'show_all_categories': 'Show all categories',
+    'budget_line_no_category_guide':
+        'This budget line is not linked to any category yet. Select a category below to automatically link it, or create a category first.',
+    'budget_line_link_category_hint':
+        'Tip: Link at least one category so expenses are automatically tracked under this budget line.',
+    'create_category_first_hint':
+        'You do not have any categories yet. Create categories first before linking.',
     'account_optional': 'Account (optional)',
     'no_account': 'No account',
     'sector_optional': 'Sector (optional)',
@@ -192,6 +198,7 @@ class AppLocale extends ChangeNotifier {
     'create_category': 'Create Category',
     'delete_category': 'Delete Category',
     'category_deleted': 'Category deleted',
+    'seed_default_categories': 'Load Default Categories',
 
     // Budgets
     'budgets_title': 'Budgets',
@@ -201,6 +208,7 @@ class AppLocale extends ChangeNotifier {
     'budget_allocations': 'Budget Allocations',
     'add_line': 'Add line',
     'add_budget_line': 'Add Budget Line',
+    'linked_expense_categories': 'Linked expense categories',
     'active': 'Active',
     'line_name': 'Line Name',
     'line_name_hint': 'e.g. Housing, Food, Utilities',
@@ -493,6 +501,12 @@ class AppLocale extends ChangeNotifier {
     'all': 'সব',
     'show_line_categories': 'লাইনের ক্যাটাগরি দেখুন',
     'show_all_categories': 'সব ক্যাটাগরি দেখুন',
+    'budget_line_no_category_guide':
+        'এই বাজেট লাইনের সাথে কোনো ক্যাটাগরি সংযুক্ত নেই। সংযুক্ত করতে নিচে একটি ক্যাটাগরি নির্বাচন করুন, অথবা প্রথমে নতুন ক্যাটাগরি তৈরি করুন।',
+    'budget_line_link_category_hint':
+        'পরামর্শ: কমপক্ষে একটি ক্যাটাগরি সংযুক্ত করুন যাতে এই বাজেট লাইনে ব্যয় স্বয়ংক্রিয়ভাবে ট্র্যাক হয়।',
+    'create_category_first_hint':
+        'আপনার কোনো ক্যাটাগরি নেই। সংযুক্ত করার আগে অনুগ্রহ করে ক্যাটাগরি তৈরি করুন।',
     'account_optional': 'অ্যাকাউন্ট (ঐচ্ছিক)',
     'no_account': 'কোনো অ্যাকাউন্ট নয়',
     'sector_optional': 'খাত (ঐচ্ছিক)',
@@ -555,6 +569,7 @@ class AppLocale extends ChangeNotifier {
     'create_category': 'ক্যাটাগরি তৈরি করুন',
     'delete_category': 'ক্যাটাগরি মুছুন',
     'category_deleted': 'ক্যাটাগরি মুছে ফেলা হয়েছে',
+    'seed_default_categories': 'ডিফল্ট ক্যাটাগরি লোড করুন',
 
     // Budgets
     'budgets_title': 'মাসিক বাজেট',
@@ -564,6 +579,7 @@ class AppLocale extends ChangeNotifier {
     'budget_allocations': 'বাজেট বরাদ্দ',
     'add_line': 'লাইন যোগ করুন',
     'add_budget_line': 'নতুন বাজেট লাইন',
+    'linked_expense_categories': 'সংযুক্ত ব্যয়ের ক্যাটাগরি',
     'active': 'সক্রিয়',
     'line_name': 'লাইনের নাম',
     'line_name_hint': 'যেমনঃ বাসস্থান, খাদ্য, বিল',
