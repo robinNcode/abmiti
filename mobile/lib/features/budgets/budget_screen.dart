@@ -1248,10 +1248,29 @@ class _BudgetScreenState extends State<BudgetScreen> {
         ),
       ),
       floatingActionButton: _budget != null
-          ? FloatingActionButton(
-              onPressed: () => _showLineDialog(),
-              child: const Icon(Icons.add_rounded),
-            )
+          ? ElevatedButton.icon(
+            onPressed: _showLineDialog,
+            icon: const Icon(Icons.add, size: 18),
+            label: const Text(
+              'New Budget',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.mustard,
+              foregroundColor: Colors.white,
+              elevation: 3,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 12,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          )
           : null,
     );
   }

@@ -220,7 +220,7 @@ class _NavTile extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
             decoration: BoxDecoration(
-              color: isActive ? AppColors.terra : Colors.transparent,
+              color: isActive ? AppColors.terraLight : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
               boxShadow: isActive
                   ? [

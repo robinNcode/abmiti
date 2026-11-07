@@ -422,40 +422,36 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
               decoration: const BoxDecoration(
                 gradient: AppColors.heroGradient,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                    child: Text(
-                      name.isNotEmpty ? name[0].toUpperCase() : 'A',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.terra,
-                      ),
+              child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Colors.white,
+                  child: Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : 'A',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.terra,
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  Text(
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
                     name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    email,
-                    style: TextStyle(
-                      color: Colors.white.withAlpha(200),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
+            ),
             ),
 
             // Navigation Destinations
