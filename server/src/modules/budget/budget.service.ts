@@ -214,7 +214,7 @@ export const budgetService = {
         }
         if (toLink.length > 0) {
           line.linkedCategoryIds = toLink as any;
-          await container.budgetRepo.updateLine(budget._id, line._id, userId, {
+          await container.budgetRepo.updateLine(String(budget._id), String(line._id), userId, {
             linkedCategoryIds: toLink,
           });
         }

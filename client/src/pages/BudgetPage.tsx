@@ -53,7 +53,7 @@ export default function BudgetPage() {
   const summaryByLine = useMemo(() => new Map(summary?.lines.map((line) => [line.lineId, line])), [summary?.lines]);
   const analysisByLine = useMemo(() => new Map(analysis?.lines.map((line) => [line.id, line])), [analysis?.lines]);
   const templateForMonth = templates.some((template) => template.month === month && template.year === year);
-  const hasBudgetLines = budget?.lines.length > 0;
+  const hasBudgetLines = (budget?.lines ?? []).length > 0;
 
   if (isLoading) {
     return <div className="min-h-full flex items-center justify-center"><Spinner className="text-terra" /></div>;

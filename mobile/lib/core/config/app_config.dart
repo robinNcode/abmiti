@@ -13,13 +13,13 @@ class AppConfig with ChangeNotifier {
   /// - Production (live cPanel backend):
   ///   'https://robin.adovasoft.com/abmiti-app/api/v1'
   /// - Local development (via adb reverse / localhost):
-  ///   'http://127.0.0.1:5000/api/v1'
+  ///   'http://192.168.0.151:5000/api/v1'
   // static const String defaultBaseUrl =
   //     'https://robin.adovasoft.com/abmiti-app/api/v1';
   // ──────────────────────────────────────────────────────────────────────
 
   static const String defaultBaseUrl =
-      'http://192.168.0.151:5000/api/v1';
+      'https://robin.adovasoft.com/abmiti-app/api/v1';
 
   // Compile-time override: flutter run --dart-define=API_BASE_URL=...
   static const String _definedBaseUrl = String.fromEnvironment('API_BASE_URL');
