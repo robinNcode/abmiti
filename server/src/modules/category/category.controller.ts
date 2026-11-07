@@ -11,6 +11,13 @@ export const categoryController = {
     } catch (err) { next(err); }
   },
 
+  async seed(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const data = await categoryService.seed(req.user!.userId);
+      sendSuccess(res, data, 'Default categories seeded');
+    } catch (err) { next(err); }
+  },
+
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = await categoryService.create(req.user!.userId, req.body);

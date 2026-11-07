@@ -434,12 +434,42 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     }
                   },
                 ),
-                if (categories.isNotEmpty) ...[
+                if (categories.isEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.mustard.withAlpha(25),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.mustard.withAlpha(90)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline_rounded, size: 16, color: AppColors.mustard),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            loc.tr('create_category_first_hint'),
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else ...[
                   const SizedBox(height: 12),
                   Text(
-                    'Linked expense categories',
+                    loc.tr('linked_expense_categories'),
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
+                  if (selectedCategoryIds.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        loc.tr('budget_line_link_category_hint'),
+                        style: const TextStyle(fontSize: 11, color: AppColors.mustard),
+                      ),
+                    ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,

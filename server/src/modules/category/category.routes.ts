@@ -16,6 +16,7 @@ const createValidator = [
 ];
 
 router.get('/',        categoryController.list);
+router.post('/seed',   categoryController.seed);
 router.post('/',       createValidator, validate, categoryController.create);
 router.patch('/:id',   categoryController.update);
 router.delete('/:id',  categoryController.remove);

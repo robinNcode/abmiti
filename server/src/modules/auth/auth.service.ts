@@ -3,6 +3,9 @@ import { env } from '../../config/env';
 import { ConflictError, UnauthorizedError } from '../../shared/utils/errors';
 import { AuthTokens, JwtPayload, IUser } from '../../shared/types';
 import { container } from '../../container';
+import { entryService } from '../entry/entry.service';
+import { budgetService } from '../budget/budget.service';
+import { quickExpenseService } from '../quick-expense/quick-expense.service';
 import bcrypt from 'bcryptjs';
 
 interface RegisterDto { name: string; email: string; password: string; }
@@ -28,6 +31,10 @@ export const authService = {
     const exists = await container.userRepo.findByEmail(dto.email);
     if (exists) throw new ConflictError('Email already registered');
     const user = await container.userRepo.create({ name: dto.name, email: dto.email, password: dto.password });
+    const now = new Date();
+    await entryService.seedUserDefaults(String(user._id));
+    await budgetService.seedDefaultBudget(String(user._id), now.getMonth() + 1, now.getFullYear());
+    await quickExpenseService.seedDefaults(String(user._id), now.getMonth() + 1, now.getFullYear());
     return { user, tokens: signTokensForUser(user) };
   },
 

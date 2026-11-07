@@ -18,6 +18,14 @@ export const quickExpenseController = {
     } catch (err) { next(err); }
   },
 
+  async seed(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { month, year } = period(req.body as Record<string, unknown>);
+      const data = await quickExpenseService.seedDefaults(req.user!.userId, month, year);
+      sendSuccess(res, data, 'Quick expenses seeded with relevant budget lines');
+    } catch (err) { next(err); }
+  },
+
   async replace(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { month, year } = period(req.body as Record<string, unknown>);

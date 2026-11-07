@@ -140,21 +140,111 @@ export const budgetService = {
     return sortLines(await container.budgetRepo.create(userId, data));
   },
 
+  async buildDefaultLinesWithCategories(userId: string): Promise<IBudgetLineInput[]> {
+    let categories = await container.categoryRepo.findByUser(userId, 'expense');
+    if (categories.length === 0) {
+      const { entryService } = await import('../entry/entry.service');
+      await entryService.seedUserDefaults(userId);
+      categories = await container.categoryRepo.findByUser(userId, 'expense');
+    }
+
+    const catMap = new Map<string, string>();
+    for (const cat of categories) {
+      catMap.set(cat.name.toLowerCase().trim(), String(cat._id));
+    }
+
+    const nameToCats: Record<string, string[]> = {
+      'living cost': ['home', 'food', 'utility', 'education'],
+      'investment': ['loan'],
+      'wife expenses': ['shopping'],
+      'fun / entertainment': ['entertainment', 'travel'],
+      'emergency fund': ['health'],
+      'charity (sadaqah)': ['other'],
+    };
+
+    return defaultBudgetLines.map((line) => {
+      const targetNames = nameToCats[line.name.toLowerCase().trim()] ?? [];
+      const linkedCategoryIds: string[] = [];
+      for (const tName of targetNames) {
+        const id = catMap.get(tName);
+        if (id) linkedCategoryIds.push(id);
+      }
+      return {
+        ...line,
+        linkedCategoryIds,
+      };
+    });
+  },
+
+  async autoLinkBudgetLines(userId: string, budget: IBudget): Promise<IBudget> {
+    const categories = await container.categoryRepo.findByUser(userId, 'expense');
+    if (categories.length === 0) return budget;
+
+    const catMap = new Map<string, string>();
+    for (const cat of categories) {
+      catMap.set(cat.name.toLowerCase().trim(), String(cat._id));
+    }
+
+    const nameToCats: Record<string, string[]> = {
+      'living cost': ['home', 'food', 'utility', 'education'],
+      'investment': ['loan'],
+      'wife expenses': ['shopping'],
+      'fun / entertainment': ['entertainment', 'travel'],
+      'emergency fund': ['health'],
+      'charity (sadaqah)': ['other'],
+    };
+
+    const alreadyLinked = new Set<string>();
+    for (const line of budget.lines) {
+      for (const cid of line.linkedCategoryIds ?? []) {
+        alreadyLinked.add(String(cid));
+      }
+    }
+
+    for (const line of budget.lines) {
+      if (!line.linkedCategoryIds || line.linkedCategoryIds.length === 0) {
+        const targetNames = nameToCats[line.name.toLowerCase().trim()] ?? [];
+        const toLink: string[] = [];
+        for (const tName of targetNames) {
+          const id = catMap.get(tName);
+          if (id && !alreadyLinked.has(id)) {
+            toLink.push(id);
+            alreadyLinked.add(id);
+          }
+        }
+        if (toLink.length > 0) {
+          line.linkedCategoryIds = toLink as any;
+          await container.budgetRepo.updateLine(budget._id, line._id, userId, {
+            linkedCategoryIds: toLink,
+          });
+        }
+      }
+    }
+    return budget;
+  },
+
   async seedDefaultBudget(userId: string, month: number, year: number, totalIncome = 0) {
+    const lines = await this.buildDefaultLinesWithCategories(userId);
     return this.create(userId, {
       month,
       year,
       totalIncome,
-      lines: defaultBudgetLines,
+      lines,
       isTemplate: false,
       templateName: 'Halal 50/25/10/5/5/5 Budget',
     });
   },
 
   async getByMonth(userId: string, month: number, year: number) {
-    const existing = await container.budgetRepo.findByMonth(userId, month, year, false);
-    if (existing) return sortLines(existing);
-    return this.seedDefaultBudget(userId, month, year);
+    let existing = await container.budgetRepo.findByMonth(userId, month, year, false);
+    if (!existing) {
+      return this.seedDefaultBudget(userId, month, year);
+    }
+    const hasUnlinked = existing.lines.some((l) => !l.linkedCategoryIds || l.linkedCategoryIds.length === 0);
+    if (hasUnlinked) {
+      existing = await this.autoLinkBudgetLines(userId, existing);
+    }
+    return sortLines(existing);
   },
 
   async update(userId: string, id: string, data: Partial<IBudgetInput>) {

@@ -1,10 +1,24 @@
 import { container } from '../../container';
 import { ICategory, EntryType } from '../../shared/types';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/utils/errors';
+import { entryService } from '../entry/entry.service';
 
 export const categoryService = {
   async list(userId: string, type?: EntryType): Promise<ICategory[]> {
-    return container.categoryRepo.findByUser(userId, type);
+    let list = await container.categoryRepo.findByUser(userId, type);
+    if (list.length === 0) {
+      const allCategories = await container.categoryRepo.findByUser(userId);
+      if (allCategories.length === 0) {
+        await entryService.seedUserDefaults(userId);
+        list = await container.categoryRepo.findByUser(userId, type);
+      }
+    }
+    return list;
+  },
+
+  async seed(userId: string): Promise<ICategory[]> {
+    await entryService.seedUserDefaults(userId);
+    return container.categoryRepo.findByUser(userId);
   },
 
   async create(userId: string, dto: { name: string; icon?: string; color?: string; type: EntryType }): Promise<ICategory> {
