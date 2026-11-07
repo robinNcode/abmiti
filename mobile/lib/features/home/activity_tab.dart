@@ -477,16 +477,16 @@ class _ActivityTabState extends State<ActivityTab> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          EntryFormModal.show(
-            context,
-            financeRepo: widget.financeRepo,
-            onEntryCreated: () => _loadEntries(refresh: true),
-          );
-        },
-        child: const Icon(Icons.add_rounded),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     EntryFormModal.show(
+      //       context,
+      //       financeRepo: widget.financeRepo,
+      //       onEntryCreated: () => _loadEntries(refresh: true),
+      //     );
+      //   },
+      //   child: const Icon(Icons.add_rounded),
+      // ),
     );
   }
 }
