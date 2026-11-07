@@ -11,6 +11,9 @@
     "start": "node dist/app.js",
     "start:prod": "NODE_ENV=production node dist/app.js",
     "migrate:mysql": "node scripts/run-mysql-migrations.js",
+    "seed:admin": "node scripts/seed-admin-only.js",
+    "seed:app": "node scripts/seed-app-initial.js",
+    "seed:initial-db": "node scripts/seed-admin-only.js --reset && node scripts/seed-app-initial.js",
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {

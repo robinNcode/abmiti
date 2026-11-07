@@ -324,4 +324,4 @@ The WebView loads the hosted SPA (`https://robin.adovasoft.com/abmiti/…`). Det
 
 ## License
 
-© 2026 VoltWave BD. All rights reserved.
+© 2026 robinNcode BD. All rights reserved.
