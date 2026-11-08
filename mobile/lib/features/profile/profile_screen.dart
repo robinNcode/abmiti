@@ -37,19 +37,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _editProfile() async {
     final user = widget.auth.currentUser ?? {};
-    final nameController = TextEditingController(text: user['name']?.toString() ?? '');
-    final emojiController = TextEditingController(text: user['avatar']?.toString() ?? '');
+    final nameController =
+        TextEditingController(text: user['name']?.toString() ?? '');
+    final emojiController =
+        TextEditingController(text: user['avatar']?.toString() ?? '');
     final values = await showDialog<Map<String, String>>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(context.appLocale.tr('profile_title')),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: nameController, maxLength: 80, decoration: const InputDecoration(labelText: 'Name')),
-          TextField(controller: emojiController, maxLength: 8, decoration: const InputDecoration(labelText: 'Emoji', hintText: '🙂')),
+          TextField(
+              controller: nameController,
+              maxLength: 80,
+              decoration: const InputDecoration(labelText: 'Name')),
+          TextField(
+              controller: emojiController,
+              maxLength: 8,
+              decoration:
+                  const InputDecoration(labelText: 'Emoji', hintText: '🙂')),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(context.appLocale.tr('cancel'))),
-          FilledButton(onPressed: () => Navigator.pop(dialogContext, {'name': nameController.text.trim(), 'avatar': emojiController.text.trim()}), child: Text(context.appLocale.tr('save'))),
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(context.appLocale.tr('cancel'))),
+          FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, {
+                    'name': nameController.text.trim(),
+                    'avatar': emojiController.text.trim()
+                  }),
+              child: Text(context.appLocale.tr('save'))),
         ],
       ),
     );
@@ -57,13 +73,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     emojiController.dispose();
     if (values == null || !mounted) return;
     if (values['name']!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name cannot be empty.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Name cannot be empty.')));
       return;
     }
     try {
       await widget.auth.updateProfile(values);
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiClient.messageFrom(error))));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(ApiClient.messageFrom(error))));
     }
   }
 
@@ -220,11 +239,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = widget.auth.currentUser;
     final name = user?['name']?.toString() ?? loc.tr('default_user_name');
     final email = user?['email']?.toString() ?? '';
-    final userEmoji = user?['avatar']?.toString() ?? user?['emoji']?.toString() ?? '👤';
-    final avatarText = RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true)
-            .hasMatch(userEmoji)
-        ? userEmoji
-        : (name.isNotEmpty ? name[0].toUpperCase() : 'A');
+    final userEmoji =
+        user?['avatar']?.toString() ?? user?['emoji']?.toString() ?? '👤';
+    final avatarText =
+        RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(userEmoji)
+            ? userEmoji
+            : (name.isNotEmpty ? name[0].toUpperCase() : 'A');
     final isPro =
         _tier.toLowerCase() == 'pro' || _tier.toLowerCase() == 'premium';
 
@@ -251,10 +271,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Text(
                     avatarText,
                     style: TextStyle(
-                      fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,
-                    avatarText,
-                    style: TextStyle(
-                      fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,
+                      fontSize: avatarText.length == 1 &&
+                              !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true)
+                                  .hasMatch(avatarText)
+                          ? 26
+                          : 22,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
                     ),
@@ -312,7 +333,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                IconButton(tooltip: 'Edit profile', onPressed: _editProfile, icon: const Icon(Icons.edit_rounded)),
+                IconButton(
+                    tooltip: 'Edit profile',
+                    onPressed: _editProfile,
+                    icon: const Icon(Icons.edit_rounded)),
               ],
             ),
           ),
