@@ -3,16 +3,16 @@ import { IBudget, IBudgetLine, IBudgetSubItem } from '../../shared/types';
 
 const budgetSubItemSchema = new Schema<IBudgetSubItem>(
   {
-    name:           { type: String, required: true, trim: true, maxlength: 100 },
+    name:           { type: String, required: true, trim: true },
     expectedAmount: { type: Number, required: true, min: 0 },
-    note:           { type: String, trim: true, maxlength: 300 },
+    note:           { type: String, trim: true },
   },
   { _id: true },
 );
 
 const budgetLineSchema = new Schema<IBudgetLine>(
   {
-    name:              { type: String, required: true, trim: true, maxlength: 100 },
+    name:              { type: String, required: true, trim: true },
     icon:              { type: String, default: '📦', maxlength: 20 },
     color:             { type: String, default: '#4A7C59', match: /^#[0-9A-Fa-f]{6}$/ },
     allocationMethod:  { type: String, enum: ['percentage', 'fixed'], required: true },
@@ -21,7 +21,7 @@ const budgetLineSchema = new Schema<IBudgetLine>(
     subItems:          { type: [budgetSubItemSchema], default: [] },
     order:             { type: Number, default: 0 },
     isActive:          { type: Boolean, default: true },
-    note:              { type: String, trim: true, maxlength: 300 },
+    note:              { type: String, trim: true },
   },
   { _id: true },
 );
@@ -34,8 +34,8 @@ const budgetSchema = new Schema<IBudget>(
     totalIncome:  { type: Number, required: true, min: 0, default: 0 },
     lines:        { type: [budgetLineSchema], default: [] },
     isTemplate:   { type: Boolean, default: false, index: true },
-    templateName: { type: String, trim: true, maxlength: 100 },
-    notes:        { type: String, trim: true, maxlength: 1000 },
+    templateName: { type: String, trim: true },
+    notes:        { type: String, trim: true },
   },
   { timestamps: true },
 );

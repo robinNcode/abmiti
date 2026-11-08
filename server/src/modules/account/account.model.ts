@@ -4,10 +4,10 @@ import { IAccount } from '../../shared/types';
 const accountSchema = new Schema<IAccount>(
   {
     user:          { type: Schema.Types.ObjectId, ref: 'User',     required: true, index: true },
-    name:          { type: String, required: true, trim: true, maxlength: 100 },
+    name:          { type: String, required: true, trim: true },
     type:          { type: String, enum: ['bank', 'mobile'],       required: true },
-    accountNumber: { type: String, trim: true, maxlength: 50 },
-    bankName:      { type: String, trim: true, maxlength: 100 },
+    accountNumber: { type: String, trim: true },
+    bankName:      { type: String, trim: true },
     provider:      { type: String, enum: ['bkash', 'nagad', 'rocket'] },
     balance:       { type: Number, required: true, default: 0 },
     isActive:      { type: Boolean, default: true },

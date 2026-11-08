@@ -5,7 +5,7 @@ import { IUser } from '../../shared/types';
 const quickExpenseSchema = new Schema(
   {
     id:             { type: String, required: true },
-    label:          { type: String, required: true, trim: true, maxlength: 100 },
+    label:          { type: String, required: true, trim: true },
     icon:           { type: String, maxlength: 20 },
     categoryId:     { type: String, default: null },
     budgetLineId:   { type: String, default: null },
@@ -16,7 +16,7 @@ const quickExpenseSchema = new Schema(
 
 const userSchema = new Schema<IUser>(
   {
-    name: { type: String, required: true, trim: true, maxlength: 80 },
+    name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, minlength: 6, select: false },
     budget: { type: Number, default: 0, min: 0 },
@@ -40,4 +40,3 @@ userSchema.methods.comparePassword = async function (candidate: string): Promise
 };
 
 export const User = mongoose.model<IUser>('User', userSchema);
-

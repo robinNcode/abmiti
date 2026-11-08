@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { getMySQLPool } from '../../database/mysql/connection';
 import { IPayableRepository } from '../../../shared/types/repositories';
 import { IPayable, IPayableInput, INetPosition } from '../../../shared/types';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 interface PayableRow extends RowDataPacket {
   id: string; user_id: string; counterparty: string;
@@ -12,7 +13,9 @@ interface PayableRow extends RowDataPacket {
   created_at: Date; updated_at: Date;
 }
 
-const toPayable = (row: PayableRow): IPayable => ({
+const toPayable = (source: PayableRow, userId: string): IPayable => {
+  const row = transformUserData(userId, source, false);
+  return ({
   _id:          row.id,
   userId:       row.user_id,
   counterparty: row.counterparty,
@@ -27,20 +30,22 @@ const toPayable = (row: PayableRow): IPayable => ({
   status:       row.status as IPayable['status'],
   createdAt:    row.created_at,
   updatedAt:    row.updated_at,
-});
+  });
+};
 
 export class MySQLPayableRepository implements IPayableRepository {
   private get pool() { return getMySQLPool(); }
 
   async create(userId: string, data: IPayableInput): Promise<IPayable> {
     const id = randomUUID();
+    const encrypted = transformUserData(userId, data, true);
     await this.pool.query(
       `INSERT INTO payables
        (id, user_id, counterparty, principal, kind, category_id, account_id, due_date, note)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, userId, data.counterparty, data.principal, data.kind,
+      [id, userId, encrypted.counterparty, data.principal, data.kind,
         data.categoryId ?? null, data.accountId ?? null,
-        data.dueDate ?? null, data.note ?? null],
+        data.dueDate ?? null, encrypted.note ?? null],
     );
     return (await this.findById(userId, id))!;
   }
@@ -50,7 +55,7 @@ export class MySQLPayableRepository implements IPayableRepository {
       'SELECT * FROM payables WHERE id = ? AND user_id = ? LIMIT 1',
       [id, userId],
     );
-    return rows[0] ? toPayable(rows[0]) : null;
+    return rows[0] ? toPayable(rows[0], userId) : null;
   }
 
   async findMany(userId: string, status?: string): Promise<IPayable[]> {
@@ -63,14 +68,15 @@ export class MySQLPayableRepository implements IPayableRepository {
           'SELECT * FROM payables WHERE user_id = ? ORDER BY status ASC, due_date ASC, created_at DESC',
           [userId],
         );
-    return rows.map(toPayable);
+    return rows.map((row) => toPayable(row, userId));
   }
 
   async update(userId: string, id: string, data: Partial<Pick<IPayableInput, 'counterparty' | 'note' | 'dueDate'>>): Promise<IPayable | null> {
+    const encrypted = transformUserData(userId, data, true);
     const fields: string[] = [];
     const vals: unknown[] = [];
-    if (data.counterparty !== undefined) { fields.push('counterparty = ?'); vals.push(data.counterparty); }
-    if (data.note         !== undefined) { fields.push('note = ?');         vals.push(data.note ?? null); }
+    if (data.counterparty !== undefined) { fields.push('counterparty = ?'); vals.push(encrypted.counterparty); }
+    if (data.note         !== undefined) { fields.push('note = ?');         vals.push(encrypted.note ?? null); }
     if (data.dueDate      !== undefined) { fields.push('due_date = ?');     vals.push(data.dueDate ?? null); }
     if (!fields.length) return this.findById(userId, id);
     vals.push(id, userId);

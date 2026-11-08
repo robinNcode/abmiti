@@ -3,8 +3,7 @@ import { IBudgetRepository } from '../../../shared/types/repositories';
 import { IBudget, IBudgetInput, IBudgetLineInput, IEntry } from '../../../shared/types';
 import { Budget } from '../../../modules/budget/budget.model';
 import { Entry } from '../../../modules/entry/entry.model';
-
-const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 const normalizeLine = (line: IBudgetLineInput, index = 0) => ({
   name: line.name,
@@ -21,7 +20,7 @@ const normalizeLine = (line: IBudgetLineInput, index = 0) => ({
 
 export class MongoBudgetRepository implements IBudgetRepository {
   async create(userId: string, data: IBudgetInput): Promise<IBudget> {
-    return Budget.create({
+    const doc = await Budget.create(transformUserData(userId, {
       user: userId,
       month: data.month,
       year: data.year,
@@ -30,7 +29,8 @@ export class MongoBudgetRepository implements IBudgetRepository {
       isTemplate: data.isTemplate ?? false,
       templateName: data.templateName,
       notes: data.notes,
-    });
+    }, true));
+    return transformUserData(userId, doc.toObject(), false) as IBudget;
   }
 
   async update(id: string, userId: string, data: Partial<IBudgetInput>): Promise<IBudget | null> {
@@ -39,20 +39,30 @@ export class MongoBudgetRepository implements IBudgetRepository {
     if (data.notes !== undefined) patch.notes = data.notes;
     if (data.templateName !== undefined) patch.templateName = data.templateName;
     if (data.lines !== undefined) patch.lines = data.lines.map(normalizeLine);
-    return Budget.findOneAndUpdate({ _id: id, user: userId }, { $set: patch }, { new: true, runValidators: true });
+    const doc = await Budget.findOneAndUpdate(
+      { _id: id, user: userId },
+      { $set: transformUserData(userId, patch, true) },
+      { new: true, runValidators: true },
+    );
+    return doc
+      ? transformUserData(userId, doc.toObject(), false) as IBudget
+      : null;
   }
 
   async findById(id: string, userId: string): Promise<IBudget | null> {
-    return Budget.findOne({ _id: id, user: userId });
+    const doc = await Budget.findOne({ _id: id, user: userId });
+    return doc ? transformUserData(userId, doc.toObject(), false) as IBudget : null;
   }
 
   async findByMonth(userId: string, month: number, year: number, isTemplate = false): Promise<IBudget | null> {
-    return Budget.findOne({ user: userId, month, year, isTemplate });
+    const doc = await Budget.findOne({ user: userId, month, year, isTemplate });
+    return doc ? transformUserData(userId, doc.toObject(), false) as IBudget : null;
   }
 
   async findMany(userId: string, templatesOnly = false): Promise<IBudget[]> {
     const query = templatesOnly ? { user: userId, isTemplate: true } : { user: userId };
-    return Budget.find(query).sort({ isTemplate: -1, year: -1, month: -1, createdAt: -1 });
+    const docs = await Budget.find(query).sort({ isTemplate: -1, year: -1, month: -1, createdAt: -1 });
+    return docs.map((doc) => transformUserData(userId, doc.toObject(), false) as IBudget);
   }
 
   async remove(id: string, userId: string): Promise<boolean> {
@@ -63,9 +73,13 @@ export class MongoBudgetRepository implements IBudgetRepository {
   async addLine(budgetId: string, userId: string, line: IBudgetLineInput): Promise<IBudget | null> {
     const budget = await Budget.findOne({ _id: budgetId, user: userId });
     if (!budget) return null;
-    budget.lines.push(normalizeLine(line, budget.lines.length) as never);
+    budget.lines.push(transformUserData(
+      userId,
+      normalizeLine(line, budget.lines.length),
+      true,
+    ) as never);
     await budget.save();
-    return budget;
+    return transformUserData(userId, budget.toObject(), false) as IBudget;
   }
 
   async updateLine(budgetId: string, lineId: string, userId: string, line: Partial<IBudgetLineInput>): Promise<IBudget | null> {
@@ -73,17 +87,20 @@ export class MongoBudgetRepository implements IBudgetRepository {
     if (!budget) return null;
     const target = budget.lines.find((item) => item._id.toString() === lineId);
     if (!target) return null;
-    Object.assign(target, line);
+    Object.assign(target, transformUserData(userId, line, true));
     await budget.save();
-    return budget;
+    return transformUserData(userId, budget.toObject(), false) as IBudget;
   }
 
   async removeLine(budgetId: string, lineId: string, userId: string): Promise<IBudget | null> {
-    return Budget.findOneAndUpdate(
+    const budget = await Budget.findOneAndUpdate(
       { _id: budgetId, user: userId },
       { $pull: { lines: { _id: new Types.ObjectId(lineId) } } },
       { new: true },
     );
+    return budget
+      ? transformUserData(userId, budget.toObject(), false) as IBudget
+      : null;
   }
 
   async reorderLines(budgetId: string, userId: string, order: string[]): Promise<IBudget | null> {
@@ -94,7 +111,7 @@ export class MongoBudgetRepository implements IBudgetRepository {
       if (index >= 0) line.order = index;
     });
     await budget.save();
-    return budget;
+    return transformUserData(userId, budget.toObject(), false) as IBudget;
   }
 
   async findExpenseEntriesByCategories(
@@ -104,20 +121,22 @@ export class MongoBudgetRepository implements IBudgetRepository {
     end: Date,
   ): Promise<IEntry[]> {
     if (!categoryIds.length) return [];
-    return Entry.find({
+    const entries = await Entry.find({
       user: userId,
       type: { $in: ['expense', 'savings', 'investment'] },
       category: { $in: categoryIds.map((id) => new Types.ObjectId(id)) },
       date: { $gte: start, $lte: end },
     }).populate('category', 'name icon color');
+    return entries.map((entry) => transformUserData(userId, entry.toObject(), false) as IEntry);
   }
 
   async findOutflowEntriesForMonth(userId: string, start: Date, end: Date): Promise<IEntry[]> {
-    return Entry.find({
+    const entries = await Entry.find({
       user: userId,
       type: { $in: ['expense', 'savings', 'investment'] },
       date: { $gte: start, $lte: end },
     }).sort({ date: -1, createdAt: -1 });
+    return entries.map((entry) => transformUserData(userId, entry.toObject(), false) as IEntry);
   }
 
   async getAggregatesForMonth(
@@ -168,46 +187,38 @@ export class MongoBudgetRepository implements IBudgetRepository {
     };
 
     // Notes are matched the same way as the SQL `LOWER(TRIM(note))` comparison.
-    const nameMatcher = (names: string[]) => names.map((name) => (
-      new RegExp(`^\\s*${escapeRegExp(name)}\\s*$`, 'i')
-    ));
+    const docs = await Entry.find(query)
+      .populate('category', 'name icon color')
+      .sort({ date: -1, createdAt: -1 });
+    const entries = docs.map((entry) =>
+      transformUserData(userId, entry.toObject(), false) as IEntry,
+    );
+    const categoryId = (entry: IEntry): string => {
+      const category = entry.category as unknown as { _id?: unknown } | string;
+      return typeof category === 'string'
+        ? category
+        : String(category?._id ?? '');
+    };
+    const normalize = (value: string): string => value.trim().toLowerCase();
+    const unmappedCategories = filters.unmappedCategoryIds ?? [];
+    const unmappedNames = (filters.unmappedSubItemNames ?? []).map(normalize);
+    const mappedCategories = filters.categoryIds ?? [];
+    const mappedNames = (filters.subItemNames ?? []).map(normalize);
+    const filtered = entries.filter((entry) => {
+      const matchesCategory = (ids: string[]) => ids.includes(categoryId(entry));
+      const matchesNote = (names: string[]) => names.includes(normalize(entry.note ?? ''));
+      if (filters.isUnbudgeted) {
+        return (!unmappedCategories.length || !matchesCategory(unmappedCategories)) &&
+          (!unmappedNames.length || !matchesNote(unmappedNames));
+      }
+      return matchesCategory(mappedCategories) || matchesNote(mappedNames);
+    });
 
-    if (filters.isUnbudgeted) {
-      const and: Record<string, unknown>[] = [];
-      const unmappedCategories = filters.unmappedCategoryIds ?? [];
-      const unmappedNames = filters.unmappedSubItemNames ?? [];
-      if (unmappedCategories.length) {
-        and.push({ category: { $nin: unmappedCategories.map((id) => new Types.ObjectId(id)) } });
-      }
-      if (unmappedNames.length) {
-        and.push({ note: { $nin: nameMatcher(unmappedNames) } });
-      }
-      if (and.length) query.$and = and;
-    } else {
-      const mappedCategories = filters.categoryIds ?? [];
-      const mappedNames = filters.subItemNames ?? [];
-      const or: Record<string, unknown>[] = [];
-      if (mappedCategories.length) {
-        or.push({ category: { $in: mappedCategories.map((id) => new Types.ObjectId(id)) } });
-      }
-      if (mappedNames.length) {
-        or.push({ note: { $in: nameMatcher(mappedNames) } });
-      }
-      // A line with no categories and no sub-items owns nothing.
-      query.$or = or.length ? or : [{ _id: { $exists: false } }];
-    }
-
-    const total = await Entry.countDocuments(query);
+    const total = filtered.length;
     const totalPages = Math.ceil(total / limit);
     const skip = (page - 1) * limit;
+    const data = filtered.slice(skip, skip + limit);
 
-    const data = await Entry.find(query)
-      .populate('category', 'name icon color')
-      .sort({ date: -1, createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    return { data: data as unknown as IEntry[], total, page, totalPages };
+    return { data, total, page, totalPages };
   }
 }
-

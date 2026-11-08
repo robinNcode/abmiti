@@ -42,7 +42,17 @@ export const categoryService = {
     const cat = await container.categoryRepo.findById(id);
     if (!cat) throw new NotFoundError('Category');
     if (String(cat.user) !== userId) throw new ForbiddenError();
-    return container.categoryRepo.update(id, dto);
+    const update = {
+      ...dto,
+      ...(dto.name === undefined ? {} : { name: dto.name.trim() }),
+    };
+    if (update.name && update.name !== cat.name) {
+      const duplicate = await container.categoryRepo.findByNameAndType(userId, update.name, cat.type);
+      if (duplicate && String(duplicate._id) !== id) {
+        throw new ConflictError('Category with this name already exists');
+      }
+    }
+    return container.categoryRepo.update(id, update);
   },
 
   async remove(userId: string, id: string): Promise<void> {
