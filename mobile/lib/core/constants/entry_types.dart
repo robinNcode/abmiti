@@ -28,7 +28,7 @@ class EntryTypes {
   static const Map<String, IconData> icons = {
     'income': Icons.arrow_downward_rounded,
     'expense': Icons.arrow_upward_rounded,
-    'savings': Icons.savings_outlined,
+    'savings': Icons.payments_outlined,
     'investment': Icons.candlestick_chart_rounded,
     'payable': Icons.payments_outlined,
     'receivable': Icons.downloading_rounded,

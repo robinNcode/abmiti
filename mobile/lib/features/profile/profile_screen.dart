@@ -252,6 +252,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     avatarText,
                     style: TextStyle(
                       fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,
+                    avatarText,
+                    style: TextStyle(
+                      fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
                     ),
