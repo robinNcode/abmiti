@@ -67,6 +67,12 @@ class SmsParserService {
     await _methods.invokeMethod<void>('removeCandidates', {'ids': ids});
   }
 
+  // TEMP TEST DATA — remove once SMS parsing has been verified.
+  Future<void> seedTestMessages() async {
+    if (!isSupported) return;
+    await _methods.invokeMethod<void>('seedTestMessages');
+  }
+
   /// Legacy drain-style API kept for backwards compatibility.
   Future<List<Map<String, dynamic>>> consumePendingCandidates() async {
     if (!isSupported) return const [];
@@ -76,10 +82,17 @@ class SmsParserService {
   }
 
   List<Map<String, dynamic>> _asCandidateList(dynamic candidates) {
-    return candidates
-            ?.whereType<Map>()
-            .map((candidate) => Map<String, dynamic>.from(candidate))
-            .toList() ??
-        const [];
+    // Build a strongly typed list instead of chaining off a `dynamic` value:
+    // dynamic dispatch makes `whereType(...).map(...).toList()` produce a
+    // `List<dynamic>`, which fails the cast to `List<Map<String, dynamic>>`.
+    final result = <Map<String, dynamic>>[];
+    if (candidates is List) {
+      for (final candidate in candidates) {
+        if (candidate is Map) {
+          result.add(Map<String, dynamic>.from(candidate));
+        }
+      }
+    }
+    return result;
   }
 }

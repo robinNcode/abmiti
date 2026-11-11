@@ -90,6 +90,11 @@ class MainActivity : FlutterActivity() {
                     SmsParserStore.remove(this, ids)
                     result.success(null)
                 }
+                // TEMP TEST DATA — remove once SMS parsing has been verified.
+                "seedTestMessages" -> {
+                    SmsParserStore.seedTestMessages(this)
+                    result.success(null)
+                }
                 "consumePendingCandidates" -> {
                     result.success(SmsParserStore.consume(this))
                 }

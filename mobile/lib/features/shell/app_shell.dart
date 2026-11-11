@@ -18,6 +18,7 @@ import '../categories/categories_screen.dart';
 import '../home/activity_tab.dart';
 import '../home/entry_form.dart';
 import '../home/overview_tab.dart';
+import '../home/sms_entry_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../payables/payables_screen.dart';
 import '../profile/profile_screen.dart';
@@ -392,6 +393,14 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
                       setState(() => _currentIndex = 1);
                     },
                   ),
+                  if (SmsParserService.instance.isSupported)
+                    _DrawerItem(
+                      icon: Icons.sms_outlined,
+                      label: loc.tr('nav_sms_entry'),
+                      onTap: () => _navigateToDrawerDestination(
+                        SmsEntryScreen(financeRepo: widget.financeRepo),
+                      ),
+                    ),
                   _DrawerItem(
                     icon: Icons.pie_chart_outline_rounded,
                     label: loc.tr('nav_budgets'),

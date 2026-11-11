@@ -69,6 +69,52 @@ class BankSmsParserTest {
     }
 
     @Test
+    fun classifiesProvidedSampleMessages() {
+        val samples = listOf(
+            Triple(
+                "BANKASIA",
+                "BDT 10000 For Transfer Amount and BDT 10 For Charge Has Been Debited. A/C Available Balance BDT 17880.25",
+                "expense",
+            ),
+            Triple(
+                "BANKASIA",
+                "BDT 3000 Has Been Transferred To A/C *********7625. A/C Available Balance BDT 14880.25",
+                "expense",
+            ),
+            Triple(
+                "BRACBANK",
+                "TK 10,000.00 credited to A/C#10824**0001 on 09-11-26 @12:12 PM from OTHER BANK. Balance TK 10,013.50. BRAC Bank.",
+                "income",
+            ),
+            Triple(
+                "BRACBANK",
+                "TK 5,000.00 has been debited from your A/C# 10824**0001 on 09-11-26. Your A/C balance is TK 5,013.50. For enquiry call: 16221",
+                "expense",
+            ),
+            Triple(
+                "BKASH",
+                "You have received deposit from iBanking of Tk 3,000.00 from Bank Asia Internet Banking. Fee Tk 0.00. Balance Tk 3,008.38. TrxID DK837ZDZO9 at 08/11/2026 17:46",
+                "income",
+            ),
+            Triple(
+                "BKASH",
+                "Congratulations! You have received Cashback Tk 25.00. Balance Tk 3,033.38. TrxID DK807ZEN8S at 08/11/2026 17:46. Thank you for availing bKash Reward Points.",
+                "income",
+            ),
+            Triple(
+                "BKASH",
+                "Bill successfully paid. Biller: 01704014601 MMYYYY/Contact: 122026 A/C: 2024031364 Amount: Tk 2,000.00 Fee: Tk 26.00 TrxID: DK837ZHJ1J at 08/11/2026 17:48",
+                "expense",
+            ),
+        )
+
+        samples.forEach { (sender, body, expectedType) ->
+            val candidate = BankSmsParser.parse(sender, body, 1_798_000_000_000)
+            assertEquals("$sender -> $body", expectedType, candidate?.type)
+        }
+    }
+
+    @Test
     fun ignoresUnsupportedSendersAndMessagesWithoutDirection() {
         assertNull(
             BankSmsParser.parse(

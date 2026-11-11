@@ -12,6 +12,7 @@ import 'features/shell/app_shell.dart';
 import 'shared/data/api_client.dart';
 import 'shared/data/auth_repository.dart';
 import 'shared/data/finance_repository.dart';
+import 'shared/services/sms_suggestions_store.dart';
 import 'shared/widgets/loading_overlay.dart';
 
 Future<void> main() async {
@@ -45,6 +46,11 @@ Future<void> main() async {
   final financeRepo = FinanceRepository(api);
   final appLocale = AppLocale(storage);
   final themeNotifier = AppThemeModeNotifier(storage);
+
+  // TEMP TEST DATA — remove once SMS parsing has been verified. Seeded here
+  // (before login / AppShell) so the suggestions are always populated on a
+  // cold start and are ready when the SMS Entry screen is opened.
+  await SmsSuggestionsStore.instance.seedTestData();
 
   runApp(AbmitiApp(
     auth: auth,

@@ -71,6 +71,7 @@ class AppLocale extends ChangeNotifier {
     'nav_analytics': 'Analytics',
     'nav_categories': 'Categories',
     'nav_reports': 'Monthly Reports',
+    'nav_sms_entry': 'SMS Entry',
     'nav_profile': 'Profile & Settings',
     'nav_sign_out': 'Sign Out',
 
@@ -426,6 +427,17 @@ class AppLocale extends ChangeNotifier {
     'sms_suggestions_ignore': 'Ignore',
     'sms_suggestions_ignore_all': 'Ignore all',
     'sms_suggestions_ignored': 'SMS suggestion ignored',
+    'sms_entry_title': 'SMS Entry',
+    'sms_entry_hint':
+        'Detected bank & MFS messages, grouped by date. Add or ignore each one.',
+    'sms_entry_empty_title': 'No SMS detected',
+    'sms_entry_empty_hint':
+        'New bank and MFS transaction messages will appear here.',
+    'sms_entry_unsupported': 'SMS detection is only available on Android.',
+    'sms_entry_today': 'Today',
+    'sms_entry_yesterday': 'Yesterday',
+    'sms_entry_ignore_all': 'Ignore all',
+    'sms_entry_ignored_all': 'All SMS suggestions ignored',
 
     // Common
     'cancel': 'Cancel',
@@ -449,6 +461,7 @@ class AppLocale extends ChangeNotifier {
     'nav_analytics': 'অ্যানালিটিক্স',
     'nav_categories': 'ক্যাটাগরি',
     'nav_reports': 'মাসিক রিপোর্ট',
+    'nav_sms_entry': 'SMS এন্ট্রি',
     'nav_profile': 'প্রোফাইল ও সেটিংস',
     'nav_sign_out': 'লগআউট',
 
@@ -805,6 +818,17 @@ class AppLocale extends ChangeNotifier {
     'sms_suggestions_ignore': 'উপেক্ষা করুন',
     'sms_suggestions_ignore_all': 'সব উপেক্ষা করুন',
     'sms_suggestions_ignored': 'SMS পরামর্শ উপেক্ষা করা হয়েছে',
+    'sms_entry_title': 'SMS এন্ট্রি',
+    'sms_entry_hint':
+        'তারিখ অনুযায়ী ব্যাংক ও MFS বার্তা। প্রতিটি যোগ করুন বা উপেক্ষা করুন।',
+    'sms_entry_empty_title': 'কোনো SMS শনাক্ত হয়নি',
+    'sms_entry_empty_hint':
+        'নতুন ব্যাংক ও MFS লেনদেনের বার্তা এখানে দেখা যাবে।',
+    'sms_entry_unsupported': 'SMS শনাক্তকরণ শুধুমাত্র অ্যান্ড্রয়েডে উপলব্ধ।',
+    'sms_entry_today': 'আজ',
+    'sms_entry_yesterday': 'গতকাল',
+    'sms_entry_ignore_all': 'সব উপেক্ষা করুন',
+    'sms_entry_ignored_all': 'সব SMS পরামর্শ উপেক্ষা করা হয়েছে',
 
     // Common
     'cancel': 'বাতিল',
