@@ -3,6 +3,7 @@ import {
   ISummaryRepository, IMonthlySummaryRow, ICategoryBreakdownRow,
   IMonthlyTrendRow, IAccountSummaryRow, ICategoryReportRow,
 } from '../../../shared/types/repositories';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 export class MySQLSummaryRepository implements ISummaryRepository {
   private get pool() { return getMySQLPool(); }
@@ -29,12 +30,15 @@ export class MySQLSummaryRepository implements ISummaryRepository {
        ORDER BY total DESC`,
       [userId, start.toISOString().split('T')[0], end.toISOString().split('T')[0]],
     );
-    return rows.map((r) => ({
+    return rows.map((source) => {
+      const r = transformUserData(userId, source, false);
+      return ({
       _id: r._id,
       total: Number(r.total),
       count: Number(r.count),
       category: { _id: r._id, name: r.name, icon: r.icon, color: r.color },
-    }));
+      });
+    });
   }
 
   async getYearlyTrend(userId: string, start: Date, end: Date): Promise<IMonthlyTrendRow[]> {
@@ -73,12 +77,15 @@ export class MySQLSummaryRepository implements ISummaryRepository {
       params,
     );
 
-    return rows.map((r) => ({
+    return rows.map((source) => {
+      const r = transformUserData(userId, source, false);
+      return ({
       _id: r._id,
       totalSavings: Number(r.totalSavings),
       count: Number(r.count),
       account: { _id: r._id, name: r.name, type: r.type, balance: Number(r.balance) },
-    }));
+      });
+    });
   }
 
   async getCategoryReport(
@@ -137,14 +144,17 @@ export class MySQLSummaryRepository implements ISummaryRepository {
       params,
     );
 
-    return rows.map((r) => ({
+    return rows.map((source) => {
+      const r = transformUserData(userId, source, false);
+      return ({
       _id: r._id,
       total: Number(r.total),
       count: Number(r.count),
       minAmount: Number(r.minAmount),
       maxAmount: Number(r.maxAmount),
       category: { _id: r._id, name: r.name, icon: r.icon, color: r.color },
-    }));
+      });
+    });
   }
 
   async getTransactionStatement(
@@ -190,7 +200,8 @@ export class MySQLSummaryRepository implements ISummaryRepository {
 
     // Calculate running balance
     let balance = 0;
-    return rows.map((r: any) => {
+    return rows.map((source: any) => {
+      const r = transformUserData(userId, source, false);
       // Income adds, expenses/investments subtract
       if (r.type === 'income' || r.type === 'receivable') {
         balance += Number(r.amount);

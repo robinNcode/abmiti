@@ -76,6 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadSmsParserStatus() async {
     if (!_supportsSmsParser) return;
+    if (!_supportsSmsParser) return;
     try {
       final status = await SmsParserService.instance.getStatus();
       if (mounted) {
@@ -249,9 +250,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   radius: 32,
                   backgroundColor: AppColors.terra,
                   child: Text(
-                    avatarText,
-                    style: TextStyle(
-                      fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,
                     avatarText,
                     style: TextStyle(
                       fontSize: avatarText.length == 1 && !RegExp(r'[\u{1F300}-\u{1FAFF}]', unicode: true).hasMatch(avatarText) ? 26 : 22,

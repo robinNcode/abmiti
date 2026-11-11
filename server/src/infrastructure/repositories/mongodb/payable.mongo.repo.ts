@@ -4,8 +4,11 @@ import { IPayableRepository } from '../../../shared/types/repositories';
 import { IPayable, IPayableInput, INetPosition } from '../../../shared/types';
 import { Account } from '../../../modules/account/account.model';
 import { Entry } from '../../../modules/entry/entry.model';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
-const toPayable = (doc: any): IPayable => ({
+const toPayable = (source: any): IPayable => {
+  const doc = transformUserData(String(source.user), source.toObject(), false);
+  return ({
   _id:          doc._id.toString(),
   userId:       doc.user.toString(),
   counterparty: doc.counterparty,
@@ -20,19 +23,19 @@ const toPayable = (doc: any): IPayable => ({
   status:       doc.status,
   createdAt:    doc.createdAt,
   updatedAt:    doc.updatedAt,
-});
+  });
+};
 
 export class MongoPayableRepository implements IPayableRepository {
   async create(userId: string, data: IPayableInput): Promise<IPayable> {
     const doc = await Payable.create({
+      ...transformUserData(userId, data, true),
       user:         new Types.ObjectId(userId),
-      counterparty: data.counterparty,
       principal:    data.principal,
       kind:         data.kind,
       categoryId:   data.categoryId ? new Types.ObjectId(data.categoryId) : null,
       accountId:    data.accountId  ? new Types.ObjectId(data.accountId)  : null,
       dueDate:      data.dueDate    ? new Date(data.dueDate)              : null,
-      note:         data.note,
     });
     return toPayable(doc);
   }
@@ -51,8 +54,9 @@ export class MongoPayableRepository implements IPayableRepository {
 
   async update(userId: string, id: string, data: Partial<Pick<IPayableInput, 'counterparty' | 'note' | 'dueDate'>>): Promise<IPayable | null> {
     const upd: any = {};
-    if (data.counterparty !== undefined) upd.counterparty = data.counterparty;
-    if (data.note         !== undefined) upd.note         = data.note ?? '';
+    const encrypted = transformUserData(userId, data, true);
+    if (data.counterparty !== undefined) upd.counterparty = encrypted.counterparty;
+    if (data.note         !== undefined) upd.note         = encrypted.note ?? '';
     if (data.dueDate      !== undefined) upd.dueDate      = data.dueDate ? new Date(data.dueDate) : null;
     const doc = await Payable.findOneAndUpdate({ _id: id, user: userId }, upd, { new: true });
     return doc ? toPayable(doc) : null;

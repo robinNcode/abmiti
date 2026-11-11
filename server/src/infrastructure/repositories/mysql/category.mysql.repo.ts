@@ -2,13 +2,16 @@ import { v4 as uuid } from 'uuid';
 import { getMySQLPool } from '../../database/mysql/connection';
 import { ICategory, ICategoryInput, EntryType } from '../../../shared/types';
 import { ICategoryRepository } from '../../../shared/types/repositories';
+import { transformUserData, userDataLookupHash } from '../../../shared/utils/userDataEncryption';
 
 type CategoryRow = {
   id: string; user_id: string; name: string; icon: string; color: string;
   type: string; is_default: number; created_at: Date;
 };
 
-const toICategory = (row: CategoryRow): ICategory => ({
+const toICategory = (source: CategoryRow): ICategory => {
+  const row = transformUserData(source.user_id, source, false);
+  return ({
   _id:       row.id as any,
   user:      row.user_id as any,
   name:      row.name,
@@ -17,18 +20,21 @@ const toICategory = (row: CategoryRow): ICategory => ({
   type:      row.type as EntryType,
   isDefault: Boolean(row.is_default),
   createdAt: row.created_at,
-} as unknown as ICategory);
+  } as unknown as ICategory);
+};
 
 export class MySQLCategoryRepository implements ICategoryRepository {
   private get pool() { return getMySQLPool(); }
 
   async findByUser(userId: string, type?: EntryType): Promise<ICategory[]> {
     const sql = type
-      ? 'SELECT * FROM categories WHERE user_id = ? AND type = ? ORDER BY is_default DESC, name ASC'
-      : 'SELECT * FROM categories WHERE user_id = ? ORDER BY is_default DESC, name ASC';
+      ? 'SELECT * FROM categories WHERE user_id = ? AND type = ?'
+      : 'SELECT * FROM categories WHERE user_id = ?';
     const params = type ? [userId, type] : [userId];
     const [rows] = await this.pool.execute<any[]>(sql, params);
-    return rows.map(toICategory);
+    return rows.map(toICategory).sort((a, b) =>
+      Number(b.isDefault) - Number(a.isDefault) || a.name.localeCompare(b.name),
+    );
   }
 
   async findById(id: string): Promise<ICategory | null> {
@@ -47,8 +53,8 @@ export class MySQLCategoryRepository implements ICategoryRepository {
 
   async findByNameAndType(userId: string, name: string, type: EntryType): Promise<ICategory | null> {
     const [rows] = await this.pool.execute<any[]>(
-      'SELECT * FROM categories WHERE user_id = ? AND name = ? AND type = ? LIMIT 1',
-      [userId, name, type],
+      'SELECT * FROM categories WHERE user_id = ? AND name_lookup_hash = ? AND type = ? LIMIT 1',
+      [userId, userDataLookupHash(userId, name), type],
     );
     return rows[0] ? toICategory(rows[0]) : null;
   }
@@ -57,9 +63,11 @@ export class MySQLCategoryRepository implements ICategoryRepository {
     const conn = await this.pool.getConnection();
     try {
       for (const doc of docs) {
+        if (await this.findByNameAndType(doc.user, doc.name, doc.type)) continue;
+        const encrypted = transformUserData(doc.user, doc, true);
         await conn.execute(
-          'INSERT IGNORE INTO categories (id, user_id, name, icon, color, type, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [uuid(), doc.user, doc.name, doc.icon, doc.color, doc.type, doc.isDefault ? 1 : 0],
+          'INSERT IGNORE INTO categories (id, user_id, name, name_lookup_hash, icon, color, type, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [uuid(), doc.user, encrypted.name, userDataLookupHash(doc.user, doc.name), doc.icon, doc.color, doc.type, doc.isDefault ? 1 : 0],
         );
       }
     } finally {
@@ -69,17 +77,27 @@ export class MySQLCategoryRepository implements ICategoryRepository {
 
   async create(data: ICategoryInput & { user: string }): Promise<ICategory> {
     const id = uuid();
+    const encrypted = transformUserData(data.user, data, true);
     await this.pool.execute(
-      'INSERT INTO categories (id, user_id, name, icon, color, type, is_default) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [id, data.user, data.name, data.icon, data.color, data.type, data.isDefault ? 1 : 0],
+      'INSERT INTO categories (id, user_id, name, name_lookup_hash, icon, color, type, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [id, data.user, encrypted.name, userDataLookupHash(data.user, data.name), data.icon, data.color, data.type, data.isDefault ? 1 : 0],
     );
     return (await this.findById(id))!;
   }
 
   async update(id: string, data: Partial<{ name: string; icon: string; color: string }>): Promise<ICategory> {
+    const [ownerRows] = await this.pool.execute<any[]>(
+      'SELECT user_id FROM categories WHERE id = ? LIMIT 1',
+      [id],
+    );
+    if (!ownerRows[0]) throw new Error('Category not found');
+    const encrypted = transformUserData(String(ownerRows[0].user_id), data, true);
     const fields: string[] = [];
     const vals:   any[] = [];
-    if (data.name  !== undefined) { fields.push('name = ?');  vals.push(data.name); }
+    if (data.name  !== undefined) {
+      fields.push('name = ?', 'name_lookup_hash = ?');
+      vals.push(encrypted.name, userDataLookupHash(String(ownerRows[0].user_id), data.name));
+    }
     if (data.icon  !== undefined) { fields.push('icon = ?');  vals.push(data.icon); }
     if (data.color !== undefined) { fields.push('color = ?'); vals.push(data.color); }
     if (fields.length) {

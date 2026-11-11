@@ -3,6 +3,7 @@ import { NotFoundError, BadRequestError } from '../../shared/utils/errors';
 import { IReceivable, IReceivableInput, IReceivableCollectInput, ReceivableStatus } from '../../shared/types';
 import { env } from '../../config/env';
 import { Types } from 'mongoose';
+import { transformUserData } from '../../shared/utils/userDataEncryption';
 
 const SETTLEMENT_CATEGORY_NAME = 'Receivable Collection';
 
@@ -40,16 +41,20 @@ export const receivableService = {
     let payments: unknown[] = [];
     if (isMongo) {
       const { Entry } = await import('../entry/entry.model');
-      payments = await Entry.find({ user: new Types.ObjectId(userId), receivable: new Types.ObjectId(id) })
+      const rows = await Entry.find({ user: new Types.ObjectId(userId), receivable: new Types.ObjectId(id) })
         .sort({ date: -1 })
-        .lean() as any;
+        .lean();
+      payments = rows.map((row) => transformUserData(userId, row, false));
     } else {
       const pool = (await import('../../infrastructure/database/mysql/connection')).getMySQLPool();
       const [rows] = await pool.query<any[]>(
         'SELECT * FROM entries WHERE user_id = ? AND receivable_id = ? ORDER BY date DESC',
         [userId, id],
       );
-      payments = rows.map((r) => ({ ...r, _id: r.id }));
+      payments = rows.map((source) => ({
+        ...transformUserData(userId, source, false),
+        _id: source.id,
+      }));
     }
 
     return { ...item, payments };

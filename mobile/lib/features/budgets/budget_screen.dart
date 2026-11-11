@@ -499,7 +499,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 TextField(
                   controller: noteController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Note',
                     hintText: 'Optional line note',
                   ),
@@ -521,9 +521,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Sub-items',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     TextButton.icon(
                       onPressed: () => setDialogState(() {
