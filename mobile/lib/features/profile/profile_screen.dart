@@ -11,6 +11,7 @@ import '../../core/theme/theme_notifier.dart';
 import '../../shared/data/api_client.dart';
 import '../../shared/data/auth_repository.dart';
 import '../../shared/services/sms_parser_service.dart';
+import '../../shared/services/sms_suggestions_store.dart';
 import '../../shared/widgets/sms_parser_consent_dialog.dart';
 import '../../shared/widgets/glossy_card.dart';
 
@@ -102,6 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       try {
         await service.recordConsent(false);
         await service.setEnabled(false);
+        await SmsSuggestionsStore.instance.refresh();
         if (mounted) setState(() => _smsParserEnabled = false);
       } on PlatformException catch (error) {
         _showSmsParserError(error.message);
@@ -118,6 +120,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await service.recordConsent(true);
       final permissionGranted = await service.requestPermission();
       final active = permissionGranted && await service.setEnabled(true);
+      if (active) {
+        await SmsSuggestionsStore.instance.init();
+        await SmsSuggestionsStore.instance.refresh();
+      }
       if (mounted) {
         setState(() => _smsParserEnabled = active);
         if (!active) {

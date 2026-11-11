@@ -32,6 +32,43 @@ class BankSmsParserTest {
     }
 
     @Test
+    fun parsesOutgoingTransferToAnotherAccount() {
+        val candidate = BankSmsParser.parse(
+            "BANKASIA",
+            "BDT 3000 Has Been Transferred To A/C *********7625. A/C Available Balance BDT 14880.25",
+            1_798_000_000_000,
+        )
+
+        assertEquals("Bank Asia", candidate?.provider)
+        assertEquals("expense", candidate?.type)
+        assertEquals(3000.0, candidate?.amount ?: 0.0, 0.0)
+    }
+
+    @Test
+    fun classifiesDpsInstallmentAsSavings() {
+        val candidate = BankSmsParser.parse(
+            "BRACBANK",
+            "DPS installment of Tk 5,000.00 has been debited from your A/C. Balance Tk 1,000.00.",
+            1_798_000_000_000,
+        )
+
+        assertEquals("savings", candidate?.type)
+        assertEquals(5000.0, candidate?.amount ?: 0.0, 0.0)
+    }
+
+    @Test
+    fun classifiesFdrCreationAsSavings() {
+        val candidate = BankSmsParser.parse(
+            "BRACBANK",
+            "FDR of Tk 100,000.00 has been created from your A/C. Balance Tk 1,000.00.",
+            1_798_000_000_000,
+        )
+
+        assertEquals("savings", candidate?.type)
+        assertEquals(100000.0, candidate?.amount ?: 0.0, 0.0)
+    }
+
+    @Test
     fun ignoresUnsupportedSendersAndMessagesWithoutDirection() {
         assertNull(
             BankSmsParser.parse(

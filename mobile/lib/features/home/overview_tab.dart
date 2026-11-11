@@ -13,6 +13,7 @@ import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/shimmer_loading.dart';
 import '../../shared/widgets/stat_chip.dart';
 import 'entry_form.dart';
+import 'sms_suggestions_section.dart';
 
 /// Overview Dashboard Tab with glossy hero card, pastel stat chips,
 /// budget utilization progress, and recent entries.
@@ -517,6 +518,12 @@ class _OverviewTabState extends State<OverviewTab> {
             },
           ),
           const SizedBox(height: 20),
+
+          // ── SMS Transaction Suggestions ────────────────────────────
+          SmsSuggestionsSection(
+            financeRepo: widget.financeRepo,
+            onEntryCreated: _loadData,
+          ),
 
           // ── Pastel Quick Metric Chips ──────────────────────────────
           Row(

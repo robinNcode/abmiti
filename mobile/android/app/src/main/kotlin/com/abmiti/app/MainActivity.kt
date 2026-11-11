@@ -82,6 +82,14 @@ class MainActivity : FlutterActivity() {
                     }
                     result.success(permitted)
                 }
+                "getPendingCandidates" -> {
+                    result.success(SmsParserStore.getAll(this))
+                }
+                "removeCandidates" -> {
+                    val ids = call.argument<List<String>>("ids") ?: emptyList()
+                    SmsParserStore.remove(this, ids)
+                    result.success(null)
+                }
                 "consumePendingCandidates" -> {
                     result.success(SmsParserStore.consume(this))
                 }

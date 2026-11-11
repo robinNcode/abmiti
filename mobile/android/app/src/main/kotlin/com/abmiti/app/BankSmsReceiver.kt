@@ -3,7 +3,9 @@ package com.robinncode.abmiti
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.provider.Telephony
+import java.util.Calendar
 
 internal class BankSmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -34,62 +36,96 @@ internal class BankSmsReceiver : BroadcastReceiver() {
 
 internal object SmsParserStore {
     private const val MAX_PENDING_CANDIDATES = 25
+
     @Volatile
     var eventSink: io.flutter.plugin.common.EventChannel.EventSink? = null
 
     fun enqueue(context: Context, candidate: BankSmsCandidate) {
-        val preferences =
-            context.getSharedPreferences(BankSmsReceiver.PREFERENCES, Context.MODE_PRIVATE)
+        val preferences = preferences(context)
         synchronized(this) {
-            val pending = mutableListOf<BankSmsCandidate>()
-            val stored = preferences.getString(BankSmsReceiver.KEY_PENDING, null)
-            if (stored != null) {
-                val array = org.json.JSONArray(stored)
-                for (index in 0 until array.length()) {
-                    val json = array.optJSONObject(index) ?: continue
-                    pending.add(
-                        BankSmsCandidate(
-                            id = json.optString("id"),
-                            provider = json.optString("provider"),
-                            amount = json.optDouble("amount"),
-                            type = json.optString("type"),
-                            receivedAt = json.optLong("receivedAt"),
-                            note = json.optString("note"),
-                        ),
-                    )
-                }
-            }
+            val pending = readAll(preferences).toMutableList()
             if (pending.any { it.id == candidate.id }) return
             pending.add(candidate)
-            val array = org.json.JSONArray()
-            pending.takeLast(MAX_PENDING_CANDIDATES).forEach { item ->
-                array.put(org.json.JSONObject(item.toMap()))
-            }
-            preferences.edit().putString(BankSmsReceiver.KEY_PENDING, array.toString()).apply()
+            // Only today's detections are surfaced, so drop anything older.
+            write(preferences, pending.filter { isToday(it.receivedAt) })
         }
         eventSink?.success(null)
     }
 
-    fun consume(context: Context): List<Map<String, Any>> {
-        val preferences =
-            context.getSharedPreferences(BankSmsReceiver.PREFERENCES, Context.MODE_PRIVATE)
+    /**
+     * Returns the stored suggestions without removing them, so the dashboard can
+     * keep showing them until the user confirms or ignores each one.
+     */
+    fun getAll(context: Context): List<Map<String, Any>> {
+        val preferences = preferences(context)
         synchronized(this) {
-            val stored = preferences.getString(BankSmsReceiver.KEY_PENDING, null)
-                ?: return emptyList()
-            preferences.edit().remove(BankSmsReceiver.KEY_PENDING).apply()
-            val array = org.json.JSONArray(stored)
-            return (0 until array.length()).mapNotNull { index ->
-                val json = array.optJSONObject(index) ?: return@mapNotNull null
-                val candidate = mapOf(
-                    "id" to json.optString("id"),
-                    "provider" to json.optString("provider"),
-                    "amount" to json.optDouble("amount"),
-                    "type" to json.optString("type"),
-                    "receivedAt" to json.optLong("receivedAt"),
-                    "note" to json.optString("note"),
-                )
-                candidate
-            }
+            val pending = readAll(preferences)
+            val today = pending.filter { isToday(it.receivedAt) }
+            if (today.size != pending.size) write(preferences, today)
+            return today.map { it.toMap() }
         }
+    }
+
+    fun remove(context: Context, ids: Collection<String>) {
+        if (ids.isEmpty()) return
+        val preferences = preferences(context)
+        synchronized(this) {
+            val remaining = readAll(preferences).filterNot { ids.contains(it.id) }
+            write(preferences, remaining)
+        }
+    }
+
+    /** Legacy drain-style API kept for backwards compatibility. */
+    fun consume(context: Context): List<Map<String, Any>> {
+        val preferences = preferences(context)
+        synchronized(this) {
+            val pending = readAll(preferences).filter { isToday(it.receivedAt) }
+            write(preferences, emptyList())
+            return pending.map { it.toMap() }
+        }
+    }
+
+    private fun preferences(context: Context): SharedPreferences =
+        context.getSharedPreferences(BankSmsReceiver.PREFERENCES, Context.MODE_PRIVATE)
+
+    private fun readAll(preferences: SharedPreferences): List<BankSmsCandidate> {
+        val stored = preferences.getString(BankSmsReceiver.KEY_PENDING, null)
+            ?: return emptyList()
+        val array = org.json.JSONArray(stored)
+        val pending = mutableListOf<BankSmsCandidate>()
+        for (index in 0 until array.length()) {
+            val json = array.optJSONObject(index) ?: continue
+            pending.add(
+                BankSmsCandidate(
+                    id = json.optString("id"),
+                    provider = json.optString("provider"),
+                    amount = json.optDouble("amount"),
+                    type = json.optString("type"),
+                    receivedAt = json.optLong("receivedAt"),
+                    note = json.optString("note"),
+                ),
+            )
+        }
+        return pending
+    }
+
+    private fun write(preferences: SharedPreferences, candidates: List<BankSmsCandidate>) {
+        if (candidates.isEmpty()) {
+            preferences.edit().remove(BankSmsReceiver.KEY_PENDING).apply()
+            return
+        }
+        val array = org.json.JSONArray()
+        candidates.takeLast(MAX_PENDING_CANDIDATES).forEach { item ->
+            array.put(org.json.JSONObject(item.toMap()))
+        }
+        preferences.edit().putString(BankSmsReceiver.KEY_PENDING, array.toString()).apply()
+    }
+
+    private fun isToday(millis: Long): Boolean {
+        if (millis <= 0L) return false
+        val now = Calendar.getInstance()
+        val then = Calendar.getInstance().apply { timeInMillis = millis }
+        return now.get(Calendar.YEAR) == then.get(Calendar.YEAR) &&
+            now.get(Calendar.DAY_OF_YEAR) == then.get(Calendar.DAY_OF_YEAR)
     }
 }

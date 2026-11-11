@@ -51,10 +51,31 @@ class SmsParserService {
         false;
   }
 
+  /// Reads the detected suggestions without clearing them, so they remain on
+  /// the dashboard until the user confirms or ignores each one.
+  Future<List<Map<String, dynamic>>> getPendingCandidates() async {
+    if (!isSupported) return const [];
+    final candidates =
+        await _methods.invokeListMethod<dynamic>('getPendingCandidates');
+    return _asCandidateList(candidates);
+  }
+
+  Future<void> removeCandidate(String id) => removeCandidates([id]);
+
+  Future<void> removeCandidates(List<String> ids) async {
+    if (!isSupported || ids.isEmpty) return;
+    await _methods.invokeMethod<void>('removeCandidates', {'ids': ids});
+  }
+
+  /// Legacy drain-style API kept for backwards compatibility.
   Future<List<Map<String, dynamic>>> consumePendingCandidates() async {
     if (!isSupported) return const [];
     final candidates =
         await _methods.invokeListMethod<dynamic>('consumePendingCandidates');
+    return _asCandidateList(candidates);
+  }
+
+  List<Map<String, dynamic>> _asCandidateList(dynamic candidates) {
     return candidates
             ?.whereType<Map>()
             .map((candidate) => Map<String, dynamic>.from(candidate))

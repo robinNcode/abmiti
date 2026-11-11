@@ -419,6 +419,13 @@ class AppLocale extends ChangeNotifier {
     'sms_permission_denied':
         'SMS permission was not granted. You can enable suggestions in Profile & Settings.',
     'sms_setup_error': 'Could not set up SMS transaction suggestions.',
+    'sms_suggestions_title': 'Detected from SMS',
+    'sms_suggestions_hint':
+        'Review today\'s bank & MFS messages, then add or ignore each one.',
+    'sms_suggestions_entry': 'Add entry',
+    'sms_suggestions_ignore': 'Ignore',
+    'sms_suggestions_ignore_all': 'Ignore all',
+    'sms_suggestions_ignored': 'SMS suggestion ignored',
 
     // Common
     'cancel': 'Cancel',
@@ -791,6 +798,13 @@ class AppLocale extends ChangeNotifier {
     'sms_permission_denied':
         'SMS অনুমতি দেওয়া হয়নি। প্রোফাইল ও সেটিংস থেকে পরামর্শ চালু করতে পারবেন।',
     'sms_setup_error': 'SMS লেনদেন পরামর্শ চালু করা যায়নি।',
+    'sms_suggestions_title': 'SMS থেকে শনাক্ত',
+    'sms_suggestions_hint':
+        'আজকের ব্যাংক ও MFS বার্তা যাচাই করে প্রতিটি যোগ করুন বা উপেক্ষা করুন।',
+    'sms_suggestions_entry': 'লেনদেন যোগ করুন',
+    'sms_suggestions_ignore': 'উপেক্ষা করুন',
+    'sms_suggestions_ignore_all': 'সব উপেক্ষা করুন',
+    'sms_suggestions_ignored': 'SMS পরামর্শ উপেক্ষা করা হয়েছে',
 
     // Common
     'cancel': 'বাতিল',
