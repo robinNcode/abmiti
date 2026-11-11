@@ -67,8 +67,28 @@ export const validate = (req: Request, _res: Response, next: NextFunction): void
 
 // ── Rate limiter ─────────────────────────────────────────────
 export const rateLimiter = rateLimit({
-  windowMs: env.RATE_LIMIT_WINDOW_MS,
+  windowMs: 60_000,
   max: env.NODE_ENV === 'development' ? 5000 : env.RATE_LIMIT_MAX,
+  keyGenerator: (req) => {
+    const header = req.headers.authorization;
+    if (header?.startsWith('Bearer ')) {
+      try {
+        const decoded = jwt.verify(header.slice(7), env.JWT_SECRET);
+        if (
+          typeof decoded === 'object' &&
+          decoded !== null &&
+          !Array.isArray(decoded) &&
+          typeof decoded.userId === 'string' &&
+          decoded.userId
+        ) {
+          return `user:${decoded.userId}`;
+        }
+      } catch {
+        // Invalid tokens are still rate-limited by IP.
+      }
+    }
+    return `ip:${req.ip}`;
+  },
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later.' },

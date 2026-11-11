@@ -5,6 +5,7 @@ import {
 } from '../../../shared/types';
 import { IEntryRepository } from '../../../shared/types/repositories';
 import { buildPaginatedResult } from '../../../shared/utils/pagination';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 const buildQuery = (userId: string, filters: IEntryFilters): FilterQuery<IEntry> => {
   const q: FilterQuery<IEntry> = { user: userId };
@@ -43,30 +44,42 @@ export class MongoEntryRepository implements IEntryRepository {
       Entry.countDocuments(query),
     ]);
 
-    return buildPaginatedResult(data, total, pagination);
+    return buildPaginatedResult(
+      data.map((entry) => transformUserData(userId, entry.toObject(), false) as IEntry),
+      total,
+      pagination,
+    );
   }
 
   async findById(id: string, userId: string): Promise<IEntry | null> {
-    return Entry.findOne({ _id: id, user: userId })
+    const entry = await Entry.findOne({ _id: id, user: userId })
       .populate('category', 'name icon color')
       .populate('account',  'name type accountNumber bankName provider balance');
+    return entry
+      ? transformUserData(userId, entry.toObject(), false) as IEntry
+      : null;
   }
 
   async create(data: Partial<IEntry>): Promise<IEntry> {
-    const entry = await Entry.create(data);
-    return Entry.findById(entry._id)
+    const userId = String(data.user);
+    const entry = await Entry.create(transformUserData(userId, data, true));
+    const result = await Entry.findById(entry._id)
       .populate('category', 'name icon color')
-      .populate('account',  'name type accountNumber bankName provider balance') as Promise<IEntry>;
+      .populate('account',  'name type accountNumber bankName provider balance');
+    return transformUserData(userId, result?.toObject(), false) as IEntry;
   }
 
   async update(id: string, userId: string, data: Partial<IEntry>): Promise<IEntry | null> {
-    return Entry.findOneAndUpdate(
+    const entry = await Entry.findOneAndUpdate(
       { _id: id, user: userId },
-      { $set: data },
+      { $set: transformUserData(userId, data, true) },
       { new: true, runValidators: true },
     )
       .populate('category', 'name icon color')
       .populate('account',  'name type accountNumber bankName provider balance');
+    return entry
+      ? transformUserData(userId, entry.toObject(), false) as IEntry
+      : null;
   }
 
   async remove(id: string, userId: string): Promise<boolean> {

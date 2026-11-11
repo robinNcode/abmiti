@@ -251,6 +251,7 @@ MYSQL_PASSWORD=
 MYSQL_DATABASE=abmiti
 JWT_SECRET=
 JWT_REFRESH_SECRET=
+DATA_ENCRYPTION_KEY=  # generate once with: openssl rand -base64 32
 CLIENT_URLS=http://localhost:5173,http://localhost:4173
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -261,7 +262,11 @@ SSLCOMMERZ_STORE_PASSWORD=
 SSLCOMMERZ_SANDBOX=true
 ```
 
-MySQL migrations live in `server/src/infrastructure/database/mysql/migrations/` (`000` … `013`). `npm run migrate:mysql` applies them in order. You can also load the full `schema.sql` on a fresh database.
+MySQL migrations live in `server/src/infrastructure/database/mysql/migrations/`. `npm run migrate:mysql` applies them in order. You can also load the full `schema.sql` on a fresh database.
+
+The API encrypts user-owned profile, category, account, entry text, budget text, payable, and receivable fields with AES-256-GCM and a key derived per user. Amounts, dates, types, and relationship identifiers remain readable for existing filters and reports. Email and Google IDs remain readable for authentication. The server must have `DATA_ENCRYPTION_KEY` set to a persistent base64-encoded 32-byte key; keep a protected backup and do not rotate or lose it without re-encrypting the database. The running server can decrypt these fields, so this protects database copies, not a compromised application server.
+
+Before deploying, back up the database, set the same encryption key on every server instance, apply MySQL migration `019` when using MySQL, then run `npm run encrypt:existing-data` once to encrypt existing records. This command is safe to rerun. MongoDB deployments should also run it once to encrypt their existing records and remove the old category-name unique index. Rate limiting is keyed by verified user ID (IP fallback for unauthenticated requests), with a 60-second window and the configured `RATE_LIMIT_MAX`.
 
 ### Client
 

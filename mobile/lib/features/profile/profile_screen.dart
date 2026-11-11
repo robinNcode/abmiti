@@ -77,6 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadSmsParserStatus() async {
     if (!_supportsSmsParser) return;
+    if (!_supportsSmsParser) return;
     try {
       final status = await SmsParserService.instance.getStatus();
       if (mounted) {

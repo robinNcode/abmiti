@@ -33,7 +33,7 @@ void main() {
           body: StatChip(
             label: 'Total Savings',
             amount: '৳25,000',
-            icon: Icons.savings_outlined,
+            icon: Icons.payments_outlined,
           ),
         ),
       ),
@@ -41,7 +41,7 @@ void main() {
 
     expect(find.text('Total Savings'), findsOneWidget);
     expect(find.text('৳25,000'), findsOneWidget);
-    expect(find.byIcon(Icons.savings_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.payments_outlined), findsOneWidget);
   });
 
   testWidgets('MonthYearPicker responds to previous and next month buttons',

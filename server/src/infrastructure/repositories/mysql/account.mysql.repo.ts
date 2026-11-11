@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { getMySQLPool } from '../../database/mysql/connection';
 import { IAccount, IAccountInput } from '../../../shared/types';
 import { IAccountRepository } from '../../../shared/types/repositories';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 type AccountRow = {
   id: string; user_id: string; name: string; type: string;
@@ -10,7 +11,9 @@ type AccountRow = {
   is_active: number; created_at: Date; updated_at: Date;
 };
 
-const toIAccount = (row: AccountRow): IAccount => ({
+const toIAccount = (source: AccountRow, userId: string): IAccount => {
+  const row = transformUserData(userId, source, false);
+  return ({
   _id:           row.id as any,
   user:          row.user_id as any,
   name:          row.name,
@@ -22,20 +25,22 @@ const toIAccount = (row: AccountRow): IAccount => ({
   isActive:      Boolean(row.is_active),
   createdAt:     row.created_at,
   updatedAt:     row.updated_at,
-} as unknown as IAccount);
+  } as unknown as IAccount);
+};
 
 export class MySQLAccountRepository implements IAccountRepository {
   private get pool() { return getMySQLPool(); }
 
   async create(data: IAccountInput & { user: string }): Promise<IAccount> {
     const id = uuid();
+    const encrypted = transformUserData(data.user, data, true);
     await this.pool.execute(
       `INSERT INTO accounts (id, user_id, name, type, account_number, bank_name, provider, balance, is_active)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        id, data.user, data.name, data.type,
-        data.accountNumber ?? null,
-        data.bankName ?? null,
+        id, data.user, encrypted.name, data.type,
+        encrypted.accountNumber ?? null,
+        encrypted.bankName ?? null,
         data.provider ?? null,
         data.balance ?? 0,
         data.isActive ? 1 : 0,
@@ -49,7 +54,7 @@ export class MySQLAccountRepository implements IAccountRepository {
       'SELECT * FROM accounts WHERE user_id = ? AND is_active = 1 ORDER BY created_at DESC',
       [userId],
     );
-    return rows.map(toIAccount);
+    return rows.map((row) => toIAccount(row, userId));
   }
 
   async findById(userId: string, accountId: string): Promise<IAccount | null> {
@@ -57,16 +62,17 @@ export class MySQLAccountRepository implements IAccountRepository {
       'SELECT * FROM accounts WHERE id = ? AND user_id = ? LIMIT 1',
       [accountId, userId],
     );
-    return rows[0] ? toIAccount(rows[0]) : null;
+    return rows[0] ? toIAccount(rows[0], userId) : null;
   }
 
   async update(userId: string, accountId: string, data: Partial<IAccountInput>): Promise<IAccount | null> {
+    const encrypted = transformUserData(userId, data, true);
     const fields: string[] = [];
     const vals:   any[] = [];
-    if (data.name          !== undefined) { fields.push('name = ?');           vals.push(data.name); }
+    if (data.name          !== undefined) { fields.push('name = ?');           vals.push(encrypted.name); }
     if (data.type          !== undefined) { fields.push('type = ?');           vals.push(data.type); }
-    if (data.accountNumber !== undefined) { fields.push('account_number = ?'); vals.push(data.accountNumber ?? null); }
-    if (data.bankName      !== undefined) { fields.push('bank_name = ?');      vals.push(data.bankName ?? null); }
+    if (data.accountNumber !== undefined) { fields.push('account_number = ?'); vals.push(encrypted.accountNumber ?? null); }
+    if (data.bankName      !== undefined) { fields.push('bank_name = ?');      vals.push(encrypted.bankName ?? null); }
     if (data.provider      !== undefined) { fields.push('provider = ?');       vals.push(data.provider ?? null); }
     if (data.balance       !== undefined) { fields.push('balance = ?');        vals.push(data.balance); }
     if (data.isActive      !== undefined) { fields.push('is_active = ?');      vals.push(data.isActive ? 1 : 0); }

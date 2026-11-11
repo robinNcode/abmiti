@@ -2,8 +2,11 @@ import { Types } from 'mongoose';
 import { Receivable } from '../../../modules/receivable/receivable.model';
 import { IReceivableRepository } from '../../../shared/types/repositories';
 import { IReceivable, IReceivableInput } from '../../../shared/types';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
-const toReceivable = (doc: any): IReceivable => ({
+const toReceivable = (source: any): IReceivable => {
+  const doc = transformUserData(String(source.user), source.toObject(), false);
+  return ({
   _id:            doc._id.toString(),
   userId:         doc.user.toString(),
   counterparty:   doc.counterparty,
@@ -18,19 +21,19 @@ const toReceivable = (doc: any): IReceivable => ({
   status:         doc.status,
   createdAt:      doc.createdAt,
   updatedAt:      doc.updatedAt,
-});
+  });
+};
 
 export class MongoReceivableRepository implements IReceivableRepository {
   async create(userId: string, data: IReceivableInput): Promise<IReceivable> {
     const doc = await Receivable.create({
+      ...transformUserData(userId, data, true),
       user:         new Types.ObjectId(userId),
-      counterparty: data.counterparty,
       principal:    data.principal,
       kind:         data.kind,
       categoryId:   data.categoryId ? new Types.ObjectId(data.categoryId) : null,
       accountId:    data.accountId  ? new Types.ObjectId(data.accountId)  : null,
       dueDate:      data.dueDate    ? new Date(data.dueDate)              : null,
-      note:         data.note,
     });
     return toReceivable(doc);
   }
@@ -53,8 +56,9 @@ export class MongoReceivableRepository implements IReceivableRepository {
     data: Partial<Pick<IReceivableInput, 'counterparty' | 'note' | 'dueDate'>>,
   ): Promise<IReceivable | null> {
     const upd: any = {};
-    if (data.counterparty !== undefined) upd.counterparty = data.counterparty;
-    if (data.note         !== undefined) upd.note         = data.note ?? '';
+    const encrypted = transformUserData(userId, data, true);
+    if (data.counterparty !== undefined) upd.counterparty = encrypted.counterparty;
+    if (data.note         !== undefined) upd.note         = encrypted.note ?? '';
     if (data.dueDate      !== undefined) upd.dueDate      = data.dueDate ? new Date(data.dueDate) : null;
     const doc = await Receivable.findOneAndUpdate({ _id: id, user: userId }, upd, { new: true });
     return doc ? toReceivable(doc) : null;

@@ -19,14 +19,14 @@ export interface IReceivableDoc extends Document {
 const receivableSchema = new Schema<IReceivableDoc>(
   {
     user:           { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    counterparty:   { type: String, required: true, trim: true, maxlength: 100 },
+    counterparty:   { type: String, required: true, trim: true },
     principal:      { type: Number, required: true, min: 0.01 },
     receivedAmount: { type: Number, required: true, default: 0, min: 0 },
     kind:           { type: String, enum: ['lent_cash', 'unpaid_income'], required: true },
     categoryId:     { type: Schema.Types.ObjectId, ref: 'Category', default: null },
     accountId:      { type: Schema.Types.ObjectId, ref: 'Account', default: null },
     dueDate:        { type: Date, default: null },
-    note:           { type: String, trim: true, maxlength: 300 },
+    note:           { type: String, trim: true },
     status:         { type: String, enum: ['open', 'settled', 'cancelled'], required: true, default: 'open' },
   },
   { timestamps: true },

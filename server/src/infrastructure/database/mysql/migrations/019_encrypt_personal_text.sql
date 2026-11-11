@@ -1,0 +1,38 @@
+ALTER TABLE users
+  MODIFY COLUMN name TEXT NOT NULL,
+  MODIFY COLUMN avatar TEXT NULL;
+
+ALTER TABLE categories
+  DROP INDEX uq_user_category,
+  MODIFY COLUMN name TEXT NOT NULL,
+  ADD COLUMN name_lookup_hash CHAR(64) NULL AFTER name,
+  ADD UNIQUE KEY uq_user_category_hash (user_id, name_lookup_hash, type);
+
+ALTER TABLE accounts
+  MODIFY COLUMN name TEXT NOT NULL,
+  MODIFY COLUMN account_number TEXT NULL,
+  MODIFY COLUMN bank_name TEXT NULL;
+
+ALTER TABLE entries
+  MODIFY COLUMN note TEXT NOT NULL,
+  MODIFY COLUMN sector TEXT NOT NULL;
+
+ALTER TABLE budgets
+  MODIFY COLUMN template_name TEXT NULL,
+  MODIFY COLUMN notes TEXT NULL;
+
+ALTER TABLE budget_lines
+  MODIFY COLUMN name TEXT NOT NULL,
+  MODIFY COLUMN note TEXT NULL;
+
+ALTER TABLE budget_sub_items
+  MODIFY COLUMN name TEXT NOT NULL,
+  MODIFY COLUMN note TEXT NULL;
+
+ALTER TABLE payables
+  MODIFY COLUMN counterparty TEXT NOT NULL,
+  MODIFY COLUMN note TEXT NULL;
+
+ALTER TABLE receivables
+  MODIFY COLUMN counterparty TEXT NOT NULL,
+  MODIFY COLUMN note TEXT NULL;

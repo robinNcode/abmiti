@@ -3,6 +3,7 @@ import { AppError, NotFoundError, BadRequestError } from '../../shared/utils/err
 import { IPayable, IPayableInput, IPayablePaymentInput, INetPosition } from '../../shared/types';
 import { env } from '../../config/env';
 import { Types } from 'mongoose';
+import { transformUserData } from '../../shared/utils/userDataEncryption';
 
 /** Name of the lazily-created system category used for payable settlement expenses. */
 const SETTLEMENT_CATEGORY_NAME = 'Payable Settlement';
@@ -57,8 +58,9 @@ export const payableService = {
     let payments: unknown[] = [];
     if (isMongo) {
       const { Entry } = await import('../entry/entry.model');
-      payments = await Entry.find({ user: new Types.ObjectId(userId), payable: new Types.ObjectId(id) })
+      const rows = await Entry.find({ user: new Types.ObjectId(userId), payable: new Types.ObjectId(id) })
         .sort({ date: -1 }).lean();
+      payments = rows.map((row) => transformUserData(userId, row, false));
     } else {
       const { getMySQLPool } = await import('../../infrastructure/database/mysql/connection');
       const pool = getMySQLPool();
@@ -66,7 +68,7 @@ export const payableService = {
         'SELECT * FROM entries WHERE user_id = ? AND payable_id = ? ORDER BY date DESC',
         [userId, id],
       );
-      payments = rows as unknown[];
+      payments = (rows as Record<string, unknown>[]).map((row) => transformUserData(userId, row, false));
     }
     return { ...payable, payments };
   },

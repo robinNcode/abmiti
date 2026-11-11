@@ -171,7 +171,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
     final loc = context.appLocale;
     final user = widget.auth.currentUser;
     final name = user?['name']?.toString() ?? loc.tr('default_user_name');
-    final email = user?['email']?.toString() ?? '';
+    // final email = user?['email']?.toString() ?? '';
 
     final pages = [
       OverviewTab(
@@ -334,7 +334,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
             // Drawer Profile Header
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
               decoration: const BoxDecoration(
                 gradient: AppColors.heroGradient,
               ),
@@ -459,44 +459,45 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
                     ),
                   ),
                   // In-Drawer Language Switcher
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      leading: const Icon(Icons.translate_rounded,
-                          color: AppColors.terra, size: 22),
-                      title: Text(
-                        loc.isBengali ? 'English-এ দেখুন' : 'বাংলায় দেখুন',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.terra.withAlpha(25),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          loc.isBengali ? 'EN' : 'বাং',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 11,
-                            color: AppColors.terra,
-                          ),
-                        ),
-                      ),
-                      onTap: () {
-                        loc.toggleLanguage();
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
+                  // Padding(
+                  //   padding:
+                  //       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  //   child: ListTile(
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(14),
+                  //     ),
+                  //     leading: const Icon(Icons.translate_rounded,
+                  //         color: AppColors.terra, size: 22),
+                  //     title: Text(
+                  //       loc.isBengali ? 'English-এ দেখুন' : 'বাংলায় দেখুন',
+                  //       style: const TextStyle(
+                  //         fontWeight: FontWeight.w700,
+                  //         fontSize: 14,
+                  //       ),
+                  //     ),
+                  //     trailing: Container(
+                  //       padding: const EdgeInsets.symmetric(
+                  //           horizontal: 8, vertical: 4),
+                  //       decoration: BoxDecoration(
+                  //         color: AppColors.terra.withAlpha(25),
+                  //         borderRadius: BorderRadius.circular(8),
+                  //       ),
+                  //       child: Text(
+                  //         loc.isBengali ? 'EN' : 'বাং',
+                  //         style: const TextStyle(
+                  //           fontWeight: FontWeight.w800,
+                  //           fontSize: 11,
+                  //           color: AppColors.terra,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     onTap: () {
+                  //       loc.toggleLanguage();
+                  //       Navigator.pop(context);
+                  //     },
+                  //   ),
+                  // ),
+                
                 ],
               ),
             ),

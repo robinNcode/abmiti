@@ -56,6 +56,12 @@ function getDbProvider(): DbProvider {
 }
 
 const DB_PROVIDER = getDbProvider();
+const DATA_ENCRYPTION_KEY = required('DATA_ENCRYPTION_KEY');
+
+if (Buffer.from(DATA_ENCRYPTION_KEY, 'base64').toString('base64') !== DATA_ENCRYPTION_KEY ||
+    Buffer.from(DATA_ENCRYPTION_KEY, 'base64').length !== 32) {
+  throw new Error('DATA_ENCRYPTION_KEY must be a base64-encoded 32-byte key');
+}
 
 export const env = {
   NODE_ENV: optional('NODE_ENV', 'development') as NodeEnv,
@@ -99,6 +105,7 @@ export const env = {
   JWT_EXPIRES_IN: optional('JWT_EXPIRES_IN', '7d'),
   JWT_REFRESH_SECRET: required('JWT_REFRESH_SECRET'),
   JWT_REFRESH_EXPIRES_IN: optional('JWT_REFRESH_EXPIRES_IN', '30d'),
+  DATA_ENCRYPTION_KEY,
 
   // CORS — comma-separated list of allowed origins (no trailing slashes, no paths)
   // Keep backward compatibility with the older CLIENT_URL naming used in older deployments.
@@ -114,7 +121,6 @@ export const env = {
     .filter(Boolean),
 
   // Rate Limiting
-  RATE_LIMIT_WINDOW_MS: Number(optional('RATE_LIMIT_WINDOW_MS', '900000')),
   RATE_LIMIT_MAX: Number(optional('RATE_LIMIT_MAX', '100')),
 
   // Google OAuth 2.0

@@ -4,6 +4,7 @@ import {
   ISummaryRepository, IMonthlySummaryRow, ICategoryBreakdownRow,
   IMonthlyTrendRow, IAccountSummaryRow, ICategoryReportRow,
 } from '../../../shared/types/repositories';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 export class MongoSummaryRepository implements ISummaryRepository {
   async getMonthlySummary(userId: string, start: Date, end: Date): Promise<IMonthlySummaryRow[]> {
@@ -20,7 +21,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
   }
 
   async getCategoryBreakdown(userId: string, start: Date, end: Date): Promise<ICategoryBreakdownRow[]> {
-    return Entry.aggregate([
+    const rows = await Entry.aggregate([
       {
         $match: {
           user: new Types.ObjectId(userId),
@@ -33,6 +34,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
       { $unwind: '$category' },
       { $sort: { total: -1 } },
     ]);
+    return rows.map((row) => transformUserData(userId, row, false) as ICategoryBreakdownRow);
   }
 
   async getYearlyTrend(userId: string, start: Date, end: Date): Promise<IMonthlyTrendRow[]> {
@@ -53,13 +55,14 @@ export class MongoSummaryRepository implements ISummaryRepository {
       match.date = { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31, 23, 59, 59) };
     }
 
-    return Entry.aggregate([
+    const rows = await Entry.aggregate([
       { $match: match },
       { $group: { _id: '$account', totalSavings: { $sum: '$amount' }, count: { $sum: 1 } } },
       { $lookup: { from: 'accounts', localField: '_id', foreignField: '_id', as: 'account' } },
       { $unwind: '$account' },
       { $sort: { totalSavings: -1 } },
     ]);
+    return rows.map((row) => transformUserData(userId, row, false) as IAccountSummaryRow);
   }
 
   async getCategoryReport(
@@ -92,7 +95,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
       if (filters.maxAmount !== undefined) match.amount.$lte = filters.maxAmount;
     }
 
-    return Entry.aggregate([
+    const rows = await Entry.aggregate([
       { $match: match },
       {
         $group: {
@@ -107,6 +110,7 @@ export class MongoSummaryRepository implements ISummaryRepository {
       { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
       { $sort: { total: -1 } },
     ]);
+    return rows.map((row) => transformUserData(userId, row, false) as ICategoryReportRow);
   }
 
   async getTransactionStatement(
@@ -161,7 +165,8 @@ export class MongoSummaryRepository implements ISummaryRepository {
 
     // Calculate running balance
     let balance = 0;
-    return transactions.map((t) => {
+    return transactions.map((source) => {
+      const t = transformUserData(userId, source, false);
       // Income adds, expenses/investments subtract
       if (t.type === 'income' || t.type === 'receivable') {
         balance += t.amount;

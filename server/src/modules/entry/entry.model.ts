@@ -6,13 +6,13 @@ const entrySchema = new Schema<IEntry>(
     user:          { type: Schema.Types.ObjectId, ref: 'User',     required: true, index: true },
     type:          { type: String, enum: ['income', 'expense', 'investment', 'savings', 'payable', 'receivable'], required: true },
     amount:        { type: Number, required: true, min: 0 },
-    note:          { type: String, trim: true, maxlength: 300, default: '' },
+    note:          { type: String, trim: true, default: '' },
     category:      { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     source:        { type: String, enum: ['bank','bkash','nagad','cash','card','other'], default: 'cash' },
     account:       { type: Schema.Types.ObjectId, ref: 'Account' }, // For savings entries
     payable:       { type: Schema.Types.ObjectId, ref: 'Payable' }, // Phase 1 payable link
     receivable:    { type: Schema.Types.ObjectId, ref: 'Receivable' }, // Receivable link
-    sector:        { type: String, trim: true, maxlength: 120, default: '' },
+    sector:        { type: String, trim: true, default: '' },
     date:          { type: Date, required: true, default: Date.now },
     parsedFromSms: { type: Boolean, default: false },
     rawSms:        { type: String, select: false },

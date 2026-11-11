@@ -37,6 +37,7 @@ export interface ICategory extends Document {
   _id: Types.ObjectId;
   user: Types.ObjectId;
   name: string;
+  nameLookupHash?: string;
   icon: string;
   color: string;
   type: EntryType;
@@ -333,4 +334,3 @@ export interface IReceivableCollectInput {
   source?: string;
   note?: string;
 }
-

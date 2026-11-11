@@ -219,13 +219,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 40),
           children: [
             // ── Month Selector ───────────────────────────────────────
-            Center(
-              child: MonthYearPicker(
-                selectedDate: _selectedDate,
-                onChanged: _onDateChanged,
-              ),
-            ),
-            const SizedBox(height: 8),
+            // Center(
+            //   child: MonthYearPicker(
+            //     selectedDate: _selectedDate,
+            //     onChanged: _onDateChanged,
+            //   ),
+            // ),
+            // const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: _pickReportRange,
               icon: const Icon(Icons.date_range_rounded),

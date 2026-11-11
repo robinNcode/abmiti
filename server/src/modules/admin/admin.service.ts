@@ -3,6 +3,7 @@ import { env } from '../../config/env';
 import { getMySQLPool } from '../../infrastructure/database/mysql/connection';
 import { ContactMessage, BlogPost, SiteConfig, Notification, Payment, Subscription } from './admin.model';
 import { BadRequestError, ForbiddenError } from '../../shared/utils/errors';
+import { transformUserData } from '../../shared/utils/userDataEncryption';
 
 type RecordData = Record<string, any>;
 const dbNames: Record<string, string> = { targetUserId: 'target_user_id', readBy: 'read_by', clearedBy: 'cleared_by', userId: 'user_id', transactionId: 'transaction_id', gatewayData: 'gateway_data', valId: 'gateway_data', thumbnailUrl: 'thumbnail_url' };
@@ -550,10 +551,15 @@ export const adminService = {
     if (env.DB_PROVIDER === 'mongodb') {
       const mongoose = (await import('mongoose')).default;
       const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
-      return User.find({}, { password: 0 }).sort({ createdAt: -1 });
+      const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 });
+      return users.map((user: any) =>
+        transformUserData(String(user._id), user.toObject(), false),
+      );
     }
     const [rows] = await getMySQLPool().query('SELECT id, name, email, budget, avatar, user_type, created_at, updated_at FROM users ORDER BY created_at DESC');
-    return rows;
+    return (rows as Record<string, unknown>[]).map((row) =>
+      transformUserData(String(row.id), row, false),
+    );
   },
 
   // ── Public: Landing page stats (no auth) ────────────────────

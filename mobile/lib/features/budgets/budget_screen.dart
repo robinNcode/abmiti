@@ -1041,6 +1041,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                             ? AppColors.darkBorder
                                             : const Color(0xFFDCECE2),
                                       ),
+                                      const SizedBox(width: 12),
                                       Expanded(
                                         child: _BudgetMetricItem(
                                           label: loc.tr('remaining'),

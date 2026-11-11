@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { getMySQLPool } from '../../database/mysql/connection';
 import { IUser, IQuickExpenseItem } from '../../../shared/types';
 import { IUserRepository } from '../../../shared/types/repositories';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 type UserRow = {
   id: string; name: string; email: string; password: string;
@@ -23,7 +24,9 @@ const parseQuickExpenses = (value: UserRow['quick_expenses']): IQuickExpenseItem
   }
 };
 
-const toIUser = (row: UserRow): IUser => ({
+const toIUser = (source: UserRow): IUser => {
+  const row = transformUserData(source.id, source, false);
+  return ({
   _id:       row.id  as any,
   name:      row.name,
   email:     row.email,
@@ -32,12 +35,13 @@ const toIUser = (row: UserRow): IUser => ({
   avatar:    row.avatar,
   google_id: row.google_id,
   userType: row.user_type ?? 'user',
-  quickExpenses: parseQuickExpenses(row.quick_expenses),
+  quickExpenses: transformUserData(source.id, parseQuickExpenses(source.quick_expenses), false),
   createdAt: row.created_at,
   updatedAt: row.updated_at,
   comparePassword: async (candidate: string) =>
     row.password ? bcrypt.compare(candidate, row.password) : false,
-} as unknown as IUser);
+  } as unknown as IUser);
+};
 
 export class MySQLUserRepository implements IUserRepository {
   private get pool() { return getMySQLPool(); }
@@ -64,9 +68,10 @@ export class MySQLUserRepository implements IUserRepository {
   async create(data: { name: string; email: string; password: string }): Promise<IUser> {
     const id   = uuid();
     const hash = await bcrypt.hash(data.password, 12);
+    const encrypted = transformUserData(id, data, true);
     await this.pool.execute(
       'INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)',
-      [id, data.name, data.email, hash],
+      [id, encrypted.name, data.email, hash],
     );
     return (await this.findById(id))!;
   }
@@ -79,14 +84,15 @@ export class MySQLUserRepository implements IUserRepository {
   async updateProfile(id: string, data: { name?: string; avatar?: string }): Promise<IUser | null> {
     const updates: string[] = [];
     const params: any[] = [];
+    const encrypted = transformUserData(id, data, true);
 
     if (data.name !== undefined) {
       updates.push('name = ?');
-      params.push(data.name);
+      params.push(encrypted.name);
     }
     if (data.avatar !== undefined) {
       updates.push('avatar = ?');
-      params.push(data.avatar);
+      params.push(encrypted.avatar);
     }
 
     if (updates.length === 0) return this.findById(id);
@@ -100,9 +106,10 @@ export class MySQLUserRepository implements IUserRepository {
   }
 
   async updateQuickExpenses(id: string, items: IQuickExpenseItem[]): Promise<IUser | null> {
+    const encrypted = transformUserData(id, items, true);
     await this.pool.execute(
       'UPDATE users SET quick_expenses = ? WHERE id = ?',
-      [JSON.stringify(items), id],
+      [JSON.stringify(encrypted), id],
     );
     return this.findById(id);
   }
@@ -117,9 +124,10 @@ export class MySQLUserRepository implements IUserRepository {
 
   async createFromGoogle(data: { name: string; email: string; googleId: string; avatar?: string }): Promise<IUser> {
     const id = uuid();
+    const encrypted = transformUserData(id, data, true);
     await this.pool.execute(
       'INSERT INTO users (id, name, email, password, google_id, avatar) VALUES (?, ?, ?, NULL, ?, ?)',
-      [id, data.name, data.email, data.googleId, data.avatar ?? null],
+      [id, encrypted.name, data.email, data.googleId, encrypted.avatar ?? null],
     );
     return (await this.findById(id))!;
   }

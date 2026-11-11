@@ -5,6 +5,7 @@ import {
 } from '../../../shared/types';
 import { IEntryRepository } from '../../../shared/types/repositories';
 import { buildPaginatedResult } from '../../../shared/utils/pagination';
+import { transformUserData } from '../../../shared/utils/userDataEncryption';
 
 type EntryRow = {
   id: string; user_id: string; type: string; amount: number | string; note: string;
@@ -18,7 +19,9 @@ type EntryRow = {
   acc_bank?: string;  acc_provider?: string; acc_balance?: number | string;
 };
 
-const toIEntry = (row: EntryRow): IEntry => ({
+const toIEntry = (source: EntryRow, userId: string): IEntry => {
+  const row = transformUserData(userId, source, false);
+  return ({
   _id:           row.id as any,
   user:          row.user_id as any,
   type:          row.type as EntryType,
@@ -43,7 +46,8 @@ const toIEntry = (row: EntryRow): IEntry => ({
   rawSms:        row.raw_sms ?? undefined,
   createdAt:     row.created_at,
   updatedAt:     row.updated_at,
-} as unknown as IEntry);
+  } as unknown as IEntry);
+};
 
 const JOIN = `
   LEFT JOIN categories c ON e.category_id = c.id
@@ -96,7 +100,7 @@ export class MySQLEntryRepository implements IEntryRepository {
     );
 
     const total = Number(count[0].total);
-    return buildPaginatedResult(rows.map(toIEntry), total, pagination);
+    return buildPaginatedResult(rows.map((row) => toIEntry(row, userId)), total, pagination);
   }
 
   async findById(id: string, userId: string): Promise<IEntry | null> {
@@ -104,12 +108,13 @@ export class MySQLEntryRepository implements IEntryRepository {
       `SELECT ${SELECT} FROM entries e ${JOIN} WHERE e.id = ? AND e.user_id = ? LIMIT 1`,
       [id, userId],
     );
-    return rows[0] ? toIEntry(rows[0]) : null;
+    return rows[0] ? toIEntry(rows[0], userId) : null;
   }
 
   async create(data: Partial<IEntry>): Promise<IEntry> {
     const id = uuid();
     const d  = data as any;
+    const encrypted = transformUserData(String(d.user), d, true);
     const dateStr = d.date
       ? new Date(d.date).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0];
@@ -123,14 +128,14 @@ export class MySQLEntryRepository implements IEntryRepository {
         String(d.user),
         d.type,
         d.amount,
-        d.note ?? '',
+        encrypted.note ?? '',
         String(d.category),
         d.source ?? 'cash',
         d.account ? String(d.account) : null,
-        d.sector ?? '',
+        encrypted.sector ?? '',
         dateStr,
         d.parsedFromSms ? 1 : 0,
-        d.rawSms ?? null,
+        encrypted.rawSms ?? null,
         d.payable ? String(d.payable) : null,
         d.receivable ? String(d.receivable) : null,
       ],
@@ -139,7 +144,7 @@ export class MySQLEntryRepository implements IEntryRepository {
   }
 
   async update(id: string, userId: string, data: Partial<IEntry>): Promise<IEntry | null> {
-    const d      = data as any;
+    const d      = transformUserData(userId, data, true) as any;
     const fields: string[] = [];
     const vals:   any[] = [];
 

@@ -496,6 +496,7 @@ class _OverviewTabState extends State<OverviewTab> {
                                         ? AppColors.darkBorder
                                         : AppColors.paperMist,
                                   ),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: _FinancialMetricItem(
                                       label: loc.tr('expenses'),
@@ -532,7 +533,7 @@ class _OverviewTabState extends State<OverviewTab> {
                 child: StatChip(
                   label: loc.tr('savings'),
                   amount: _formatCurrency(savings),
-                  icon: Icons.savings_outlined,
+                  icon: Icons.payments_outlined,
                   color: AppColors.sage,
                   backgroundColor: AppColors.pastelIce.withAlpha(140),
                 ),
